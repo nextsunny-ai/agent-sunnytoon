@@ -48,6 +48,11 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
 .admin-link { font-family: var(--font-mono); font-size: 11px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent-deep); display: none; }
 .admin-link.show { display: inline-block; }
 .admin-link:hover { background: var(--accent); color: #fff; }
+.plan-badge { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; padding: 4px 10px; border-radius: 999px; text-transform: uppercase; }
+.plan-badge.free { background: #EEEAE0; color: #5C5C66; }
+.plan-badge.pro { background: var(--accent); color: #fff; }
+.plan-badge.studio { background: #6B4FBB; color: #fff; }
+.plan-badge.lifetime { background: linear-gradient(135deg, #C9A35D, #8B6914); color: #fff; }
 .key-btn { font-size: 11px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-family: var(--font-mono); color: var(--sub); transition: all .15s var(--ease); }
 .key-btn:hover { border-color: var(--accent); color: var(--accent); }
 .key-btn.has-key { color: var(--accent); border-color: var(--accent-soft); background: var(--accent-soft); }
@@ -217,6 +222,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
     <div class="top-right">
       <button class="company-switch" id="companySwitch" onclick="openPicker()" style="display:none">회사 전환</button>
       <a class="admin-link" id="adminLink" href="./admin.html">⚙ ADMIN</a>
+      <span class="plan-badge free" id="planBadge" style="display:none">FREE</span>
       <button class="key-btn" id="keyBtn" onclick="openKeyModal()">🔑 <span id="keyLabel">키 설정</span></button>
       <div class="user-menu">
         <div class="user-trigger" onclick="toggleUserMenu(event)">
@@ -303,13 +309,24 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ============================================================
 // State
 // ============================================================
-let SESSION = null;            // Supabase 세션
-let USER = null;               // 사용자 정보
-let IS_ADMIN = false;          // 대표님 여부
-let MY_COMPANIES = [];         // 본인 소속 회사 목록 [{...company, role}]
-let COMPANY = null;            // 현재 선택된 회사
-let PERSONAS_MAP = {};         // 페르소나 dict (DB fetch)
-let COMPANY_PERSONA_IDS = [];  // 현재 회사의 페르소나 id 목록
+let SESSION = null;
+let USER = null;
+let IS_ADMIN = false;
+let MY_COMPANIES = [];
+let COMPANY = null;
+let PERSONAS_MAP = {};
+let COMPANY_PERSONA_IDS = [];
+let SUBSCRIPTION = { plan: 'free' };  // ★ 본인 구독 plan (= 미래 결제용)
+
+// ★ 유료 게이트 헬퍼 (= 미래 결제 도입 시 즉시 활성화)
+function isPro() { return ['pro', 'studio', 'lifetime'].includes(SUBSCRIPTION.plan); }
+function isStudio() { return ['studio', 'lifetime'].includes(SUBSCRIPTION.plan); }
+function isLifetime() { return SUBSCRIPTION.plan === 'lifetime'; }
+function requirePlan(needed) {
+  // 사용 예: if (!requirePlan('pro')) { alert('PRO 구독 필요'); return; }
+  const ranks = { free: 0, pro: 1, studio: 2, lifetime: 3 };
+  return (ranks[SUBSCRIPTION.plan] || 0) >= (ranks[needed] || 0);
+}
 
 // ============================================================
 // BYOK (쿠키 공유)
@@ -429,7 +446,17 @@ async function boot() {
   const { data: cps } = await sb.from('agent_company_personas').select('persona_id, sort_order').eq('company_id', COMPANY.id).order('sort_order');
   COMPANY_PERSONA_IDS = (cps || []).map(x => x.persona_id);
 
-  // 6. UI 권한 표시
+  // 6. 본인 구독 plan fetch
+  const { data: sub } = await sb.from('agent_subscriptions').select('plan, expires_at').eq('user_id', USER.id).maybeSingle();
+  if (sub) SUBSCRIPTION = sub;
+  const badge = document.getElementById('planBadge');
+  if (badge) {
+    badge.textContent = SUBSCRIPTION.plan.toUpperCase();
+    badge.className = 'plan-badge ' + SUBSCRIPTION.plan;
+    badge.style.display = 'inline-block';
+  }
+
+  // 7. UI 권한 표시
   if (IS_ADMIN) document.getElementById('adminLink').classList.add('show');
   if (MY_COMPANIES.length > 1) document.getElementById('companySwitch').style.display = 'inline-block';
   document.getElementById('userEmail').textContent = USER.email;

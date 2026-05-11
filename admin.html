@@ -153,6 +153,7 @@ input, select, textarea { font: inherit; color: inherit; }
     <button class="tab active" onclick="setTab('companies')">회사</button>
     <button class="tab" onclick="setTab('personas')">페르소나</button>
     <button class="tab" onclick="setTab('users')">사용자</button>
+    <button class="tab" onclick="setTab('subscriptions')">구독</button>
   </div>
 
   <!-- ============================================================ COMPANIES ============================================================ -->
@@ -218,6 +219,27 @@ input, select, textarea { font: inherit; color: inherit; }
     <div class="card">
       <h3>가입된 사용자 + 권한</h3>
       <div id="usersList" class="loading">로드 중...</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ SUBSCRIPTIONS ============================================================ -->
+  <div class="panel" id="panel-subscriptions">
+    <div class="card">
+      <h3>구독 plan 관리</h3>
+      <p class="desc">사용자별 plan = 수동 변경 (= 결제 통합 전 임시). 미래 = Stripe·토스 결제 = 자동 변경.</p>
+      <div id="subsList" class="loading">로드 중...</div>
+    </div>
+    <div class="card">
+      <h3>Plan 안내</h3>
+      <table class="table">
+        <thead><tr><th>Plan</th><th>설명</th><th>가격 (미래)</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge member">FREE</span></td><td>본인 API 키 BYOK · 모든 페르소나 사용 가능</td><td>$0</td></tr>
+          <tr><td><span class="badge" style="background:#1F4D3F;color:#fff">PRO</span></td><td>+ 고급 기능 (미래)</td><td>$? (미정)</td></tr>
+          <tr><td><span class="badge" style="background:#6B4FBB;color:#fff">STUDIO</span></td><td>+ 회사 풀세트 (미래)</td><td>$? (미정)</td></tr>
+          <tr><td><span class="badge" style="background:linear-gradient(135deg,#C9A35D,#8B6914);color:#fff">LIFETIME</span></td><td>평생 · 미래 모든 기능</td><td>$? (미정)</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -300,6 +322,43 @@ async function loadAll() {
   renderPersonas();
   renderInviteSelect();
   await renderUsers();
+  await renderSubs();
+}
+
+async function renderSubs() {
+  const el = document.getElementById('subsList'); if (!el) return;
+  const { data: subs, error } = await sb.from('agent_subscriptions').select('user_id, plan, expires_at, created_at, updated_at').order('updated_at', { ascending: false });
+  if (error) { el.innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>'; return; }
+  if (!subs || subs.length === 0) { el.innerHTML = '<div class="empty">구독 row가 없습니다.</div>'; return; }
+  el.innerHTML = `
+    <table class="table">
+      <thead><tr><th>USER ID</th><th>현재 PLAN</th><th>변경</th><th>갱신</th></tr></thead>
+      <tbody>
+        ${subs.map(s => `
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:10px;color:var(--mute)">${s.user_id.slice(0,8)}...${s.user_id.slice(-4)}</code>${s.user_id === USER.id ? ' <span style="font-size:10px;color:var(--accent);font-weight:600">(나)</span>' : ''}</td>
+            <td><span class="badge" style="background:${s.plan==='free'?'#EEEAE0':s.plan==='pro'?'#1F4D3F':s.plan==='studio'?'#6B4FBB':'linear-gradient(135deg,#C9A35D,#8B6914)'};color:${s.plan==='free'?'#5C5C66':'#fff'}">${s.plan.toUpperCase()}</span></td>
+            <td>
+              <select onchange="updateSub('${s.user_id}', this.value)" style="padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:var(--mono)">
+                <option value="free" ${s.plan==='free'?'selected':''}>FREE</option>
+                <option value="pro" ${s.plan==='pro'?'selected':''}>PRO</option>
+                <option value="studio" ${s.plan==='studio'?'selected':''}>STUDIO</option>
+                <option value="lifetime" ${s.plan==='lifetime'?'selected':''}>LIFETIME</option>
+              </select>
+            </td>
+            <td class="meta">${new Date(s.updated_at).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function updateSub(userId, newPlan) {
+  const { error } = await sb.from('agent_subscriptions').update({ plan: newPlan }).eq('user_id', userId);
+  if (error) { toast('변경 실패: ' + error.message, true); return; }
+  toast(`PLAN = ${newPlan.toUpperCase()} 변경 완료`);
+  await renderSubs();
 }
 
 // ============================================================
