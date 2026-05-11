@@ -231,12 +231,12 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
   <div>
     <span class="eyebrow" id="hero-eyebrow">Welcome back</span>
     <h1>Welcome back,<br><span class="name" id="hero-name">···</span><span class="period">.</span></h1>
-    <p id="hero-desc">Your dedicated agency. 전담 스튜디오가 통째로 당신의 프로젝트만 돌봅니다.</p>
+    <p id="hero-desc">Your dedicated agency. 전담 에이전트가 통째로 당신의 프로젝트만 돌봅니다.</p>
   </div>
   <aside class="hero-meta">
     <dl>
       <dt>CLIENT</dt><dd id="meta-client">CLIENT</dd>
-      <dt>TEAM</dt><dd id="meta-team">— Studios · On-call</dd>
+      <dt>TEAM</dt><dd id="meta-team">— Agents · On-call</dd>
       <dt>STATUS</dt><dd>Online · Ready</dd>
       <dt>VERSION</dt><dd>Agent Pro 1.0</dd>
     </dl>
@@ -245,8 +245,8 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 
 <main class="section">
   <div class="section-head">
-    <h2 id="section-title">Your studios</h2>
-    <span class="meta" id="section-meta">— OUTSOURCED · DEDICATED</span>
+    <h2 id="section-title">Your agents</h2>
+    <span class="meta" id="section-meta">— DEDICATED · ON-CALL</span>
   </div>
   <div class="bento" id="bento"></div>
 </main>
@@ -451,10 +451,10 @@ function applyCompany() {
   document.getElementById('hero-name').textContent = COMPANY.name_ko;
   document.getElementById('hero-desc').textContent = COMPANY.tagline;
   document.getElementById('meta-client').textContent = COMPANY.name_en;
-  document.getElementById('meta-team').textContent = `${COMPANY_PERSONA_IDS.length} Studios · On-call`;
+  document.getElementById('meta-team').textContent = `${COMPANY_PERSONA_IDS.length} Agents · On-call`;
   document.getElementById('foot-client').textContent = COMPANY.name_en;
   document.getElementById('foot-id').textContent = `GROUP/${COMPANY.name_en.replace(/\s/g,'')}`;
-  document.getElementById('section-meta').textContent = `${COMPANY_PERSONA_IDS.length} OUTSOURCED · DEDICATED`;
+  document.getElementById('section-meta').textContent = `${COMPANY_PERSONA_IDS.length} DEDICATED · ON-CALL`;
   document.title = `Agent Pro 1.0 — ${COMPANY.name_en}`;
 }
 
