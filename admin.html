@@ -152,6 +152,7 @@ input, select, textarea { font: inherit; color: inherit; }
   <div class="tabs">
     <button class="tab active" onclick="setTab('companies')">회사</button>
     <button class="tab" onclick="setTab('personas')">페르소나</button>
+    <button class="tab" onclick="setTab('projects')">프로젝트</button>
     <button class="tab" onclick="setTab('users')">사용자</button>
     <button class="tab" onclick="setTab('subscriptions')">구독</button>
   </div>
@@ -193,6 +194,40 @@ input, select, textarea { font: inherit; color: inherit; }
       <h3>페르소나 마스터 (12명)</h3>
       <p class="desc">SKILL·시스템 프롬프트 갱신 = 사용자 다음 접속 시 = 자동 반영. 일렬 편집 = 클릭 → 수정 → 저장.</p>
       <div id="personasList" class="loading">로드 중...</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ PROJECTS ============================================================ -->
+  <div class="panel" id="panel-projects">
+    <div class="card">
+      <h3>새 프로젝트 추가</h3>
+      <p class="desc">회사별 = 진행 중·완료 프로젝트. Hero 아래 카드로 표시.</p>
+      <div class="form-row"><label>회사</label>
+        <select id="projCompany"></select>
+      </div>
+      <div class="form-row"><label>제목</label><input id="projTitle" placeholder="한탄강 XR 영상"></div>
+      <div class="form-row"><label>부제</label><input id="projSubtitle" placeholder="(옵션) 한 줄 설명"></div>
+      <div class="form-row"><label>상태</label>
+        <select id="projStatus">
+          <option value="active">진행 중</option>
+          <option value="completed">완료</option>
+          <option value="paused">일시정지</option>
+        </select>
+      </div>
+      <div class="form-row"><label>URL</label><input id="projUrl" placeholder="(옵션) 외부 링크 = 클릭 = 새 탭"></div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="createProject()">프로젝트 추가</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>프로젝트 목록</h3>
+      <div class="form-row" style="margin-bottom:16px"><label>회사 필터</label>
+        <select id="projFilter" onchange="renderProjects()">
+          <option value="">전체</option>
+        </select>
+      </div>
+      <div id="projectsList" class="loading">로드 중...</div>
     </div>
   </div>
 
@@ -356,14 +391,18 @@ async function boot() {
   document.getElementById('newAccentText').addEventListener('input', e => { if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) document.getElementById('newAccent').value = e.target.value; });
 }
 
+let ALL_PROJECTS = [];
+
 async function loadAll() {
-  const [personasRes, companiesRes, cpRes] = await Promise.all([
+  const [personasRes, companiesRes, cpRes, projsRes] = await Promise.all([
     sb.from('agent_personas').select('*').order('sort_order'),
     sb.from('agent_companies').select('*').order('created_at'),
-    sb.from('agent_company_personas').select('company_id, persona_id, sort_order').order('sort_order')
+    sb.from('agent_company_personas').select('company_id, persona_id, sort_order').order('sort_order'),
+    sb.from('agent_projects').select('*').order('sort_order').order('updated_at', { ascending: false })
   ]);
   ALL_PERSONAS = personasRes.data || [];
   ALL_COMPANIES = companiesRes.data || [];
+  ALL_PROJECTS = projsRes.data || [];
   COMPANY_PERSONAS_MAP = {};
   (cpRes.data || []).forEach(cp => {
     if (!COMPANY_PERSONAS_MAP[cp.company_id]) COMPANY_PERSONAS_MAP[cp.company_id] = [];
@@ -373,9 +412,92 @@ async function loadAll() {
   renderNewPersonaGrid();
   renderCompanies();
   renderPersonas();
+  renderProjCompanySelect();
+  renderProjects();
   renderInviteSelect();
   await renderUsers();
   await renderSubs();
+}
+
+function renderProjCompanySelect() {
+  const sel1 = document.getElementById('projCompany');
+  const sel2 = document.getElementById('projFilter');
+  const opts = ALL_COMPANIES.map(c => `<option value="${c.id}">${escapeHtml(c.name_en)} (${escapeHtml(c.name_ko)})</option>`).join('');
+  if (sel1) sel1.innerHTML = opts;
+  if (sel2) sel2.innerHTML = '<option value="">전체</option>' + opts;
+}
+
+function renderProjects() {
+  const el = document.getElementById('projectsList'); if (!el) return;
+  const filterCompany = document.getElementById('projFilter')?.value || '';
+  const list = filterCompany ? ALL_PROJECTS.filter(p => p.company_id === filterCompany) : ALL_PROJECTS;
+  if (list.length === 0) { el.innerHTML = '<div class="empty">프로젝트가 없습니다.</div>'; return; }
+  el.innerHTML = `
+    <table class="table">
+      <thead><tr><th>제목</th><th>회사</th><th>상태</th><th>URL</th><th>갱신</th><th></th></tr></thead>
+      <tbody>
+        ${list.map(p => {
+          const company = ALL_COMPANIES.find(c => c.id === p.company_id);
+          const statusLabel = p.status === 'active' ? '진행 중' : p.status === 'completed' ? '완료' : '일시정지';
+          const statusColor = p.status === 'active' ? 'var(--accent-soft);color:var(--accent-deep)' : p.status === 'completed' ? 'rgba(20,18,15,0.06);color:var(--sub)' : 'rgba(180,150,0,0.12);color:#8B6914';
+          return `
+            <tr>
+              <td><b>${escapeHtml(p.title)}</b>${p.subtitle ? `<br><span class="meta">${escapeHtml(p.subtitle)}</span>` : ''}</td>
+              <td>${company ? escapeHtml(company.name_en) : '-'}</td>
+              <td><span class="badge" style="background:${statusColor}">${statusLabel}</span></td>
+              <td>${p.url ? `<a href="${escapeHtml(p.url)}" target="_blank" style="color:var(--accent);font-family:var(--mono);font-size:11px">↗</a>` : '-'}</td>
+              <td class="meta">${new Date(p.updated_at).toLocaleDateString('ko-KR', { month:'short', day:'numeric' })}</td>
+              <td class="actions-cell">
+                <button class="btn" onclick="editProject('${p.id}')">수정</button>
+                <button class="btn danger" onclick="deleteProject('${p.id}', '${escapeHtml(p.title)}')">삭제</button>
+              </td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function createProject() {
+  const company_id = document.getElementById('projCompany').value;
+  const title = document.getElementById('projTitle').value.trim();
+  const subtitle = document.getElementById('projSubtitle').value.trim() || null;
+  const status = document.getElementById('projStatus').value;
+  const url = document.getElementById('projUrl').value.trim() || null;
+  if (!company_id || !title) { toast('회사·제목 필수', true); return; }
+  const { error } = await sb.from('agent_projects').insert({ company_id, title, subtitle, status, url });
+  if (error) { toast('추가 실패: ' + error.message, true); return; }
+  toast('프로젝트 추가 완료');
+  document.getElementById('projTitle').value = '';
+  document.getElementById('projSubtitle').value = '';
+  document.getElementById('projUrl').value = '';
+  await loadAll();
+}
+
+async function editProject(id) {
+  const p = ALL_PROJECTS.find(x => x.id === id); if (!p) return;
+  const newTitle = prompt('제목', p.title); if (newTitle === null) return;
+  const newSub = prompt('부제 (= 빈 값 OK)', p.subtitle || ''); if (newSub === null) return;
+  const newStatus = prompt('상태 (active / completed / paused)', p.status); if (newStatus === null) return;
+  const newUrl = prompt('URL (= 빈 값 OK)', p.url || ''); if (newUrl === null) return;
+  const { error } = await sb.from('agent_projects').update({
+    title: newTitle.trim(),
+    subtitle: newSub.trim() || null,
+    status: ['active','completed','paused'].includes(newStatus.trim()) ? newStatus.trim() : p.status,
+    url: newUrl.trim() || null
+  }).eq('id', id);
+  if (error) { toast('수정 실패: ' + error.message, true); return; }
+  toast('수정 완료');
+  await loadAll();
+}
+
+async function deleteProject(id, title) {
+  if (!confirm(`정말 "${title}" 삭제?`)) return;
+  const { error } = await sb.from('agent_projects').delete().eq('id', id);
+  if (error) { toast('삭제 실패: ' + error.message, true); return; }
+  toast('삭제 완료');
+  await loadAll();
 }
 
 async function renderSubs() {
