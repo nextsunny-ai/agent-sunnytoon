@@ -303,24 +303,70 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 
 <!-- Telegram Modal -->
 <div class="modal-bg" id="tgModal">
-  <div class="key-modal">
-    <h3>📱 텔레그램 알림 설정 (BYOK 방식)</h3>
-    <p class="sub">페르소나 응답 = 본인 텔레그램 봇으로 = 모바일 푸시 받기. 본인 봇·본인 chat_id = 본인이 운영 (= 우리 서버 무관).</p>
-    <p class="info" style="font-size:11px;line-height:1.55">
-      <strong>1단계 = 본인 봇 만들기:</strong><br>
-      ① <a href="https://t.me/BotFather" target="_blank">@BotFather</a> 시작 → <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px">/newbot</code> → 봇 이름·username → <strong>봇 토큰</strong> 받기 (= <code>123456:ABC...</code>)<br>
-      ② 본인 봇 시작 (= 봇 username 검색·시작) → "안녕" 메시지 1개 보내기<br>
-      ③ <a href="https://t.me/userinfobot" target="_blank">@userinfobot</a> 시작 → 본인 <strong>chat_id</strong> 확인 (= 숫자 9~10자리)<br>
-    </p>
-    <label for="tgToken">봇 토큰</label>
-    <input type="text" id="tgToken" placeholder="123456789:ABCDEF...">
-    <label for="tgChatId" style="margin-top:10px">chat_id</label>
+  <div class="key-modal" style="max-width:580px;max-height:90vh;overflow-y:auto">
+    <h3>📱 텔레그램 알림 설정</h3>
+    <p class="sub">페르소나 답변 = 본인 텔레그램으로 = 모바일 푸시 알림. 본인 봇·본인 chat_id = 본인 운영 (= 비용 0 · 우리 서버 무관 · 끄고 싶을 때 끔).</p>
+
+    <div style="background:#FFF8E8;border-left:3px solid #C9A35D;padding:12px 14px;border-radius:8px;margin-bottom:14px;font-size:12px;line-height:1.6;color:#5C4A1F">
+      <strong>왜 본인 봇?</strong><br>
+      • 모든 사용자가 한 봇 = 안 됨 (= 우리가 다른 사람 메시지 다 받음)<br>
+      • 본인 봇 = 본인만 사용 = 안전 + 본인 통제<br>
+      • 비용 0 (= 텔레그램 무료 · 봇 무료)<br>
+      • 1번만 만들면 = 영구 사용
+    </div>
+
+    <details style="margin-bottom:14px;background:var(--accent-soft);border-radius:8px;padding:12px 14px" open>
+      <summary style="font-weight:700;cursor:pointer;font-size:13px;color:var(--accent-deep)">📖 사용자 가이드 (= 처음 1번만)</summary>
+      <div style="margin-top:12px;font-size:12px;line-height:1.7;color:var(--text)">
+
+        <p style="font-weight:700;margin-bottom:6px;color:var(--accent-deep)">[1단계] 본인 봇 만들기 (= 1분)</p>
+        <ol style="margin-left:18px;margin-bottom:12px">
+          <li>텔레그램 = <a href="https://t.me/BotFather" target="_blank" style="color:var(--accent);font-weight:600">@BotFather</a> 클릭·시작</li>
+          <li>채팅창에 = <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px">/newbot</code> 입력</li>
+          <li>봇 이름 입력 = 예: <strong>"NEXTART AI 알리미"</strong> (= 자유 한국어 OK)</li>
+          <li>봇 username 입력 = 예: <strong>nextart_kim_bot</strong> (= 반드시 영문 + <code>_bot</code>으로 끝)</li>
+          <li>BotFather가 = <strong>봇 토큰</strong> 알려줌 = <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;font-size:10px">7654321:AAH-ABC...</code> 형식 = <strong>긴 문자열 전체 복사</strong></li>
+        </ol>
+
+        <p style="font-weight:700;margin-bottom:6px;color:var(--accent-deep)">[2단계] 본인 봇 시작</p>
+        <ol style="margin-left:18px;margin-bottom:12px">
+          <li>방금 만든 봇 username 텔레그램 검색 (= 예: <code>@nextart_kim_bot</code>)</li>
+          <li>봇 채팅 들어가서 = <strong>"시작"</strong> 누르거나 = "안녕" 메시지 1개 보내기</li>
+          <li>= 본인 봇 활성화 완료</li>
+        </ol>
+
+        <p style="font-weight:700;margin-bottom:6px;color:var(--accent-deep)">[3단계] 본인 chat_id 확인</p>
+        <ol style="margin-left:18px;margin-bottom:12px">
+          <li>텔레그램 = <a href="https://t.me/userinfobot" target="_blank" style="color:var(--accent);font-weight:600">@userinfobot</a> 클릭·시작</li>
+          <li>봇이 = 본인 ID 표시 = <strong>Id: 1234567890</strong> 형식</li>
+          <li>= 그 숫자 (= 9~10자리) 복사</li>
+        </ol>
+
+        <p style="font-weight:700;margin-bottom:6px;color:var(--accent-deep)">[4단계] 아래에 입력 + 테스트</p>
+        <ol style="margin-left:18px;margin-bottom:0">
+          <li>봇 토큰 = 위에서 복사한 거 붙여넣기</li>
+          <li>chat_id = 본인 ID 숫자 붙여넣기</li>
+          <li>☑ 활성화 체크 → <strong>"테스트 발송"</strong> 클릭</li>
+          <li>본인 봇 채팅 = "✅ 연결 성공" 메시지 확인되면 = <strong>"저장"</strong></li>
+          <li>= 끝. 이후 = 페르소나 답변 = 자동 푸시</li>
+        </ol>
+      </div>
+    </details>
+
+    <label for="tgToken">봇 토큰 (= BotFather에서 받은 거)</label>
+    <input type="text" id="tgToken" placeholder="7654321:AAH-ABC...">
+    <label for="tgChatId" style="margin-top:10px">chat_id (= @userinfobot에서 받은 숫자)</label>
     <input type="text" id="tgChatId" placeholder="1234567890">
     <div style="margin-top:14px">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text)">
         <input type="checkbox" id="tgEnabled">
-        <span>페르소나 응답 = 텔레그램으로도 받기</span>
+        <span>페르소나 답변 = 텔레그램으로도 받기 (= 활성화)</span>
       </label>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--mute);line-height:1.55">
+      • 저장 = 본인 브라우저 localStorage에만 저장 (= 우리 서버 X)<br>
+      • 알림 끄려면 = ☐ 체크 해제 또는 = 본인 봇 끄기<br>
+      • 다른 기기에서 사용 = 각 기기마다 한 번씩 설정 (= 보안)
     </div>
     <div class="actions">
       <button class="btn" onclick="testTelegram()">테스트 발송</button>
