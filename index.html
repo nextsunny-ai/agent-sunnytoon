@@ -389,8 +389,15 @@ function avatarUrl(pid) { return `avatars/${pid}.${AVATAR_EXT[pid] || 'png'}`; }
 // ============================================================
 // Boot — 인증 → 회사·페르소나 fetch → 렌더
 // ============================================================
+// ★ 자유 가입 모델 (= 스토리메이커 동일)
+// - 누구나 가입 = OK
+// - 회사 = URL ?c=xx 로 결정 (= 누구나 접근 가능)
+// - BYOK = 본인 API 키 = 진짜 통제 (= 키 없으면 호출 X)
+// - ADMIN = nextsunny@gmail.com 이메일만 (= 회사·페르소나 편집)
+const ADMIN_EMAIL = 'nextsunny@gmail.com';
+
 async function boot() {
-  // 1. 세션 확인
+  // 1. 세션 확인 (= 인증 필수)
   const { data: sess } = await sb.auth.getSession();
   if (!sess.session) {
     location.href = `/login.html?redirect=${encodeURIComponent(location.pathname + location.search)}`;
@@ -398,35 +405,21 @@ async function boot() {
   }
   SESSION = sess.session;
   USER = sess.session.user;
+  IS_ADMIN = (USER.email === ADMIN_EMAIL);
 
-  // 2. 본인 소속 회사 + admin 여부
-  const { data: memberships, error: mErr } = await sb
-    .from('agent_memberships')
-    .select('role, agent_companies(id, slug, name_en, name_ko, initial, accent, accent_deep, accent_soft, tagline, eyebrow, active)')
-    .eq('user_id', USER.id);
-  if (mErr) { console.error(mErr); showError('회사 정보 로드 실패: ' + mErr.message); return; }
-
-  IS_ADMIN = memberships.some(m => m.role === 'admin');
-
-  if (IS_ADMIN) {
-    // 대표님 = 모든 회사 fetch
-    const { data: allCompanies } = await sb.from('agent_companies').select('*').eq('active', true);
-    MY_COMPANIES = (allCompanies || []).map(c => ({ ...c, role: 'admin' }));
-    document.getElementById('adminLink').classList.add('show');
-  } else {
-    MY_COMPANIES = memberships
-      .filter(m => m.agent_companies && m.agent_companies.active)
-      .map(m => ({ ...m.agent_companies, role: m.role }));
-  }
+  // 2. 모든 활성 회사 fetch (= 자유 가입 = 누구나 접근)
+  const { data: allCompanies, error: cErr } = await sb.from('agent_companies').select('*').eq('active', true).order('created_at');
+  if (cErr) { showError('회사 정보 로드 실패: ' + cErr.message); return; }
+  MY_COMPANIES = allCompanies || [];
 
   if (MY_COMPANIES.length === 0) {
-    showError('소속 회사가 없습니다. 어드민에 문의해주세요.');
+    showError('회사가 없습니다. 어드민에 문의해주세요.');
     return;
   }
 
-  // 3. URL ?c=slug 또는 = 첫 회사 선택
+  // 3. URL ?c=slug 또는 = SUNNY 디폴트
   const slug = new URLSearchParams(location.search).get('c');
-  COMPANY = MY_COMPANIES.find(c => c.slug === slug) || MY_COMPANIES[0];
+  COMPANY = MY_COMPANIES.find(c => c.slug === slug) || MY_COMPANIES.find(c => c.slug === 'sunny') || MY_COMPANIES[0];
 
   // 4. 페르소나 마스터 fetch (= 자동 업데이트 = 매번 최신)
   const { data: allPersonas } = await sb.from('agent_personas').select('*').eq('active', true).order('sort_order');
@@ -436,21 +429,18 @@ async function boot() {
   const { data: cps } = await sb.from('agent_company_personas').select('persona_id, sort_order').eq('company_id', COMPANY.id).order('sort_order');
   COMPANY_PERSONA_IDS = (cps || []).map(x => x.persona_id);
 
-  // 6. 회사 전환 버튼 (= 2개 이상 회사 소속)
-  if (MY_COMPANIES.length > 1) {
-    document.getElementById('companySwitch').style.display = 'inline-block';
-  }
-
-  // 7. 사용자 이메일
+  // 6. UI 권한 표시
+  if (IS_ADMIN) document.getElementById('adminLink').classList.add('show');
+  if (MY_COMPANIES.length > 1) document.getElementById('companySwitch').style.display = 'inline-block';
   document.getElementById('userEmail').textContent = USER.email;
 
-  // 8. 렌더
+  // 7. 렌더
   applyCompany();
   loadHistory();
   renderBento();
   updateKeyBtn();
 
-  // 9. Splash 숨김
+  // 8. Splash 숨김
   document.getElementById('splash').classList.add('hide');
   setTimeout(() => document.querySelectorAll('.reveal').forEach(el => el.classList.add('in')), 60);
 }
