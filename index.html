@@ -86,8 +86,8 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
 .section-head h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.015em; }
 .section-head .meta { font-family: var(--font-mono); font-size: 11px; color: var(--mute); letter-spacing: 0.06em; }
 
-/* Bento */
-.bento { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: minmax(190px, auto); gap: 16px; }
+/* Bento — 균일 카드 (2026-05-12 대표님 명시) */
+.bento { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
 .tile { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 22px 22px 20px; display: flex; flex-direction: column; transition: transform .35s var(--ease), box-shadow .35s var(--ease), border-color .25s var(--ease); overflow: hidden; isolation: isolate; cursor: pointer; }
 .tile::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .45s var(--ease); z-index: 2; }
 .tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); border-color: var(--line-strong); }
@@ -496,10 +496,9 @@ function renderBento() {
 function renderTile(pid, idx) {
   const p = PERSONAS_MAP[pid]; if (!p) return '';
   const featuredTag = p.featured ? '<span class="feature-tag">FEATURED · VISUAL</span>' : '';
-  const useSpan = COMPANY_PERSONA_IDS.length <= 4 ? 'grid-column: span 4' : `grid-column: ${p.span}`;
   const initial = escapeHtml(p.ko[0]);
   return `
-    <div class="tile reveal" style="${useSpan}; transition-delay:${80 + idx*60}ms" onclick="openChat('${pid}')">
+    <div class="tile reveal" style="transition-delay:${80 + idx*60}ms" onclick="openChat('${pid}')">
       <div class="tile-head">
         <span class="tile-aid">AID<span class="slash">/</span>${p.en}</span>
         <span class="tile-studio">${escapeHtml(p.studio)}</span>
