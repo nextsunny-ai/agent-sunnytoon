@@ -246,6 +246,59 @@ input, select, textarea { font: inherit; color: inherit; }
 
 <div class="toast" id="toast"></div>
 
+<!-- ============================================================ EDIT COMPANY MODAL ============================================================ -->
+<div id="editModalBg" style="display:none;position:fixed;inset:0;background:rgba(20,18,15,0.42);z-index:300;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface);max-width:680px;width:100%;max-height:90vh;border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,0.18);overflow-y:auto;">
+    <div style="padding:24px 28px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;">
+      <h3 id="editTitle" style="flex:1;font-size:18px;font-weight:700">회사 수정</h3>
+      <button onclick="closeEditModal()" style="width:36px;height:36px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:16px;color:var(--sub);cursor:pointer">✕</button>
+    </div>
+    <div style="padding:24px 28px;">
+      <input type="hidden" id="editId">
+      <div class="form-row"><label>SLUG (URL)</label><input id="editSlug" placeholder="nextart"></div>
+      <div class="form-row"><label>영문명</label><input id="editNameEn" placeholder="NEXTART"></div>
+      <div class="form-row"><label>한글명</label><input id="editNameKo" placeholder="넥스트아트"></div>
+      <div class="form-row"><label>이니셜</label><input id="editInitial" maxlength="2"></div>
+      <div class="form-row"><label>메인 컬러</label>
+        <div class="color-row">
+          <input type="color" id="editAccent">
+          <input type="text" id="editAccentText">
+        </div>
+      </div>
+      <div class="form-row"><label>진한 컬러</label>
+        <div class="color-row">
+          <input type="color" id="editAccentDeep">
+          <input type="text" id="editAccentDeepText">
+        </div>
+      </div>
+      <div class="form-row"><label>연한 컬러</label>
+        <div class="color-row">
+          <input type="color" id="editAccentSoft">
+          <input type="text" id="editAccentSoftText">
+        </div>
+      </div>
+      <div class="form-row"><label>EYEBROW</label><input id="editEyebrow" placeholder="Welcome back"></div>
+      <div class="form-row"><label>태그라인</label><textarea id="editTagline" style="min-height:80px"></textarea></div>
+      <div class="form-row"><label>활성</label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="editActive"> 회사 활성화 (= 사용 가능)</label>
+      </div>
+      <div class="form-row"><label>페르소나 할당</label>
+        <div>
+          <div class="persona-grid" id="editPersonaGrid"></div>
+          <p style="margin-top:8px;font-size:11px;color:var(--mute)">★ 체크 = 그 회사에서 = 사용 가능. 해제 = 즉시 제거.</p>
+        </div>
+      </div>
+    </div>
+    <div style="padding:18px 28px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--bg);">
+      <button class="btn danger" onclick="deleteCurrentCompany()">회사 삭제</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="closeEditModal()">취소</button>
+        <button class="btn primary" onclick="saveEditCompany()">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL = 'https://pddasonkizwviwqzdhpu.supabase.co';
@@ -378,8 +431,7 @@ function renderCompanies() {
             <td>${(COMPANY_PERSONAS_MAP[c.id] || []).length}명</td>
             <td><a href="/?c=${escapeHtml(c.slug)}" target="_blank" style="color:var(--accent);font-family:var(--mono);font-size:11px">/${escapeHtml(c.slug)} ↗</a></td>
             <td class="actions-cell">
-              <button class="btn" onclick="editCompany('${c.id}')">수정</button>
-              <button class="btn danger" onclick="deleteCompany('${c.id}', '${escapeHtml(c.name_en)}')">삭제</button>
+              <button class="btn" onclick="openEditModal('${c.id}')">수정</button>
             </td>
           </tr>
         `).join('')}
@@ -457,17 +509,104 @@ function adjustColor(hex, amt, alpha) {
   return '#' + [r,g,b].map(x => x.toString(16).padStart(2,'0')).join('');
 }
 
-async function editCompany(id) {
+let EDIT_COMPANY_ID = null;
+
+function openEditModal(id) {
   const c = ALL_COMPANIES.find(x => x.id === id); if (!c) return;
+  EDIT_COMPANY_ID = id;
+  document.getElementById('editTitle').textContent = `${c.name_en} 수정`;
+  document.getElementById('editId').value = id;
+  document.getElementById('editSlug').value = c.slug;
+  document.getElementById('editNameEn').value = c.name_en;
+  document.getElementById('editNameKo').value = c.name_ko;
+  document.getElementById('editInitial').value = c.initial;
+  document.getElementById('editAccent').value = c.accent;
+  document.getElementById('editAccentText').value = c.accent;
+  document.getElementById('editAccentDeep').value = c.accent_deep;
+  document.getElementById('editAccentDeepText').value = c.accent_deep;
+  document.getElementById('editAccentSoft').value = c.accent_soft;
+  document.getElementById('editAccentSoftText').value = c.accent_soft;
+  document.getElementById('editEyebrow').value = c.eyebrow || 'Welcome back';
+  document.getElementById('editTagline').value = c.tagline || '';
+  document.getElementById('editActive').checked = c.active;
+
+  // 페르소나 체크박스
   const currentPersonas = COMPANY_PERSONAS_MAP[id] || [];
-  const personaChecks = ALL_PERSONAS.map(p => `<label style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:12px;margin:3px"><input type="checkbox" value="${p.id}" ${currentPersonas.includes(p.id)?'checked':''}>${p.ko}</label>`).join('');
-  const newTag = prompt(`${c.name_en} 태그라인 수정:\n(취소 = 변경 안 함)`, c.tagline || '');
-  if (newTag !== null) {
-    const { error } = await sb.from('agent_companies').update({ tagline: newTag }).eq('id', id);
-    if (error) { toast('수정 실패: ' + error.message, true); return; }
-    toast('수정 완료');
-    await loadAll();
+  const grid = document.getElementById('editPersonaGrid');
+  grid.innerHTML = ALL_PERSONAS.map(p => `
+    <label class="persona-check ${currentPersonas.includes(p.id) ? 'checked' : ''}" data-pid="${p.id}">
+      <input type="checkbox" value="${p.id}" ${currentPersonas.includes(p.id) ? 'checked' : ''}>
+      <span class="ko">${escapeHtml(p.ko)}</span>
+      <span class="en">${p.en}</span>
+    </label>
+  `).join('');
+  grid.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('change', e => e.target.closest('.persona-check').classList.toggle('checked', e.target.checked));
+  });
+
+  // 컬러 sync
+  ['Accent','AccentDeep','AccentSoft'].forEach(n => {
+    const cp = document.getElementById('edit'+n);
+    const tx = document.getElementById('edit'+n+'Text');
+    cp.oninput = () => tx.value = cp.value;
+    tx.oninput = () => { if (/^#[0-9A-Fa-f]{6}$/.test(tx.value)) cp.value = tx.value; };
+  });
+
+  document.getElementById('editModalBg').style.display = 'flex';
+}
+
+function closeEditModal() {
+  document.getElementById('editModalBg').style.display = 'none';
+  EDIT_COMPANY_ID = null;
+}
+
+async function saveEditCompany() {
+  const id = EDIT_COMPANY_ID; if (!id) return;
+  const slug = document.getElementById('editSlug').value.trim().toLowerCase();
+  const name_en = document.getElementById('editNameEn').value.trim();
+  const name_ko = document.getElementById('editNameKo').value.trim();
+  const initial = document.getElementById('editInitial').value.trim();
+  const accent = document.getElementById('editAccentText').value.trim();
+  const accent_deep = document.getElementById('editAccentDeepText').value.trim();
+  const accent_soft = document.getElementById('editAccentSoftText').value.trim();
+  const eyebrow = document.getElementById('editEyebrow').value.trim();
+  const tagline = document.getElementById('editTagline').value.trim();
+  const active = document.getElementById('editActive').checked;
+  const selectedPids = Array.from(document.querySelectorAll('#editPersonaGrid input:checked')).map(i => i.value);
+
+  if (!slug || !name_en || !name_ko || !initial) { toast('필수 항목을 채워주세요.', true); return; }
+
+  // 1. 회사 정보 UPDATE
+  const { error: upErr } = await sb.from('agent_companies').update({
+    slug, name_en, name_ko, initial, accent, accent_deep, accent_soft, eyebrow, tagline, active,
+    updated_at: new Date().toISOString()
+  }).eq('id', id);
+  if (upErr) { toast('회사 수정 실패: ' + upErr.message, true); return; }
+
+  // 2. 페르소나 매핑 = 기존 다 삭제 후 = 새로 INSERT
+  const { error: delErr } = await sb.from('agent_company_personas').delete().eq('company_id', id);
+  if (delErr) { toast('옛 매핑 삭제 실패: ' + delErr.message, true); return; }
+
+  if (selectedPids.length > 0) {
+    const rows = selectedPids.map((pid, i) => ({ company_id: id, persona_id: pid, sort_order: i }));
+    const { error: insErr } = await sb.from('agent_company_personas').insert(rows);
+    if (insErr) { toast('새 매핑 추가 실패: ' + insErr.message, true); return; }
   }
+
+  toast(`${name_en} 수정 완료 (= 사용자 새로고침 시 자동 반영)`);
+  closeEditModal();
+  await loadAll();
+}
+
+async function deleteCurrentCompany() {
+  const id = EDIT_COMPANY_ID; if (!id) return;
+  const c = ALL_COMPANIES.find(x => x.id === id); if (!c) return;
+  if (!confirm(`정말 "${c.name_en}" 회사를 삭제할까요? (소속 사용자 매핑도 같이 끊김)`)) return;
+  const { error } = await sb.from('agent_companies').delete().eq('id', id);
+  if (error) { toast('삭제 실패: ' + error.message, true); return; }
+  toast(`${c.name_en} 삭제 완료`);
+  closeEditModal();
+  await loadAll();
 }
 
 async function deleteCompany(id, name) {
