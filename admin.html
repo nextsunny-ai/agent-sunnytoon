@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agent Pro 1.0 — Admin</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:#FAFAF7; --surface:#FFFFFF; --text:#1A1A1F; --sub:#5C5C66; --mute:#8B8693;
+  --line:#E8E5DE; --accent:#1F4D3F; --accent-deep:#163A30; --accent-soft:#E8F0EC;
+  --danger:#B23A2A; --danger-soft:#FCE4E1;
+  --mono:'JetBrains Mono', monospace;
+  --sans:'Pretendard Variable', Pretendard, sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { background: var(--bg); color: var(--text); font-family: var(--sans); }
+body { font-size: 14px; line-height: 1.55; min-height: 100vh; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; background: none; border: none; color: inherit; }
+input, select, textarea { font: inherit; color: inherit; }
+
+/* Top */
+.topbar { position: sticky; top: 0; z-index: 50; background: rgba(250,250,247,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.topbar-inner { max-width: 1320px; margin: 0 auto; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.brand { display: flex; align-items: baseline; gap: 10px; font-weight: 600; }
+.brand .mark { font-size: 15px; font-weight: 700; }
+.brand .ver { font-family: var(--mono); font-size: 11px; color: var(--mute); padding: 2px 6px; border: 1px solid var(--line); border-radius: 4px; }
+.brand .seg { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.who { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--sub); }
+.who .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+.back-home { font-family: var(--mono); font-size: 11px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--sub); }
+.back-home:hover { border-color: var(--accent); color: var(--accent); }
+.logout { font-family: var(--mono); font-size: 11px; color: var(--mute); }
+.logout:hover { color: var(--danger); }
+
+/* Layout */
+.shell { max-width: 1320px; margin: 0 auto; padding: 40px 32px 80px; }
+.page-head { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 32px; padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+.page-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 14px; }
+.page-title { font-size: 44px; letter-spacing: -0.025em; font-weight: 700; line-height: 1.05; }
+.page-title em { font-style: normal; color: var(--mute); font-weight: 400; }
+.page-meta { text-align: right; font-family: var(--mono); font-size: 11px; color: var(--mute); }
+.page-meta b { color: var(--text); }
+
+/* Tab nav */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 32px; }
+.tab { padding: 12px 18px; font-size: 13px; font-weight: 600; color: var(--mute); border-bottom: 2px solid transparent; transition: all .15s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; margin-bottom: 20px; }
+.card h3 { font-size: 16px; font-weight: 700; margin-bottom: 14px; letter-spacing: -0.01em; }
+.card .desc { font-size: 13px; color: var(--sub); margin-bottom: 18px; line-height: 1.55; }
+
+/* Form */
+.form-row { display: grid; grid-template-columns: 140px 1fr; gap: 14px; align-items: center; margin-bottom: 10px; }
+.form-row label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--mute); text-transform: uppercase; }
+.form-row input, .form-row textarea, .form-row select {
+  padding: 10px 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  font-size: 13px; outline: none; font-family: var(--sans); width: 100%;
+}
+.form-row input:focus, .form-row textarea:focus, .form-row select:focus { border-color: var(--accent); background: var(--surface); }
+.form-row textarea { min-height: 60px; resize: vertical; }
+.color-row { display: flex; gap: 8px; }
+.color-row input[type=color] { width: 50px; height: 38px; padding: 2px; cursor: pointer; }
+.color-row input[type=text] { font-family: var(--mono); }
+
+.btn { padding: 10px 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 13px; font-weight: 500; transition: all .15s; }
+.btn:hover { background: var(--bg); }
+.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn.primary:hover { background: var(--accent-deep); }
+.btn.danger { color: var(--danger); border-color: var(--danger-soft); }
+.btn.danger:hover { background: var(--danger-soft); }
+.btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+
+/* Table */
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th, .table td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+.table th { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); font-weight: 600; }
+.table td .meta { font-family: var(--mono); font-size: 11px; color: var(--mute); }
+.table .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; }
+.table .badge.admin { background: var(--accent); color: #fff; }
+.table .badge.member { background: var(--accent-soft); color: var(--accent-deep); }
+.table .actions-cell { text-align: right; }
+
+/* Persona checkbox grid */
+.persona-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.persona-check { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; transition: all .15s; }
+.persona-check:hover { border-color: var(--accent); }
+.persona-check input { margin: 0; }
+.persona-check.checked { background: var(--accent-soft); border-color: var(--accent); }
+.persona-check .ko { font-weight: 600; }
+.persona-check .en { font-family: var(--mono); font-size: 10px; color: var(--mute); margin-left: auto; }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; right: 24px; padding: 14px 18px; background: var(--accent); color: #fff; border-radius: 10px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateY(100px); opacity: 0; transition: all .25s; z-index: 200; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.error { background: var(--danger); }
+
+.empty { text-align: center; padding: 40px 20px; color: var(--mute); font-size: 13px; }
+.loading { text-align: center; padding: 40px 20px; color: var(--mute); font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; }
+
+@media (max-width: 720px) {
+  .shell { padding: 24px 18px 60px; }
+  .topbar-inner { padding: 12px 18px; }
+  .page-head { grid-template-columns: 1fr; gap: 16px; }
+  .page-title { font-size: 32px; }
+  .form-row { grid-template-columns: 1fr; gap: 6px; }
+  .persona-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="mark">Agent Pro</span>
+      <span class="ver">1.0</span>
+      <span class="seg">/ ADMIN</span>
+    </div>
+    <div class="topbar-right">
+      <a class="back-home" href="./">← 홈</a>
+      <div class="who" id="whoBox" style="display:none">
+        <span id="whoEmail">···</span>
+        <div class="avatar" id="whoAvatar">A</div>
+      </div>
+      <button class="logout" onclick="signOut()">로그아웃</button>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <div class="page-head">
+    <div>
+      <div class="page-eyebrow">ADMIN CONSOLE</div>
+      <h1 class="page-title">회사 · 페르소나 · 사용자 <em>관리</em></h1>
+    </div>
+    <div class="page-meta">
+      <div>VERSION <b>1.0</b></div>
+      <div>UPDATED <b id="now">···</b></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('companies')">회사</button>
+    <button class="tab" onclick="setTab('personas')">페르소나</button>
+    <button class="tab" onclick="setTab('users')">사용자</button>
+  </div>
+
+  <!-- ============================================================ COMPANIES ============================================================ -->
+  <div class="panel active" id="panel-companies">
+
+    <div class="card">
+      <h3>새 회사 추가</h3>
+      <p class="desc">회사명·페르소나·로고 컬러 = 입력 → 즉시 공유 URL 생성.</p>
+      <div class="form-row"><label>SLUG (URL)</label><input id="newSlug" placeholder="nextart (소문자·영문만)"></div>
+      <div class="form-row"><label>영문명</label><input id="newNameEn" placeholder="NEXTART"></div>
+      <div class="form-row"><label>한글명</label><input id="newNameKo" placeholder="넥스트아트"></div>
+      <div class="form-row"><label>이니셜</label><input id="newInitial" placeholder="N" maxlength="2"></div>
+      <div class="form-row"><label>메인 컬러</label>
+        <div class="color-row">
+          <input type="color" id="newAccent" value="#1F4D3F">
+          <input type="text" id="newAccentText" value="#1F4D3F" placeholder="#1F4D3F">
+        </div>
+      </div>
+      <div class="form-row"><label>태그라인</label><textarea id="newTagline" placeholder="환영 메시지 / 회사 소개 1~2줄"></textarea></div>
+      <div class="form-row"><label>페르소나 할당</label>
+        <div class="persona-grid" id="newPersonaGrid"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="createCompany()">회사 추가</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>회사 목록</h3>
+      <div id="companiesList" class="loading">로드 중...</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ PERSONAS ============================================================ -->
+  <div class="panel" id="panel-personas">
+    <div class="card">
+      <h3>페르소나 마스터 (12명)</h3>
+      <p class="desc">SKILL·시스템 프롬프트 갱신 = 사용자 다음 접속 시 = 자동 반영. 일렬 편집 = 클릭 → 수정 → 저장.</p>
+      <div id="personasList" class="loading">로드 중...</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ USERS ============================================================ -->
+  <div class="panel" id="panel-users">
+    <div class="card">
+      <h3>사용자 초대 (Magic Link)</h3>
+      <p class="desc">이메일 입력 → Supabase Magic Link 발송 → 사용자 = 본인 이메일로 가입 → 회사 매핑.</p>
+      <div class="form-row"><label>이메일</label><input id="inviteEmail" type="email" placeholder="kim@example.com"></div>
+      <div class="form-row"><label>회사 선택</label>
+        <select id="inviteCompany"></select>
+      </div>
+      <div class="form-row"><label>역할</label>
+        <select id="inviteRole">
+          <option value="member">Member (일반)</option>
+          <option value="admin">Admin (전체 관리)</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="invite()">초대 보내기</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>가입된 사용자 + 권한</h3>
+      <div id="usersList" class="loading">로드 중...</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://pddasonkizwviwqzdhpu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_g_WkmPy-txtru1D93pl8iA_kddaB4GQ';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let USER = null;
+let ALL_PERSONAS = [];
+let ALL_COMPANIES = [];
+let COMPANY_PERSONAS_MAP = {}; // companyId -> [personaId, ...]
+
+function toast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', !!isError);
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+function setNow() { const d = new Date(); document.getElementById('now').textContent = d.toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' }); }
+
+function setTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// ============================================================
+// Boot
+// ============================================================
+async function boot() {
+  setNow();
+  // 인증 + admin 권한 확인
+  const { data: sess } = await sb.auth.getSession();
+  if (!sess.session) { location.href = '/login.html?redirect=' + encodeURIComponent('/admin.html'); return; }
+  USER = sess.session.user;
+  document.getElementById('whoBox').style.display = 'flex';
+  document.getElementById('whoEmail').textContent = USER.email;
+  document.getElementById('whoAvatar').textContent = (USER.email || 'A')[0].toUpperCase();
+
+  // admin 확인
+  const { data: mems } = await sb.from('agent_memberships').select('role').eq('user_id', USER.id);
+  const isAdmin = (mems || []).some(m => m.role === 'admin');
+  if (!isAdmin) {
+    document.querySelector('.shell').innerHTML = '<div class="card" style="text-align:center;padding:60px 20px"><h3 style="color:var(--danger)">⚠ 권한 없음</h3><p class="desc" style="margin-top:10px">admin 권한이 필요합니다.</p><a href="/" class="btn">← 홈으로</a></div>';
+    return;
+  }
+
+  // 데이터 fetch
+  await loadAll();
+
+  // Color sync
+  document.getElementById('newAccent').addEventListener('input', e => document.getElementById('newAccentText').value = e.target.value);
+  document.getElementById('newAccentText').addEventListener('input', e => { if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) document.getElementById('newAccent').value = e.target.value; });
+}
+
+async function loadAll() {
+  const [personasRes, companiesRes, cpRes] = await Promise.all([
+    sb.from('agent_personas').select('*').order('sort_order'),
+    sb.from('agent_companies').select('*').order('created_at'),
+    sb.from('agent_company_personas').select('company_id, persona_id, sort_order').order('sort_order')
+  ]);
+  ALL_PERSONAS = personasRes.data || [];
+  ALL_COMPANIES = companiesRes.data || [];
+  COMPANY_PERSONAS_MAP = {};
+  (cpRes.data || []).forEach(cp => {
+    if (!COMPANY_PERSONAS_MAP[cp.company_id]) COMPANY_PERSONAS_MAP[cp.company_id] = [];
+    COMPANY_PERSONAS_MAP[cp.company_id].push(cp.persona_id);
+  });
+
+  renderNewPersonaGrid();
+  renderCompanies();
+  renderPersonas();
+  renderInviteSelect();
+  await renderUsers();
+}
+
+// ============================================================
+// Companies
+// ============================================================
+function renderCompanies() {
+  const el = document.getElementById('companiesList');
+  if (ALL_COMPANIES.length === 0) { el.innerHTML = '<div class="empty">회사가 없습니다. 위에서 추가하세요.</div>'; return; }
+  el.innerHTML = `
+    <table class="table">
+      <thead><tr><th>SLUG</th><th>영문 / 한글</th><th>페르소나</th><th>URL</th><th></th></tr></thead>
+      <tbody>
+        ${ALL_COMPANIES.map(c => `
+          <tr>
+            <td><span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${c.accent};color:#fff;text-align:center;font-size:10px;line-height:18px;font-weight:700;margin-right:6px">${c.initial}</span><b>${escapeHtml(c.slug)}</b></td>
+            <td>${escapeHtml(c.name_en)}<br><span class="meta">${escapeHtml(c.name_ko)}</span></td>
+            <td>${(COMPANY_PERSONAS_MAP[c.id] || []).length}명</td>
+            <td><a href="/?c=${escapeHtml(c.slug)}" target="_blank" style="color:var(--accent);font-family:var(--mono);font-size:11px">/${escapeHtml(c.slug)} ↗</a></td>
+            <td class="actions-cell">
+              <button class="btn" onclick="editCompany('${c.id}')">수정</button>
+              <button class="btn danger" onclick="deleteCompany('${c.id}', '${escapeHtml(c.name_en)}')">삭제</button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderNewPersonaGrid() {
+  const grid = document.getElementById('newPersonaGrid');
+  grid.innerHTML = ALL_PERSONAS.map(p => `
+    <label class="persona-check" data-pid="${p.id}">
+      <input type="checkbox" value="${p.id}">
+      <span class="ko">${escapeHtml(p.ko)}</span>
+      <span class="en">${p.en}</span>
+    </label>
+  `).join('');
+  grid.querySelectorAll('input').forEach(input => {
+    input.addEventListener('change', e => {
+      e.target.closest('.persona-check').classList.toggle('checked', e.target.checked);
+    });
+  });
+}
+
+async function createCompany() {
+  const slug = document.getElementById('newSlug').value.trim().toLowerCase();
+  const name_en = document.getElementById('newNameEn').value.trim();
+  const name_ko = document.getElementById('newNameKo').value.trim();
+  const initial = document.getElementById('newInitial').value.trim();
+  const accent = document.getElementById('newAccentText').value.trim() || '#1F4D3F';
+  const tagline = document.getElementById('newTagline').value.trim();
+  const personaIds = Array.from(document.querySelectorAll('#newPersonaGrid input:checked')).map(i => i.value);
+
+  if (!slug || !name_en || !name_ko || !initial) { toast('필수 항목을 채워주세요.', true); return; }
+  if (personaIds.length === 0) { toast('페르소나 1명 이상 선택.', true); return; }
+
+  // 컬러 변형 (deep·soft 자동 계산)
+  const accent_deep = adjustColor(accent, -25);
+  const accent_soft = adjustColor(accent, +90, 0.12);
+
+  const { data: company, error } = await sb.from('agent_companies').insert({
+    slug, name_en, name_ko, initial, accent, accent_deep, accent_soft, tagline
+  }).select().single();
+
+  if (error) { toast('회사 추가 실패: ' + error.message, true); return; }
+
+  // 페르소나 매핑
+  const mappings = personaIds.map((pid, i) => ({ company_id: company.id, persona_id: pid, sort_order: i }));
+  const { error: mapErr } = await sb.from('agent_company_personas').insert(mappings);
+  if (mapErr) { toast('페르소나 매핑 실패: ' + mapErr.message, true); return; }
+
+  toast(`${name_en} 추가 완료. URL: agent.sunnytoon.com/?c=${slug}`);
+  document.getElementById('newSlug').value = '';
+  document.getElementById('newNameEn').value = '';
+  document.getElementById('newNameKo').value = '';
+  document.getElementById('newInitial').value = '';
+  document.getElementById('newTagline').value = '';
+  document.querySelectorAll('#newPersonaGrid input').forEach(i => { i.checked = false; i.closest('.persona-check').classList.remove('checked'); });
+  await loadAll();
+}
+
+function adjustColor(hex, amt, alpha) {
+  // hex → rgb → adjust → hex 또는 rgba
+  const c = hex.replace('#','');
+  let r = parseInt(c.substr(0,2),16), g = parseInt(c.substr(2,2),16), b = parseInt(c.substr(4,2),16);
+  r = Math.max(0, Math.min(255, r + amt));
+  g = Math.max(0, Math.min(255, g + amt));
+  b = Math.max(0, Math.min(255, b + amt));
+  if (alpha !== undefined) {
+    // blend with white for soft
+    r = Math.round(r * alpha + 255 * (1-alpha));
+    g = Math.round(g * alpha + 255 * (1-alpha));
+    b = Math.round(b * alpha + 255 * (1-alpha));
+  }
+  return '#' + [r,g,b].map(x => x.toString(16).padStart(2,'0')).join('');
+}
+
+async function editCompany(id) {
+  const c = ALL_COMPANIES.find(x => x.id === id); if (!c) return;
+  const currentPersonas = COMPANY_PERSONAS_MAP[id] || [];
+  const personaChecks = ALL_PERSONAS.map(p => `<label style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:12px;margin:3px"><input type="checkbox" value="${p.id}" ${currentPersonas.includes(p.id)?'checked':''}>${p.ko}</label>`).join('');
+  const newTag = prompt(`${c.name_en} 태그라인 수정:\n(취소 = 변경 안 함)`, c.tagline || '');
+  if (newTag !== null) {
+    const { error } = await sb.from('agent_companies').update({ tagline: newTag }).eq('id', id);
+    if (error) { toast('수정 실패: ' + error.message, true); return; }
+    toast('수정 완료');
+    await loadAll();
+  }
+}
+
+async function deleteCompany(id, name) {
+  if (!confirm(`정말 ${name} 회사를 삭제할까요? (소속 사용자도 같이 끊김)`)) return;
+  const { error } = await sb.from('agent_companies').delete().eq('id', id);
+  if (error) { toast('삭제 실패: ' + error.message, true); return; }
+  toast(`${name} 삭제 완료`);
+  await loadAll();
+}
+
+// ============================================================
+// Personas
+// ============================================================
+function renderPersonas() {
+  const el = document.getElementById('personasList');
+  el.innerHTML = `
+    <table class="table">
+      <thead><tr><th>ID</th><th>이름</th><th>스튜디오</th><th>설명</th><th></th></tr></thead>
+      <tbody>
+        ${ALL_PERSONAS.map(p => `
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--mute)">${p.id}</code></td>
+            <td><b>${escapeHtml(p.ko)}</b><br><span class="meta">${p.en}</span></td>
+            <td>${escapeHtml(p.studio)}</td>
+            <td style="max-width:300px;font-size:12px;color:var(--sub)">${escapeHtml(p.copy)}</td>
+            <td class="actions-cell"><button class="btn" onclick="editPersona('${p.id}')">수정</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function editPersona(id) {
+  const p = ALL_PERSONAS.find(x => x.id === id); if (!p) return;
+  const newCopy = prompt(`${p.ko} 카드 설명 수정:\n(취소 = 변경 안 함)`, p.copy);
+  if (newCopy !== null && newCopy !== p.copy) {
+    const { error } = await sb.from('agent_personas').update({ copy: newCopy, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) { toast('수정 실패: ' + error.message, true); return; }
+    toast(`${p.ko} 수정 완료. = 모든 사용자 다음 접속 시 자동 반영.`);
+    await loadAll();
+  }
+  // TODO: sys_prompt·studio 등 더 정교한 편집 UI는 다음 버전
+}
+
+// ============================================================
+// Users
+// ============================================================
+function renderInviteSelect() {
+  const sel = document.getElementById('inviteCompany');
+  sel.innerHTML = ALL_COMPANIES.map(c => `<option value="${c.id}">${escapeHtml(c.name_en)} (${escapeHtml(c.name_ko)})</option>`).join('');
+}
+
+async function invite() {
+  const email = document.getElementById('inviteEmail').value.trim();
+  const companyId = document.getElementById('inviteCompany').value;
+  const role = document.getElementById('inviteRole').value;
+  if (!email) { toast('이메일을 입력해주세요.', true); return; }
+
+  // Supabase의 admin invite는 = service_role 필요 = 클라이언트에서 X.
+  // 대신 = Magic Link OTP 보내기 (signInWithOtp = 가입 자동 처리)
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: `${location.origin}/auth_callback.html?redirect=/&invite_company=${companyId}&invite_role=${role}` }
+  });
+  if (error) { toast('초대 실패: ' + error.message, true); return; }
+
+  toast(`${email} 초대 메일 발송 완료. (가입 후 = 회사 매핑은 자동 처리)`);
+  document.getElementById('inviteEmail').value = '';
+
+  // TODO: 가입 후 자동 매핑 = auth_callback.html에서 = invite_company/role 파라미터 = agent_memberships에 INSERT
+  // 또는 = SQL 트리거로 = invited 이메일 = 자동 매핑
+}
+
+async function renderUsers() {
+  const el = document.getElementById('usersList');
+  const { data: mems, error } = await sb.from('agent_memberships').select('user_id, role, company_id, created_at');
+  if (error) { el.innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>'; return; }
+  if (!mems || mems.length === 0) { el.innerHTML = '<div class="empty">가입된 사용자가 없습니다.</div>'; return; }
+
+  // user_id별 = 회사 묶기
+  const userMap = {};
+  mems.forEach(m => {
+    if (!userMap[m.user_id]) userMap[m.user_id] = { roles: [], companies: [] };
+    const c = ALL_COMPANIES.find(x => x.id === m.company_id);
+    userMap[m.user_id].roles.push(m.role);
+    if (c) userMap[m.user_id].companies.push(c.name_en);
+  });
+
+  // 사용자 이메일 = auth.users는 anon key로 직접 조회 X.
+  // 우회 = user_id 표시만 (= 미래 = Edge Function 또는 RPC로 이메일 조회)
+  el.innerHTML = `
+    <table class="table">
+      <thead><tr><th>USER ID</th><th>회사</th><th>역할</th></tr></thead>
+      <tbody>
+        ${Object.entries(userMap).map(([uid, info]) => `
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:10px;color:var(--mute)">${uid.slice(0,8)}...${uid.slice(-4)}</code>${uid === USER.id ? ' <span style="font-size:10px;color:var(--accent);font-weight:600">(나)</span>' : ''}</td>
+            <td>${info.companies.join(', ')}</td>
+            <td>${info.roles.map(r => `<span class="badge ${r}">${r}</span>`).join(' ')}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+    <p class="desc" style="margin-top:14px;font-size:11px">※ 이메일 조회 = 다음 버전에서 추가 (= Supabase RPC 또는 Edge Function 필요).</p>
+  `;
+}
+
+// ============================================================
+// Sign out
+// ============================================================
+async function signOut() {
+  await sb.auth.signOut();
+  location.href = '/login.html';
+}
+
+boot();
+</script>
+</body>
+</html>
