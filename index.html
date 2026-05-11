@@ -249,6 +249,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
         </div>
         <div class="user-menu-pop" id="userMenuPop">
           <button class="item" onclick="openKeyModal()">🔑 API 키 변경</button>
+          <button class="item" onclick="openModelModal()">⚡ 모델 선택 (= 비용 절감)</button>
           <button class="item" onclick="openTgModal()">📱 텔레그램 알림 설정</button>
           <button class="item danger" onclick="signOut()">→ 로그아웃</button>
         </div>
@@ -299,6 +300,39 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 <!-- Chat Modal -->
 <div class="modal-bg" id="chatModal" role="dialog" aria-modal="true">
   <div class="chat-box" id="chatBox"></div>
+</div>
+
+<!-- Model Modal -->
+<div class="modal-bg" id="modelModal">
+  <div class="key-modal">
+    <h3>⚡ 모델 선택 = 비용 절감</h3>
+    <p class="sub">페르소나 답변 모델 선택. <strong>Haiku 4.5</strong> = Sonnet 1/10 비용 + 빠름 = 일반 대화 추천.</p>
+    <p class="info" style="font-size:11px;line-height:1.55">
+      ✅ <strong>Prompt Caching = 자동 적용</strong> = 5분 안에 같은 페르소나와 연속 대화하면 = <strong>입력 비용 90% 절감</strong> (= 모든 모델 적용).
+    </p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;cursor:pointer" id="modelOptSonnet">
+        <input type="radio" name="model" value="sonnet" style="margin-top:3px">
+        <div>
+          <div style="font-weight:700;font-size:14px">Claude Sonnet 4.5 <span style="font-family:var(--font-mono);font-size:10px;color:var(--mute);font-weight:500;margin-left:4px">(기본)</span></div>
+          <div style="font-size:12px;color:var(--sub);margin-top:2px">깊이 있는 답변 · 30년 CD 노하우 100% 발휘 · 표준 가격</div>
+          <div style="font-size:10px;color:var(--mute);margin-top:4px;font-family:var(--font-mono)">$3 입력 / $15 출력 (per 1M tokens)</div>
+        </div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;cursor:pointer" id="modelOptHaiku">
+        <input type="radio" name="model" value="haiku" style="margin-top:3px">
+        <div>
+          <div style="font-weight:700;font-size:14px">Claude Haiku 4.5 <span style="font-family:var(--font-mono);font-size:10px;color:var(--accent-deep);background:var(--accent-soft);padding:1px 6px;border-radius:4px;margin-left:4px">★ 90% 저렴</span></div>
+          <div style="font-size:12px;color:var(--sub);margin-top:2px">빠름 + 1/10 비용 · 일반 대화·짧은 질문 추천 · 복잡한 깊은 답엔 X</div>
+          <div style="font-size:10px;color:var(--mute);margin-top:4px;font-family:var(--font-mono)">$1 입력 / $5 출력 (per 1M tokens) — 추정</div>
+        </div>
+      </label>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeModelModal()">취소</button>
+      <button class="btn primary" onclick="saveModel()">저장</button>
+    </div>
+  </div>
 </div>
 
 <!-- Telegram Modal -->
@@ -715,7 +749,12 @@ function commonCtx() {
   return `[SUNNY 공통]
 대표: 유희정(Sunny Ryu), 30년 CD, 한국 최초 여성 VFX 감독.
 클라이언트: ${COMPANY.name_en} (${COMPANY.name_ko}).
-호칭 "대표님" / "박다·박혀·박힘·박았" 표현 금지 / 모르면 모른다고 정직히 / 마크다운 ** # 등 기호 X = 일반 텍스트로.`;
+호칭 "대표님" / "박다·박혀·박힘·박았" 표현 금지 / 모르면 모른다고 정직히 / 마크다운 ** # 등 기호 X = 일반 텍스트로.
+
+[★ 답변 룰 — 사용자 비용 절감]
+- 간결하게. 핵심만. 미사여구 X.
+- 사용자가 "자세히" 명시할 때만 = 길게.
+- 불필요한 인사·서론·끝 인사 = 생략. = 본론만.`;
 }
 
 function openChat(pid) {
@@ -864,20 +903,61 @@ async function sendChat() {
   } finally { sendBtn.disabled = false; }
 }
 
+// ★ 모델 선택 (= 사용자별 = localStorage)
+const MODELS = {
+  sonnet: { id: 'claude-sonnet-4-5-20250929', name: 'Sonnet 4.5', desc: '깊이 있는 답변 · 표준' },
+  haiku:  { id: 'claude-haiku-4-5-20251001',  name: 'Haiku 4.5',  desc: '빠름 · Sonnet 1/10 비용 · 일반 대화용' }
+};
+function getModel() { return localStorage.getItem('agent_model') || 'sonnet'; }
+function setModel(m) { localStorage.setItem('agent_model', m); }
+
 async function callClaude(apiKey, pid, hist) {
   const p = PERSONAS_MAP[pid];
   const systemPrompt = commonCtx() + '\n\n' + p.sys_prompt;
   const messages = hist.slice(-20).map(m => ({ role: m.role, content: m.content }));
   const isOAuth = apiKey.startsWith('sk-ant-oat');
-  const headers = { 'Content-Type':'application/json', 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' };
-  if (isOAuth) { headers['Authorization'] = 'Bearer ' + apiKey; headers['anthropic-beta'] = 'oauth-2025-04-20'; }
-  else { headers['x-api-key'] = apiKey; }
+  // ★ Prompt Caching = 5분 TTL · 캐시 hit = 입력 비용 90% 절감
+  const headers = {
+    'Content-Type':'application/json',
+    'anthropic-version':'2023-06-01',
+    'anthropic-dangerous-direct-browser-access':'true',
+    'anthropic-beta': isOAuth ? 'oauth-2025-04-20,prompt-caching-2024-07-31' : 'prompt-caching-2024-07-31'
+  };
+  if (isOAuth) headers['Authorization'] = 'Bearer ' + apiKey;
+  else headers['x-api-key'] = apiKey;
+  const modelKey = getModel();
+  const modelId = MODELS[modelKey]?.id || MODELS.sonnet.id;
   const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST', headers, body: JSON.stringify({ model: 'claude-sonnet-4-5-20250929', max_tokens: 2048, system: systemPrompt, messages })
+    method: 'POST', headers, body: JSON.stringify({
+      model: modelId,
+      max_tokens: 1024, // ★ 2048 → 1024 = 출력 비용 절감
+      // ★ system = 배열 형식 + cache_control = 캐싱
+      system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
+      messages
+    })
   });
   if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error?.message || `HTTP ${res.status}`); }
   const data = await res.json();
   return data.content[0].text;
+}
+
+// ============================================================
+// Model selector
+// ============================================================
+function openModelModal() {
+  const cur = getModel();
+  document.querySelector(`input[name=model][value=${cur}]`).checked = true;
+  // Highlight
+  document.querySelectorAll('#modelModal label').forEach(l => l.style.borderColor = 'var(--line)');
+  document.getElementById(cur === 'sonnet' ? 'modelOptSonnet' : 'modelOptHaiku').style.borderColor = 'var(--accent)';
+  document.getElementById('modelModal').classList.add('show');
+  document.getElementById('userMenuPop').classList.remove('show');
+}
+function closeModelModal() { document.getElementById('modelModal').classList.remove('show'); }
+function saveModel() {
+  const v = document.querySelector('input[name=model]:checked')?.value;
+  if (v) setModel(v);
+  closeModelModal();
 }
 
 // ============================================================
@@ -952,6 +1032,7 @@ function saveKey() {
 // Modal close on backdrop
 document.getElementById('keyModal').addEventListener('click', (e) => { if (e.target.id === 'keyModal') closeKeyModal(); });
 document.getElementById('tgModal').addEventListener('click', (e) => { if (e.target.id === 'tgModal') closeTgModal(); });
+document.getElementById('modelModal').addEventListener('click', (e) => { if (e.target.id === 'modelModal') closeModelModal(); });
 document.getElementById('chatModal').addEventListener('click', (e) => { if (e.target.id === 'chatModal') closeChat(); });
 document.getElementById('pickerBg').addEventListener('click', (e) => { if (e.target.id === 'pickerBg') closePicker(); });
 
