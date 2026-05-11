@@ -422,22 +422,32 @@ function renderCompanies() {
   if (ALL_COMPANIES.length === 0) { el.innerHTML = '<div class="empty">회사가 없습니다. 위에서 추가하세요.</div>'; return; }
   el.innerHTML = `
     <table class="table">
-      <thead><tr><th>SLUG</th><th>영문 / 한글</th><th>페르소나</th><th>URL</th><th></th></tr></thead>
+      <thead><tr><th>SLUG</th><th>영문 / 한글</th><th>페르소나</th><th>공유 URL</th><th></th></tr></thead>
       <tbody>
-        ${ALL_COMPANIES.map(c => `
+        ${ALL_COMPANIES.map(c => {
+          const fullUrl = `${location.origin}/?c=${c.slug}`;
+          return `
           <tr>
             <td><span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${c.accent};color:#fff;text-align:center;font-size:10px;line-height:18px;font-weight:700;margin-right:6px">${c.initial}</span><b>${escapeHtml(c.slug)}</b></td>
             <td>${escapeHtml(c.name_en)}<br><span class="meta">${escapeHtml(c.name_ko)}</span></td>
             <td>${(COMPANY_PERSONAS_MAP[c.id] || []).length}명</td>
-            <td><a href="/?c=${escapeHtml(c.slug)}" target="_blank" style="color:var(--accent);font-family:var(--mono);font-size:11px">/${escapeHtml(c.slug)} ↗</a></td>
-            <td class="actions-cell">
+            <td>
+              <code style="font-family:var(--mono);font-size:10px;color:var(--mute);display:block;margin-bottom:4px">${escapeHtml(fullUrl)}</code>
+              <button onclick="copyUrl('${escapeHtml(fullUrl)}')" style="font-size:10px;padding:3px 8px;border:1px solid var(--line);border-radius:6px;color:var(--sub);cursor:pointer;background:var(--surface);margin-right:4px">📋 복사</button>
+            </td>
+            <td class="actions-cell" style="white-space:nowrap">
+              <a href="/?c=${escapeHtml(c.slug)}" target="_blank" class="btn" style="display:inline-block;color:var(--accent);border-color:var(--accent);text-decoration:none">👁 미리보기</a>
               <button class="btn" onclick="openEditModal('${c.id}')">수정</button>
             </td>
           </tr>
-        `).join('')}
+        `}).join('')}
       </tbody>
     </table>
   `;
+}
+
+function copyUrl(url) {
+  navigator.clipboard.writeText(url).then(() => toast('URL 복사 완료')).catch(() => toast('복사 실패', true));
 }
 
 function renderNewPersonaGrid() {
