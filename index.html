@@ -86,23 +86,24 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
 .hero-meta dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mute); }
 .hero-meta dd { font-size: 13px; color: var(--text); font-weight: 500; }
 
-/* Recent Projects */
-.projects-section { max-width: 1280px; margin: 0 auto; padding: 0 28px; }
-.projects-head { display: flex; align-items: baseline; justify-content: space-between; padding: 20px 0 16px; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
-.projects-head h3 { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
-.projects-head .meta { font-family: var(--font-mono); font-size: 11px; color: var(--mute); letter-spacing: 0.06em; }
-.projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-.project-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; transition: all .25s var(--ease); cursor: pointer; display: flex; flex-direction: column; gap: 8px; min-height: 110px; }
+/* Recent Projects — Hero 오른쪽 */
+.projects-aside { display: flex; flex-direction: column; gap: 10px; align-self: stretch; min-width: 0; }
+.projects-aside-head { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.projects-aside-head h3 { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.projects-aside-head .meta { font-family: var(--font-mono); font-size: 10px; color: var(--mute); letter-spacing: 0.06em; }
+.projects-aside-list { display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; }
+.project-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; transition: all .25s var(--ease); cursor: pointer; display: flex; flex-direction: column; gap: 6px; }
 .project-card:hover { border-color: var(--accent); box-shadow: var(--shadow-1); transform: translateY(-1px); }
-.project-card .ptitle { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.35; }
-.project-card .psub { font-size: 12px; color: var(--sub); line-height: 1.5; }
-.project-card .pfoot { margin-top: auto; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); }
-.project-card .pstatus { font-family: var(--font-mono); font-size: 10px; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.08em; }
+.project-card .ptitle { font-size: 13px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.35; }
+.project-card .psub { font-size: 11px; color: var(--sub); line-height: 1.5; }
+.project-card .pfoot { display: flex; justify-content: space-between; align-items: center; }
+.project-card .pstatus { font-family: var(--font-mono); font-size: 9px; padding: 2px 6px; border-radius: 999px; letter-spacing: 0.06em; }
 .project-card .pstatus.active { background: var(--accent-soft); color: var(--accent-deep); }
 .project-card .pstatus.completed { background: rgba(20,18,15,0.06); color: var(--sub); }
 .project-card .pstatus.paused { background: rgba(180,150,0,0.12); color: #8B6914; }
-.project-card .pdate { font-family: var(--font-mono); font-size: 10px; color: var(--mute); }
-.projects-empty { text-align: center; padding: 32px 20px; color: var(--mute); font-size: 13px; border: 1px dashed var(--line); border-radius: var(--r); }
+.project-card .pdate { font-family: var(--font-mono); font-size: 9px; color: var(--mute); }
+.projects-empty { text-align: center; padding: 24px 16px; color: var(--mute); font-size: 12px; border: 1px dashed var(--line); border-radius: var(--r); }
+.aside-version { font-family: var(--font-mono); font-size: 9px; color: var(--mute); letter-spacing: 0.06em; text-align: right; padding-top: 6px; }
 
 /* Section */
 .section { max-width: 1280px; margin: 0 auto; padding: 28px 28px 80px; }
@@ -268,22 +269,16 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
     <h1>Welcome back,<br><span class="name" id="hero-name">···</span><span class="period">.</span></h1>
     <p id="hero-desc">Your dedicated agency. 전담 에이전트가 통째로 당신의 프로젝트만 돌봅니다.</p>
   </div>
-  <aside class="hero-meta">
-    <dl>
-      <dt>CLIENT</dt><dd id="meta-client">CLIENT</dd>
-      <dt>TEAM</dt><dd id="meta-team">— Agents · On-call</dd>
-      <dt>STATUS</dt><dd>Online · Ready</dd>
-      <dt>VERSION</dt><dd>Agent Pro 1.0</dd>
-    </dl>
+  <aside class="projects-aside" id="projectsAside">
+    <div class="projects-aside-head">
+      <h3>Recent Projects</h3>
+      <span class="meta" id="projects-count">— PROJECTS</span>
+    </div>
+    <div class="projects-aside-list" id="projectsGrid">
+      <div class="projects-empty">아직 등록된 프로젝트가 없어요.</div>
+    </div>
+    <div class="aside-version" id="meta-client">AGENT PRO 1.0 · ONLINE</div>
   </aside>
-</section>
-
-<section class="projects-section reveal" id="projectsSection" style="display:none">
-  <div class="projects-head">
-    <h3>Recent Projects</h3>
-    <span class="meta" id="projects-count">— PROJECTS</span>
-  </div>
-  <div class="projects-grid" id="projectsGrid"></div>
 </section>
 
 <main class="section">
@@ -725,15 +720,15 @@ function applyCompany() {
   document.documentElement.style.setProperty('--accent', COMPANY.accent);
   document.documentElement.style.setProperty('--accent-deep', COMPANY.accent_deep);
   document.documentElement.style.setProperty('--accent-soft', COMPANY.accent_soft);
-  document.getElementById('group-label').textContent = COMPANY.name_en + ' AI WORKTEAM';
-  document.getElementById('logo-mark').textContent = COMPANY.initial;
-  document.getElementById('hero-name').textContent = COMPANY.name_ko;
-  document.getElementById('hero-desc').textContent = COMPANY.tagline;
-  document.getElementById('meta-client').textContent = COMPANY.name_en;
-  document.getElementById('meta-team').textContent = `${COMPANY_PERSONA_IDS.length} Agents · On-call`;
-  document.getElementById('foot-client').textContent = COMPANY.name_en;
-  document.getElementById('foot-id').textContent = `GROUP/${COMPANY.name_en.replace(/\s/g,'')}`;
-  document.getElementById('section-meta').textContent = `${COMPANY_PERSONA_IDS.length} DEDICATED · ON-CALL`;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('group-label', COMPANY.name_en + ' AI WORKTEAM');
+  set('logo-mark', COMPANY.initial);
+  set('hero-name', COMPANY.name_ko);
+  set('hero-desc', COMPANY.tagline);
+  set('meta-client', `AGENT PRO 1.0 · ${COMPANY.name_en} · ${COMPANY_PERSONA_IDS.length} AGENTS`);
+  set('foot-client', COMPANY.name_en);
+  set('foot-id', `GROUP/${COMPANY.name_en.replace(/\s/g,'')}`);
+  set('section-meta', `${COMPANY_PERSONA_IDS.length} DEDICATED · ON-CALL`);
   document.title = `Agent Pro 1.0 — ${COMPANY.name_en}`;
 }
 
@@ -743,10 +738,9 @@ function renderBento() {
 }
 
 async function loadProjects() {
-  const section = document.getElementById('projectsSection');
   const grid = document.getElementById('projectsGrid');
   const countEl = document.getElementById('projects-count');
-  if (!section || !grid) return;
+  if (!grid) return;
 
   const { data: projs, error } = await sb.from('agent_projects')
     .select('*').eq('company_id', COMPANY.id)
@@ -754,11 +748,11 @@ async function loadProjects() {
   if (error) { console.warn('projects fetch error:', error); return; }
 
   if (!projs || projs.length === 0) {
-    section.style.display = 'none';
+    countEl.textContent = '— PROJECTS';
+    grid.innerHTML = '<div class="projects-empty">아직 등록된 프로젝트가 없어요.</div>';
     return;
   }
-  section.style.display = 'block';
-  countEl.textContent = `${projs.length} PROJECTS · ${COMPANY.name_en}`;
+  countEl.textContent = `${projs.length} PROJECTS`;
   grid.innerHTML = projs.map(p => {
     const statusLabel = p.status === 'active' ? '진행 중' : p.status === 'completed' ? '완료' : '일시정지';
     const date = new Date(p.updated_at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
