@@ -88,6 +88,10 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
 .tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); border-color: var(--line-strong); }
 .tile:hover::before { transform: scaleX(1); }
 .tile-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.tile-avatar { width: 56px; height: 56px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(20,18,15,0.10); object-fit: cover; flex-shrink: 0; background: var(--accent-soft); }
+.tile-body-row { display: flex; gap: 14px; align-items: flex-start; margin-top: 22px; }
+.tile-body-row .tile-body { margin-top: 0; flex: 1; min-width: 0; }
+.t-rian .tile-avatar { width: 72px; height: 72px; }
 .tile-aid { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--mute); letter-spacing: 0.04em; }
 .tile-aid .slash { color: var(--line-strong); margin: 0 2px; }
 .tile-studio { font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: var(--accent); letter-spacing: 0.18em; text-transform: uppercase; padding: 4px 8px; border: 1px solid var(--accent-soft); background: var(--accent-soft); border-radius: 999px; }
@@ -132,7 +136,8 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 .chat-box { background: var(--surface); width: 100%; max-width: 880px; height: 92vh; max-height: 760px; border-radius: var(--r-lg); box-shadow: 0 24px 64px rgba(26,26,31,0.18); display: flex; flex-direction: column; overflow: hidden; margin: 16px; min-height: 0; }
 .chat-box > * { min-height: 0; }
 .chat-h { padding: 18px 24px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 14px; background: var(--surface); flex-shrink: 0; }
-.chat-h .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 16px; font-weight: 700; flex-shrink: 0; }
+.chat-h .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 16px; font-weight: 700; flex-shrink: 0; overflow: hidden; }
+.chat-h .avatar img { width: 100%; height: 100%; object-fit: cover; }
 .chat-h-title { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
 .chat-h-sub { font-size: 0.72rem; color: var(--sub); margin-top: 2px; font-family: var(--font-mono); }
 .chat-h-close { margin-left: auto; width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 16px; color: var(--sub); }
@@ -373,6 +378,14 @@ function stripMarkdown(s) {
 }
 function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 
+// ★ 아바타 파일 확장자 매핑 (= 옛 home/team에서 복사)
+const AVATAR_EXT = {
+  birch:'jfif', genie:'jfif', hana:'png', kai:'svg',
+  lumi:'jfif', maru:'jfif', mori:'jfif', nea:'jfif',
+  rian:'jfif', sera:'png', sori:'jpeg', teo:'jfif'
+};
+function avatarUrl(pid) { return `avatars/${pid}.${AVATAR_EXT[pid] || 'png'}`; }
+
 // ============================================================
 // Boot — 인증 → 회사·페르소나 fetch → 렌더
 // ============================================================
@@ -467,16 +480,21 @@ function renderTile(pid, idx) {
   const p = PERSONAS_MAP[pid]; if (!p) return '';
   const featuredTag = p.featured ? '<span class="feature-tag">FEATURED · VISUAL</span>' : '';
   const useSpan = COMPANY_PERSONA_IDS.length <= 4 ? 'grid-column: span 4' : `grid-column: ${p.span}`;
+  const initial = escapeHtml(p.ko[0]);
   return `
     <div class="tile reveal" style="${useSpan}; transition-delay:${80 + idx*60}ms" onclick="openChat('${pid}')">
       <div class="tile-head">
         <span class="tile-aid">AID<span class="slash">/</span>${p.en}</span>
         <span class="tile-studio">${escapeHtml(p.studio)}</span>
       </div>
-      <div class="tile-body">
-        <div class="tile-name"><span class="ko">${escapeHtml(p.ko)}</span><span class="en">/ ${p.en}</span></div>
-        <p class="tile-copy">${escapeHtml(p.copy)}</p>
-        ${featuredTag}
+      <div class="tile-body-row">
+        <img class="tile-avatar" src="${avatarUrl(pid)}" alt="${escapeHtml(p.ko)}"
+             onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'tile-avatar',style:'background:var(--accent);color:#fff;display:grid;place-items:center;font-size:22px;font-weight:700',textContent:'${initial}'}))">
+        <div class="tile-body">
+          <div class="tile-name"><span class="ko">${escapeHtml(p.ko)}</span><span class="en">/ ${p.en}</span></div>
+          <p class="tile-copy">${escapeHtml(p.copy)}</p>
+          ${featuredTag}
+        </div>
       </div>
       <div class="tile-foot">
         <span class="tile-id">${COMPANY.name_en.replace(/\s/g,'')} · ${p.en}</span>
@@ -552,7 +570,7 @@ function openChat(pid) {
   const box = document.getElementById('chatBox');
   box.innerHTML = `
     <div class="chat-h">
-      <div class="avatar">${escapeHtml(p.ko[0])}</div>
+      <div class="avatar"><img src="${avatarUrl(pid)}" alt="${escapeHtml(p.ko)}" onerror="this.parentElement.textContent='${escapeHtml(p.ko[0])}'"></div>
       <div>
         <div class="chat-h-title">${escapeHtml(p.ko)} <span style="font-family:var(--font-mono);font-size:11px;color:var(--mute);font-weight:500;margin-left:4px">${p.en}</span></div>
         <div class="chat-h-sub">${escapeHtml(p.studio)} · ${COMPANY.name_en}</div>
