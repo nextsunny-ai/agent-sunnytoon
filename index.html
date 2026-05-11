@@ -53,6 +53,12 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
 .plan-badge.pro { background: var(--accent); color: #fff; }
 .plan-badge.studio { background: #6B4FBB; color: #fff; }
 .plan-badge.lifetime { background: linear-gradient(135deg, #C9A35D, #8B6914); color: #fff; }
+.set-tab { padding: 10px 16px; font-size: 13px; font-weight: 600; color: var(--mute); border-bottom: 2px solid transparent; transition: all .15s var(--ease); background: transparent; cursor: pointer; }
+.set-tab:hover { color: var(--text); }
+.set-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.model-opt { display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; transition: border-color .15s var(--ease); }
+.model-opt:hover { border-color: var(--accent); }
+.model-opt.selected { border-color: var(--accent); background: var(--accent-soft); }
 .key-btn { font-size: 11px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-family: var(--font-mono); color: var(--sub); transition: all .15s var(--ease); }
 .key-btn:hover { border-color: var(--accent); color: var(--accent); }
 .key-btn.has-key { color: var(--accent); border-color: var(--accent-soft); background: var(--accent-soft); }
@@ -248,9 +254,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
           <div class="logo-mark" id="logo-mark">A</div>
         </div>
         <div class="user-menu-pop" id="userMenuPop">
-          <button class="item" onclick="openKeyModal()">🔑 API 키 변경</button>
-          <button class="item" onclick="openModelModal()">⚡ 모델 선택 (= 비용 절감)</button>
-          <button class="item" onclick="openTgModal()">📱 텔레그램 알림 설정</button>
+          <button class="item" onclick="openSettings()">⚙ 내 설정</button>
           <button class="item danger" onclick="signOut()">→ 로그아웃</button>
         </div>
       </div>
@@ -300,6 +304,112 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 <!-- Chat Modal -->
 <div class="modal-bg" id="chatModal" role="dialog" aria-modal="true">
   <div class="chat-box" id="chatBox"></div>
+</div>
+
+<!-- Settings Modal (= 통합) -->
+<div class="modal-bg" id="settingsModal">
+  <div class="key-modal" style="max-width:620px;max-height:92vh;overflow-y:auto;padding:0">
+    <div style="padding:24px 28px 0;display:flex;align-items:center;justify-content:space-between">
+      <h3 style="margin:0">⚙ 내 설정</h3>
+      <button onclick="closeSettings()" style="width:32px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:14px;color:var(--sub);cursor:pointer">✕</button>
+    </div>
+    <div style="display:flex;gap:2px;padding:0 28px;border-bottom:1px solid var(--line);margin-top:18px">
+      <button class="set-tab active" data-tab="key" onclick="setSetTab('key')">🔑 API 키</button>
+      <button class="set-tab" data-tab="model" onclick="setSetTab('model')">⚡ 모델</button>
+      <button class="set-tab" data-tab="tg" onclick="setSetTab('tg')">📱 텔레그램</button>
+      <button class="set-tab" data-tab="account" onclick="setSetTab('account')">👤 계정</button>
+    </div>
+
+    <!-- KEY tab -->
+    <div class="set-panel active" data-tab="key" style="padding:24px 28px">
+      <p class="sub">본인 ANTHROPIC_API_KEY로 Anthropic API 직접 호출. 키 = 이 브라우저 localStorage·쿠키에만 저장 = 서버 전송 X.</p>
+      <p class="info">★ 키 발급 = <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> → "Create Key" → 복사. <strong><code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px">sk-ant-api03-</code>로 시작</strong>. 비용 = 본인 키 본인 차감.</p>
+      <label for="setKey">API Key</label>
+      <input type="password" id="setKey" placeholder="sk-ant-api03-..." autocomplete="off">
+      <div class="actions">
+        <button class="btn primary" onclick="saveKeyFromSettings()">저장</button>
+      </div>
+    </div>
+
+    <!-- MODEL tab -->
+    <div class="set-panel" data-tab="model" style="padding:24px 28px;display:none">
+      <p class="sub">페르소나 답변 모델 선택. <strong>Haiku 4.5</strong> = Sonnet 1/10 비용 + 빠름 = 일반 대화 추천.</p>
+      <p class="info" style="font-size:11px;line-height:1.55">✅ <strong>Prompt Caching = 자동 적용</strong> = 5분 안에 같은 페르소나 연속 대화 = <strong>입력 비용 90% 절감</strong>.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
+        <label class="model-opt" id="setOptSonnet">
+          <input type="radio" name="setModel" value="sonnet" style="margin-top:3px">
+          <div>
+            <div style="font-weight:700;font-size:14px">Claude Sonnet 4.5 <span style="font-family:var(--font-mono);font-size:10px;color:var(--mute);font-weight:500;margin-left:4px">(기본)</span></div>
+            <div style="font-size:12px;color:var(--sub);margin-top:2px">깊이 있는 답변 · 30년 CD 노하우 100% 발휘 · 표준</div>
+            <div style="font-size:10px;color:var(--mute);margin-top:4px;font-family:var(--font-mono)">$3 입력 / $15 출력 (per 1M tokens)</div>
+          </div>
+        </label>
+        <label class="model-opt" id="setOptHaiku">
+          <input type="radio" name="setModel" value="haiku" style="margin-top:3px">
+          <div>
+            <div style="font-weight:700;font-size:14px">Claude Haiku 4.5 <span style="font-family:var(--font-mono);font-size:10px;color:var(--accent-deep);background:var(--accent-soft);padding:1px 6px;border-radius:4px;margin-left:4px">★ 90% 저렴</span></div>
+            <div style="font-size:12px;color:var(--sub);margin-top:2px">빠름 + 1/10 비용 · 일반 대화·짧은 질문 추천</div>
+            <div style="font-size:10px;color:var(--mute);margin-top:4px;font-family:var(--font-mono)">$1 입력 / $5 출력 (per 1M tokens)</div>
+          </div>
+        </label>
+      </div>
+      <div class="actions">
+        <button class="btn primary" onclick="saveModelFromSettings()">저장</button>
+      </div>
+    </div>
+
+    <!-- TELEGRAM tab -->
+    <div class="set-panel" data-tab="tg" style="padding:24px 28px;display:none">
+      <p class="sub">페르소나 답변 = 본인 텔레그램 봇으로 모바일 푸시. 본인 봇·본인 chat_id = 본인 운영 (= 비용 0).</p>
+      <details style="margin-bottom:14px;background:var(--accent-soft);border-radius:8px;padding:12px 14px">
+        <summary style="font-weight:700;cursor:pointer;font-size:13px;color:var(--accent-deep)">📖 4단계 가이드 (= 처음 1번만)</summary>
+        <div style="margin-top:12px;font-size:12px;line-height:1.7;color:var(--text)">
+          <p style="font-weight:700;margin-bottom:6px;color:var(--accent-deep)">[1] 본인 봇 만들기:</p>
+          <ol style="margin-left:18px;margin-bottom:12px">
+            <li><a href="https://t.me/BotFather" target="_blank" style="color:var(--accent);font-weight:600">@BotFather</a> → <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px">/newbot</code> → 봇 이름·username → 토큰 받음</li>
+          </ol>
+          <p style="font-weight:700;margin-bottom:6px;color:var(--accent-deep)">[2] 본인 봇 시작 → "안녕" 메시지 1개</p>
+          <p style="font-weight:700;margin-bottom:6px;color:var(--accent-deep)">[3] chat_id 확인:</p>
+          <ol style="margin-left:18px;margin-bottom:12px">
+            <li><a href="https://t.me/userinfobot" target="_blank" style="color:var(--accent);font-weight:600">@userinfobot</a> 시작 → 본인 ID 숫자 (= 9~10자리)</li>
+          </ol>
+          <p style="font-weight:700;margin-bottom:6px;color:var(--accent-deep)">[4] 아래 입력 + 테스트 + 저장</p>
+        </div>
+      </details>
+      <label for="setTgToken">봇 토큰</label>
+      <input type="text" id="setTgToken" placeholder="7654321:AAH-ABC...">
+      <label for="setTgChatId" style="margin-top:10px">chat_id</label>
+      <input type="text" id="setTgChatId" placeholder="1234567890">
+      <div style="margin-top:14px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text)">
+          <input type="checkbox" id="setTgEnabled">
+          <span>페르소나 답변 = 텔레그램으로도 받기</span>
+        </label>
+      </div>
+      <div class="actions">
+        <button class="btn" onclick="testTelegramFromSettings()">테스트 발송</button>
+        <button class="btn primary" onclick="saveTelegramFromSettings()">저장</button>
+      </div>
+    </div>
+
+    <!-- ACCOUNT tab -->
+    <div class="set-panel" data-tab="account" style="padding:24px 28px;display:none">
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:center;margin-bottom:10px">
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--mute);letter-spacing:0.08em">EMAIL</span>
+        <span id="acctEmail" style="font-size:13px;font-weight:600">···</span>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:center;margin-bottom:10px">
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--mute);letter-spacing:0.08em">PLAN</span>
+        <span id="acctPlan" style="font-size:13px;font-weight:600">···</span>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:center;margin-bottom:10px">
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--mute);letter-spacing:0.08em">VERSION</span>
+        <span style="font-size:13px;color:var(--sub)">Agent Pro 1.0</span>
+      </div>
+      <p class="info" style="margin-top:18px;font-size:11px">유료 plan = 미래 결제 통합 후 활성화 (= Stripe·토스). 현재 = 모두 FREE + BYOK.</p>
+    </div>
+
+  </div>
 </div>
 
 <!-- Model Modal -->
@@ -942,7 +1052,77 @@ async function callClaude(apiKey, pid, hist) {
 }
 
 // ============================================================
-// Model selector
+// 통합 설정 모달 (= 4탭: 키·모델·텔레그램·계정)
+// ============================================================
+function openSettings() {
+  // Key tab data
+  document.getElementById('setKey').value = getKey();
+  // Model tab data
+  const curModel = getModel();
+  const radio = document.querySelector(`input[name=setModel][value=${curModel}]`);
+  if (radio) radio.checked = true;
+  document.querySelectorAll('#settingsModal .model-opt').forEach(l => l.classList.remove('selected'));
+  document.getElementById(curModel === 'sonnet' ? 'setOptSonnet' : 'setOptHaiku')?.classList.add('selected');
+  document.querySelectorAll('input[name=setModel]').forEach(r => {
+    r.onchange = () => {
+      document.querySelectorAll('#settingsModal .model-opt').forEach(l => l.classList.remove('selected'));
+      r.closest('.model-opt').classList.add('selected');
+    };
+  });
+  // Telegram tab data
+  const tg = getTelegram() || {};
+  document.getElementById('setTgToken').value = tg.token || '';
+  document.getElementById('setTgChatId').value = tg.chatId || '';
+  document.getElementById('setTgEnabled').checked = !!tg.enabled;
+  // Account tab data
+  document.getElementById('acctEmail').textContent = USER?.email || '···';
+  const planEl = document.getElementById('acctPlan');
+  planEl.innerHTML = `<span class="plan-badge ${SUBSCRIPTION.plan}">${SUBSCRIPTION.plan.toUpperCase()}</span>`;
+
+  setSetTab('key');
+  document.getElementById('settingsModal').classList.add('show');
+  document.getElementById('userMenuPop').classList.remove('show');
+}
+function closeSettings() { document.getElementById('settingsModal').classList.remove('show'); }
+function setSetTab(tab) {
+  document.querySelectorAll('#settingsModal .set-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('#settingsModal .set-panel').forEach(p => p.style.display = p.dataset.tab === tab ? 'block' : 'none');
+}
+function saveKeyFromSettings() {
+  const v = document.getElementById('setKey').value.trim();
+  setKey(v);
+  alert('API 키 저장 완료');
+}
+function saveModelFromSettings() {
+  const v = document.querySelector('input[name=setModel]:checked')?.value;
+  if (v) setModel(v);
+  alert(`모델 = ${MODELS[v]?.name || v} 저장 완료`);
+}
+function saveTelegramFromSettings() {
+  const token = document.getElementById('setTgToken').value.trim();
+  const chatId = document.getElementById('setTgChatId').value.trim();
+  const enabled = document.getElementById('setTgEnabled').checked;
+  if (enabled && (!token || !chatId)) { alert('활성화하려면 = 봇 토큰·chat_id 둘 다 필요.'); return; }
+  setTelegram({ token, chatId, enabled });
+  alert('텔레그램 설정 저장 완료');
+}
+async function testTelegramFromSettings() {
+  const token = document.getElementById('setTgToken').value.trim();
+  const chatId = document.getElementById('setTgChatId').value.trim();
+  if (!token || !chatId) { alert('봇 토큰·chat_id 둘 다 입력해주세요.'); return; }
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text: '✅ Agent Pro 1.0 = 텔레그램 연결 성공!' })
+    });
+    const data = await res.json();
+    if (data.ok) alert('✅ 발송 성공. 텔레그램 확인해주세요.');
+    else alert('❌ 발송 실패: ' + (data.description || JSON.stringify(data)));
+  } catch(e) { alert('❌ 네트워크 오류: ' + e.message); }
+}
+
+// ============================================================
+// Model selector (= 옛 = 단독 모달, 사용 X = 호환 위해 유지)
 // ============================================================
 function openModelModal() {
   const cur = getModel();
@@ -1033,6 +1213,7 @@ function saveKey() {
 document.getElementById('keyModal').addEventListener('click', (e) => { if (e.target.id === 'keyModal') closeKeyModal(); });
 document.getElementById('tgModal').addEventListener('click', (e) => { if (e.target.id === 'tgModal') closeTgModal(); });
 document.getElementById('modelModal').addEventListener('click', (e) => { if (e.target.id === 'modelModal') closeModelModal(); });
+document.getElementById('settingsModal').addEventListener('click', (e) => { if (e.target.id === 'settingsModal') closeSettings(); });
 document.getElementById('chatModal').addEventListener('click', (e) => { if (e.target.id === 'chatModal') closeChat(); });
 document.getElementById('pickerBg').addEventListener('click', (e) => { if (e.target.id === 'pickerBg') closePicker(); });
 
