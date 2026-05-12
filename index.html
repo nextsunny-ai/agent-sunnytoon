@@ -322,33 +322,11 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 
     <!-- KEY tab -->
     <div class="set-panel active" data-tab="key" style="padding:24px 28px">
-
-      <!-- ★ 메인 path = Claude Pro/Max 구독자 = 추가 비용 0 -->
-      <div style="background:linear-gradient(135deg,#E8F0EC,#F4F9F6);border-left:4px solid var(--accent);border-radius:10px;padding:18px 20px;margin-bottom:16px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-          <span style="background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:0.08em;">★ 추천</span>
-          <strong style="font-size:15px;color:var(--accent-deep);">Claude Pro/Max 구독자 = 추가 비용 0</strong>
-        </div>
-        <p style="font-size:13px;color:var(--sub);line-height:1.6;margin:0 0 10px;">본인 PC에 Claude 데스크탑/Claude Code 설치 + Pro 로그인 → 토큰 파일 = 자동 생성. 토큰 복사 박으면 = <strong>Pro 구독 한도 안 = 추가 비용 0</strong>.</p>
-        <details style="margin-top:8px;">
-          <summary style="cursor:pointer;font-size:12px;color:var(--accent);font-weight:600;">토큰 추출 path (Win·Mac·Linux) ▾</summary>
-          <div style="margin-top:10px;font-size:12px;color:var(--sub);line-height:1.7;background:rgba(255,255,255,0.6);border-radius:8px;padding:12px 14px;">
-            <strong>1. Claude 설치 + Pro 로그인</strong><br>
-            • Win·Mac: <a href="https://claude.ai/download" target="_blank" style="color:var(--accent)">claude.ai/download</a> → Claude 데스크탑 앱<br>
-            • 또는 Claude Code: <a href="https://claude.ai/code" target="_blank" style="color:var(--accent)">claude.ai/code</a><br><br>
-            <strong>2. 토큰 파일 열기</strong><br>
-            • <strong>Win</strong>: 파일 탐색기 주소창 → <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;font-size:11px">%USERPROFILE%\.claude\.credentials.json</code><br>
-            • <strong>Mac/Linux</strong>: 터미널 → <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;font-size:11px">cat ~/.claude/.credentials.json</code><br><br>
-            <strong>3. <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;font-size:11px">accessToken</code> 값 복사</strong> = <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;font-size:11px">sk-ant-oat01-...</code>로 시작 (= 길이 200자 정도)<br><br>
-            <strong>4. 아래 입력창 = 박음 + 저장</strong> → 즉시 무료 모드 작동
-          </div>
-        </details>
-      </div>
-
-      <p class="sub">키 = 이 브라우저 localStorage·쿠키에만 저장 = 서버 전송 X.</p>
-      <label for="setKey">키 입력 (= OAuth 토큰 <code style="font-size:11px">sk-ant-oat01-</code> 또는 API 키 <code style="font-size:11px">sk-ant-api03-</code>)</label>
+      <p class="sub">본인 ANTHROPIC_API_KEY로 Anthropic API 직접 호출. 키 = 이 브라우저 localStorage·쿠키에만 저장 = 서버 전송 X.</p>
+      <p class="info">★ 키 발급 = <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> → "Create Key" → 복사. <strong><code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px">sk-ant-api03-</code>로 시작</strong>. 비용 = 본인 키 본인 차감. <strong>★ Haiku 모델 선택 시 Sonnet 1/10 비용</strong> = $5 충전 = 시나리오 장편 5편 + PPT 50개 사용 가능.</p>
+      <label for="setKey">API Key</label>
       <div style="position:relative">
-        <input type="password" id="setKey" placeholder="sk-ant-oat01-... (= Pro 구독자 = 무료) 또는 sk-ant-api03-... (= 종량제)" autocomplete="off" style="padding-right:40px">
+        <input type="password" id="setKey" placeholder="sk-ant-api03-..." autocomplete="off" style="padding-right:40px">
         <button type="button" onclick="togglePwIndex('setKey', this)" aria-label="키 보기/숨기기" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:none;background:transparent;cursor:pointer;display:grid;place-items:center;opacity:0.55;padding:0">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
@@ -356,12 +334,6 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
       <div class="actions">
         <button class="btn primary" onclick="saveKeyFromSettings()">저장</button>
       </div>
-
-      <!-- 보조 path = Pro 구독 X 작가용 -->
-      <details style="margin-top:18px;border-top:1px solid var(--line);padding-top:14px;">
-        <summary style="cursor:pointer;font-size:12px;color:var(--mute);">Claude Pro 구독 X = 종량제 API 키 path (= 보조 = 비용 발생) ▾</summary>
-        <p class="info" style="margin-top:10px;font-size:12px;line-height:1.6;">키 발급 = <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> → "Create Key" → 복사. <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;font-size:11px">sk-ant-api03-</code>로 시작. <strong>크레딧 $5 충전 = 시나리오 장편 1편 + PPT 10개 가능</strong>. 본인 키 본인 차감.</p>
-      </details>
     </div>
 
     <!-- MODEL tab -->
@@ -555,44 +527,17 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 
 <!-- Key Modal -->
 <div class="modal-bg" id="keyModal">
-  <div class="key-modal" style="max-width:560px;max-height:92vh;overflow-y:auto">
-    <h3>Claude 키 설정</h3>
-    <p class="sub" style="margin-bottom:14px">키 = 이 브라우저 localStorage·쿠키에만 저장 = 서버 전송 X.</p>
-
-    <!-- ★ 메인 path = Pro 구독 무료 -->
-    <div style="background:linear-gradient(135deg,#E8F0EC,#F4F9F6);border-left:4px solid var(--accent);border-radius:10px;padding:16px 18px;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-        <span style="background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:0.08em;">★ 추천</span>
-        <strong style="font-size:14px;color:var(--accent-deep);">Claude Pro/Max 구독자 = 추가 비용 0</strong>
-      </div>
-      <p style="font-size:12px;color:var(--sub);line-height:1.6;margin:0;">본인 PC = Claude 데스크탑/Claude Code 설치 + Pro 로그인. 토큰 파일 자동 생성 = 복사해서 박음 = <strong>Pro 한도 안 = 무료</strong>.</p>
-      <details style="margin-top:8px;">
-        <summary style="cursor:pointer;font-size:12px;color:var(--accent);font-weight:600;">토큰 추출 path (Win·Mac) ▾</summary>
-        <div style="margin-top:10px;font-size:12px;color:var(--sub);line-height:1.7;background:rgba(255,255,255,0.6);border-radius:8px;padding:12px 14px;">
-          <strong>1. Claude 설치 + Pro 로그인</strong> = <a href="https://claude.ai/download" target="_blank" style="color:var(--accent)">claude.ai/download</a><br>
-          <strong>2. 토큰 파일 열기</strong><br>
-          • <strong>Win</strong>: 파일 탐색기 주소창 = <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;font-size:11px">%USERPROFILE%\.claude\.credentials.json</code><br>
-          • <strong>Mac</strong>: 터미널 = <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;font-size:11px">cat ~/.claude/.credentials.json</code><br>
-          <strong>3. <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;font-size:11px">accessToken</code> 값 복사</strong> (= <code style="font-size:11px">sk-ant-oat01-...</code>)<br>
-          <strong>4. 아래 입력창에 박음 → 저장</strong>
-        </div>
-      </details>
-    </div>
-
-    <label for="apiKeyInput">키 입력</label>
+  <div class="key-modal">
+    <h3>Anthropic API 키 설정 (BYOK)</h3>
+    <p class="sub">본인 ANTHROPIC_API_KEY로 Anthropic API 직접 호출. 키는 이 브라우저 localStorage·쿠키에만 저장 = 서버 전송 X.</p>
+    <p class="info">★ 키 발급 = <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> → "Create Key" → 복사. <strong><code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px">sk-ant-api03-</code>로 시작</strong>. 비용 = 본인 키 본인 차감. <strong>★ Haiku 모델 선택 = $5 충전 = 시나리오 장편 5편 + PPT 50개 사용 가능</strong>.</p>
+    <label for="apiKeyInput">API Key</label>
     <div style="position:relative">
-      <input type="password" id="apiKeyInput" placeholder="sk-ant-oat01-... (= Pro 구독 무료) 또는 sk-ant-api03-... (= 종량제)" autocomplete="off" style="padding-right:40px">
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" style="padding-right:40px">
       <button type="button" onclick="togglePwIndex('apiKeyInput', this)" aria-label="키 보기/숨기기" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:none;background:transparent;cursor:pointer;display:grid;place-items:center;opacity:0.55;padding:0">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
       </button>
     </div>
-
-    <!-- 보조 path -->
-    <details style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px;">
-      <summary style="cursor:pointer;font-size:11px;color:var(--mute);">Claude Pro 구독 X = 종량제 API 키 (= 비용 발생) ▾</summary>
-      <p class="info" style="margin-top:10px;font-size:11px;line-height:1.6;">키 발급 = <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> → "Create Key". <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;font-size:10px">sk-ant-api03-</code>로 시작. $5 충전 = 시나리오 1편 + PPT 10개 가능. 본인 키 본인 차감.</p>
-    </details>
-
     <div class="actions">
       <button class="btn" onclick="closeKeyModal()">취소</button>
       <button class="btn primary" onclick="saveKey()">저장</button>
@@ -1117,7 +1062,7 @@ function openChat(pid) {
         <button class="send-btn" id="sendBtn" type="button" onclick="sendChat()">↑</button>
       </div>
       <input type="file" id="fileInp" accept="image/*" style="display:none" onchange="onImagePicked(this)">
-      <div class="chat-hint">Enter 보내기 · 🖼️ 이미지 · 🎤 음성 · ${getKey()?'키 저장됨':'키 미설정 → Pro 구독자 = 토큰 박음 무료 / 키 설정 필요'}</div>
+      <div class="chat-hint">Enter 보내기 · 🖼️ 이미지 · 🎤 음성 · BYOK · ${getKey()?'키 저장됨':'키 미설정 → 먼저 키 설정 필요'}</div>
     </div>
   `;
   document.getElementById('chatModal').classList.add('show');
