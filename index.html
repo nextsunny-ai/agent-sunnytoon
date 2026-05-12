@@ -711,9 +711,10 @@ async function boot() {
   if (cErr) { showError('회사 정보 로드 실패: ' + cErr.message); return; }
   const ALL_COMPANIES_DATA = allCompanies || [];
 
-  // ★ 권한 분기:
-  // - admin (nextsunny@gmail.com) = 모든 회사 = 전환 가능
-  // - 일반 사용자 = preferred_company 1개만 (= URL ?c도 자동 metadata 갱신)
+  // ★ 권한 분기 (2026-05-13 정정 = 일반 사용자 = SUNNY 디폴트 진입 X 사고 정정):
+  // - admin (nextsunny@gmail.com) = 모든 회사 = 전환 가능 + SUNNY 자동
+  // - 일반 사용자 = URL ?c=slug 또는 = preferred_company 박힌 회사만
+  // - 일반 사용자 + 둘 다 없음 = 회사 안내 화면 (= "회사 URL이 필요합니다")
   if (IS_ADMIN) {
     MY_COMPANIES = ALL_COMPANIES_DATA;
   } else {
@@ -723,14 +724,11 @@ async function boot() {
     if (urlSlugEarly) allowedSlugs.add(urlSlugEarly);
     if (metaSlugEarly) allowedSlugs.add(metaSlugEarly);
     MY_COMPANIES = ALL_COMPANIES_DATA.filter(c => allowedSlugs.has(c.slug));
-    if (MY_COMPANIES.length === 0) {
-      // URL도 metadata도 없음 = SUNNY 디폴트 1개만 표시 (= 옛 사용자 ·시범)
-      MY_COMPANIES = ALL_COMPANIES_DATA.filter(c => c.slug === 'sunny');
-    }
   }
 
   if (MY_COMPANIES.length === 0) {
-    showError('회사가 없습니다. 어드민에 문의해주세요.');
+    // 일반 사용자 + URL X + preferred_company X = 회사 안내 화면
+    showCompanyMissing();
     return;
   }
 
@@ -889,6 +887,37 @@ function renderTile(pid, idx) {
 
 function showError(msg) {
   document.getElementById('splash').innerHTML = `<div style="text-align:center;max-width:400px;padding:24px"><div class="brand">AGENT PRO 1.0</div><h2 style="margin-top:18px;color:#B23A2A;font-size:18px">⚠ ${escapeHtml(msg)}</h2><a href="/login.html" style="display:inline-block;margin-top:18px;padding:10px 18px;background:#1F4D3F;color:#fff;border-radius:10px;font-size:13px;text-decoration:none">로그인 페이지</a></div>`;
+}
+
+// ★ 회사 URL 안내 화면 (= 일반 사용자 + preferred_company X + URL ?c X)
+function showCompanyMissing() {
+  const email = USER?.email || '';
+  document.getElementById('splash').innerHTML = `
+    <div style="max-width:520px;width:100%;padding:48px 32px;text-align:left;font-family:'Pretendard Variable',sans-serif">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.22em;color:#1F4D3F;margin-bottom:24px">AGENT PRO 1.0</div>
+      <h2 style="font-size:24px;font-weight:800;letter-spacing:-0.025em;margin-bottom:16px;color:#1A1A1F">환영합니다 ${escapeHtml(email ? email.split('@')[0] : '')}님</h2>
+      <p style="font-size:14px;line-height:1.7;color:#5C5C66;margin-bottom:24px">Agent Pro 사용을 위해 = <strong style="color:#1F4D3F">회사 초대 URL</strong>이 필요합니다.<br>회사 담당자에게 받으신 URL로 다시 접속해주세요.</p>
+      <div style="background:#FAFAF7;border:1px dashed #D8D4CB;border-radius:12px;padding:18px 20px;margin-bottom:24px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8B8693;letter-spacing:0.06em;margin-bottom:6px">URL 예시</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#1F4D3F;word-break:break-all">agent.sunnytoon.com/?c=<span style="color:#FF8C42">회사명</span></div>
+      </div>
+      <p style="font-size:13px;line-height:1.6;color:#5C5C66;margin-bottom:20px">URL이 없으시거나 분실하셨다면 = 회사 담당자에게 문의해주세요.</p>
+      <div style="background:#E8F0EC;border-left:3px solid #1F4D3F;padding:14px 18px;border-radius:8px;margin-bottom:24px">
+        <div style="font-size:12px;color:#163A30;line-height:1.6;margin-bottom:10px">담당자 연락처를 모르시면 = 관리자에게 문의 메일:</div>
+        <a href="mailto:nextsunny@gmail.com?subject=Agent%20Pro%20%ED%9A%8C%EC%82%AC%20%EC%B4%88%EB%8C%80%20URL%20%EB%AC%B8%EC%9D%98&body=%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94%2C%20Agent%20Pro%20%EC%82%AC%EC%9A%A9%EC%9D%84%20%EC%9C%84%ED%95%9C%20%ED%9A%8C%EC%82%AC%20%EC%B4%88%EB%8C%80%20URL%EC%9D%84%20%EB%B0%9B%EA%B3%A0%20%EC%8B%B6%EC%8A%B5%EB%8B%88%EB%8B%A4.%0A%0A%C2%B7%20%EC%86%8C%EC%86%8D%20%ED%9A%8C%EC%82%AC%3A%20%0A%C2%B7%20%EC%9D%B4%EB%A6%84%3A%20%0A%C2%B7%20%EC%97%B0%EB%9D%BD%EC%B2%98%3A%20%0A%0A%EA%B0%90%EC%82%AC%ED%95%A9%EB%8B%88%EB%8B%A4." style="display:inline-flex;align-items:center;gap:8px;background:#1F4D3F;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">📧 nextsunny@gmail.com 에 문의</a>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="signOutAndReload()" style="flex:1;padding:12px 18px;border:1px solid #E8E5DE;background:#fff;color:#5C5C66;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer">→ 로그아웃</button>
+        <button onclick="location.reload()" style="flex:1;padding:12px 18px;background:#1F4D3F;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">새로고침</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('splash').style.background = '#FAFAF7';
+}
+
+async function signOutAndReload() {
+  await sb.auth.signOut();
+  location.href = '/login.html';
 }
 
 // ============================================================
