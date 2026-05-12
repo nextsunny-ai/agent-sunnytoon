@@ -153,7 +153,7 @@ input, select, textarea { font: inherit; color: inherit; }
     <button class="tab active" onclick="setTab('companies')">회사</button>
     <button class="tab" onclick="setTab('personas')">페르소나</button>
     <button class="tab" onclick="setTab('projects')">프로젝트</button>
-    <button class="tab" onclick="setTab('users')">사용자</button>
+    <button class="tab" onclick="setTab('users')">사용자 <span id="newUsersBadge" style="display:none;background:#F03E3E;color:#fff;font-size:10px;padding:1px 6px;border-radius:999px;margin-left:4px;font-family:var(--mono)"></span></button>
     <button class="tab" onclick="setTab('subscriptions')">구독</button>
   </div>
 
@@ -820,7 +820,20 @@ async function renderUsers() {
   if (error) { el.innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>'; return; }
   if (!users || users.length === 0) { el.innerHTML = '<div class="empty">가입된 사용자가 없습니다.</div>'; return; }
 
+  // ★ 신규 가입 = 옛 본 시각 이후 = NEW 배지
+  const lastSeenStr = localStorage.getItem('agent_admin_last_seen_users') || '';
+  const lastSeen = lastSeenStr ? new Date(lastSeenStr) : new Date(0);
+  const newCount = users.filter(u => new Date(u.created_at) > lastSeen).length;
+
+  // 탭 라벨 = 신규 N명 배지
+  const badge = document.getElementById('newUsersBadge');
+  if (badge) {
+    if (newCount > 0) { badge.textContent = newCount + ' NEW'; badge.style.display = 'inline-block'; }
+    else { badge.style.display = 'none'; }
+  }
+
   el.innerHTML = `
+    ${newCount > 0 ? `<div style="background:#FFE5E0;border-left:3px solid #F03E3E;padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:13px;color:#8B1F15"><b>🎉 신규 가입 ${newCount}명</b> = 옛 진입 이후 가입한 사용자. 아래 빨간 NEW 표시.<button onclick="markUsersSeen()" style="float:right;background:#F03E3E;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer">읽음 처리</button></div>` : ''}
     <table class="table">
       <thead><tr><th>이메일</th><th>회사</th><th>PLAN</th><th>가입일</th><th>마지막 로그인</th></tr></thead>
       <tbody>
@@ -829,9 +842,10 @@ async function renderUsers() {
           const planColor = u.plan==='free'?'#EEEAE0;color:#5C5C66':u.plan==='pro'?'#1F4D3F;color:#fff':u.plan==='studio'?'#6B4FBB;color:#fff':'linear-gradient(135deg,#C9A35D,#8B6914);color:#fff';
           const created = u.created_at ? new Date(u.created_at).toLocaleDateString('ko-KR', { dateStyle: 'short' }) : '—';
           const lastSignIn = u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+          const isNew = new Date(u.created_at) > lastSeen;
           return `
-            <tr>
-              <td><b>${escapeHtml(u.email || '—')}</b>${u.user_id === USER.id ? ' <span style="font-size:10px;color:var(--accent);font-weight:600">(나)</span>' : ''}</td>
+            <tr ${isNew ? 'style="background:#FFF8E8"' : ''}>
+              <td><b>${escapeHtml(u.email || '—')}</b>${u.user_id === USER.id ? ' <span style="font-size:10px;color:var(--accent);font-weight:600">(나)</span>' : ''}${isNew ? ' <span style="font-size:9px;background:#F03E3E;color:#fff;padding:1px 6px;border-radius:999px;font-family:var(--mono);font-weight:700;margin-left:6px">NEW</span>' : ''}</td>
               <td><code style="font-family:var(--mono);font-size:11px;color:var(--sub)">${escapeHtml(company)}</code></td>
               <td><span class="badge" style="background:${planColor}">${(u.plan||'free').toUpperCase()}</span></td>
               <td class="meta">${created}</td>
@@ -843,6 +857,12 @@ async function renderUsers() {
     </table>
     <p class="desc" style="margin-top:14px;font-size:11px">★ admin (nextsunny@gmail.com)만 = 이 정보 조회 가능. 사용자 삭제·비밀번호 재설정 = <a href="https://supabase.com/dashboard/project/pddasonkizwviwqzdhpu/auth/users" target="_blank" style="color:var(--accent)">Supabase Dashboard ↗</a></p>
   `;
+}
+
+function markUsersSeen() {
+  localStorage.setItem('agent_admin_last_seen_users', new Date().toISOString());
+  toast('읽음 처리 완료');
+  renderUsers();
 }
 
 // ============================================================
