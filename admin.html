@@ -317,6 +317,15 @@ input, select, textarea { font: inherit; color: inherit; }
       <div class="form-row"><label>활성</label>
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="editActive"> 회사 활성화 (= 사용 가능)</label>
       </div>
+
+      <div style="margin:24px 0 12px;padding:14px 16px;background:var(--accent-soft);border-radius:10px;border-left:3px solid var(--accent);">
+        <div style="font-size:13px;font-weight:700;color:var(--accent-deep);margin-bottom:4px;">회사 정보 (= 페르소나가 이 회사 사용자에게 답변할 때 활용)</div>
+        <div style="font-size:11px;color:var(--sub);line-height:1.6;">이 정보 = 페르소나 systemPrompt에 동적으로 합쳐짐. 마스터 SKILL(노하우)은 그대로 유지 + 회사 정보만 이 폼으로 분리. <b>다른 회사 정보·SUNNY 정보 = 노출 X</b>.</div>
+      </div>
+      <div class="form-row"><label>주요 프로젝트</label><textarea id="editMainProjects" style="min-height:90px" placeholder="예) 서울링 XR 콘텐츠, 한탄강 관광 미디어, AI 영상 외주 등"></textarea></div>
+      <div class="form-row"><label>관심 분야</label><textarea id="editInterests" style="min-height:70px" placeholder="예) XR/VR, AI 영상, 메타버스, 미디어 아트 등"></textarea></div>
+      <div class="form-row"><label>팀원</label><textarea id="editTeamMembers" style="min-height:70px" placeholder="예) 김감독 (대표·CD), 박실장 (PM), 이팀장 (디자인)"></textarea></div>
+      <div class="form-row"><label>알아야 할 사항</label><textarea id="editNotes" style="min-height:90px" placeholder="예) 페로 프로젝트는 외주 검토 중 / 제안서 톤 = 시네마틱·차분 / 회의 시간 = 오전 선호"></textarea></div>
       <div class="form-row"><label>페르소나 할당</label>
         <div>
           <div class="persona-grid" id="editPersonaGrid"></div>
@@ -661,6 +670,10 @@ function openEditModal(id) {
   document.getElementById('editEyebrow').value = c.eyebrow || 'Welcome back';
   document.getElementById('editTagline').value = c.tagline || '';
   document.getElementById('editActive').checked = c.active;
+  document.getElementById('editMainProjects').value = c.main_projects || '';
+  document.getElementById('editInterests').value = c.interests || '';
+  document.getElementById('editTeamMembers').value = c.team_members || '';
+  document.getElementById('editNotes').value = c.notes || '';
 
   // 페르소나 체크박스
   const currentPersonas = COMPANY_PERSONAS_MAP[id] || [];
@@ -704,6 +717,10 @@ async function saveEditCompany() {
   const eyebrow = document.getElementById('editEyebrow').value.trim();
   const tagline = document.getElementById('editTagline').value.trim();
   const active = document.getElementById('editActive').checked;
+  const main_projects = document.getElementById('editMainProjects').value.trim();
+  const interests = document.getElementById('editInterests').value.trim();
+  const team_members = document.getElementById('editTeamMembers').value.trim();
+  const notes = document.getElementById('editNotes').value.trim();
   const selectedPids = Array.from(document.querySelectorAll('#editPersonaGrid input:checked')).map(i => i.value);
 
   if (!slug || !name_en || !name_ko || !initial) { toast('필수 항목을 채워주세요.', true); return; }
@@ -711,6 +728,7 @@ async function saveEditCompany() {
   // 1. 회사 정보 UPDATE
   const { error: upErr } = await sb.from('agent_companies').update({
     slug, name_en, name_ko, initial, accent, accent_deep, accent_soft, eyebrow, tagline, active,
+    main_projects, interests, team_members, notes,
     updated_at: new Date().toISOString()
   }).eq('id', id);
   if (upErr) { toast('회사 수정 실패: ' + upErr.message, true); return; }

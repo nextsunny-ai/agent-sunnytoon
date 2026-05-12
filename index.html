@@ -978,19 +978,41 @@ function commonCtx() {
     : `${COMPANY.name_ko}(${COMPANY.name_en}) 소속 클라이언트 (이메일: ${USER?.email || '미상'}${userName ? `, 이름: ${userName}`:''})`;
   const honorific = isSunnyAdmin ? '대표님' : '고객님';
 
+  // ★ 회사 정보 동적 섹션 (= ADMIN 입력 폼 = main_projects·interests·team_members·notes)
+  // = SUNNY 회사면 = 빈 섹션 (= 마스터 SKILL이 SUNNY 정보 풀세트 갖고 있음)
+  // = 외부 회사 (NEXTART·BIRCH 등) = ADMIN 입력 정보로 = 자기 회사 컨텍스트 채움
+  let companyInfoSection = '';
+  if (!isSunnyAdmin) {
+    const lines = [];
+    if (COMPANY.main_projects) lines.push(`- 주요 프로젝트: ${COMPANY.main_projects}`);
+    if (COMPANY.interests)     lines.push(`- 관심 분야: ${COMPANY.interests}`);
+    if (COMPANY.team_members)  lines.push(`- 팀원: ${COMPANY.team_members}`);
+    if (COMPANY.notes)         lines.push(`- 알아야 할 사항: ${COMPANY.notes}`);
+    if (lines.length) {
+      companyInfoSection = `\n[★ 사용자 회사 정보 = ${COMPANY.name_ko} (${COMPANY.name_en}) = ADMIN 등록]
+${lines.join('\n')}
+= 이 정보 = 사용자 회사 = 본인 컨텍스트. 답변 시 = 이 회사 프로젝트·팀원·관심 분야 기준으로 = 도움.
+= SUNNY 회사 정보 (조선요괴전·페로·NORY·유희정 등) = 절대 언급 X.\n`;
+    } else {
+      companyInfoSection = `\n[★ 사용자 회사 정보 = ${COMPANY.name_ko} (${COMPANY.name_en}) = ADMIN 등록 X]
+= 회사 정보 = 아직 등록되지 않음. 사용자에게 = "어떤 프로젝트를 도와드릴까요?" 같이 = 의뢰 내용 명확히 물어보고 = 진행.\n`;
+    }
+  }
+
   return `[★ 클라이언트 정체성 — 최우선 룰]
 - 사용자 = ${userTitle}
 - 호칭 = "${honorific}" (= 옛 학습 자료의 "대표님" 호칭 = SUNNY 대표님에만 적용 = 일반 클라이언트엔 "고객님" 또는 회사 담당자 호칭)
 - 사용자 = SUNNY TEAM의 유희정 대표님이 = 아닙니다 (= ${isSunnyAdmin ? '본인이 = 대표님' : '대표님 X = 다른 회사 클라이언트'}).
-
+${companyInfoSection}
 [★ 옛 학습 자료 = 분리 룰]
-당신 SKILL = 30년 콘텐츠·디자인·기술 노하우 = 공유 자산.
-단 = 옛 SKILL.md에 박혀있는 = SUNNY 회사 정보 (= 유희정·써니엔터·조선요괴전·페로·NORY CITY 등) = SUNNY 대표님 개인·회사 프로젝트 = 클라이언트 회사 (${COMPANY.name_en}) = 무관.
-= 옛 SUNNY 프로젝트·내부 정보 = ${isSunnyAdmin ? '대표님 본인 = 자유롭게 도움' : '언급 X = 클라이언트 회사 (' + COMPANY.name_en + ') 프로젝트만 집중'}.
-= 클라이언트가 = "조선요괴전·페로·NORY 등 SUNNY 작품 알아?" 물으면 = "그건 SUNNY 대표님 작업입니다. 클라이언트님의 ${COMPANY.name_ko} 프로젝트는 = 어떤 거 도와드릴까요?" 정도로 = 분리.
+당신 SKILL = 30년 콘텐츠·디자인·기술 노하우 = 공유 자산 (= 대표님이 일부러 학습시킨 거 = 외부 회사도 노하우 활용 OK).
+단 = SKILL.md에 들어있는 = SUNNY 회사 정보 (= 유희정·써니엔터·조선요괴전·페로·NORY CITY·넥스트비쥬얼 등 SUNNY 대표님 개인·회사 프로젝트 정보) = ${isSunnyAdmin ? '대표님 본인 = 자유롭게 도움' : '절대 언급 X = 클라이언트 회사 (' + COMPANY.name_en + ') 프로젝트만 집중'}.
+= 노하우 (= 시나리오 작법·디자인 원칙·코드 패턴·마케팅 기법 등) = 공유 OK.
+= SUNNY 회사 정보 = 비공개.
+= 클라이언트가 = "조선요괴전·페로·NORY 등 SUNNY 작품 알아?" 물으면 = "그건 SUNNY 대표님 작업입니다. ${COMPANY.name_ko} 프로젝트는 = 어떤 거 도와드릴까요?" 정도로 = 분리.
 
 [★ 첫 인사 + 진행]
-- 첫 대화 시작 = 사용자에게 = "${COMPANY.name_ko}의 어떤 프로젝트를 도와드릴까요?" 같이 = 사용자 회사 의뢰 = 명확히 물음.
+- 첫 대화 시작 = "${COMPANY.name_ko}의 어떤 프로젝트를 도와드릴까요?" 같이 = 사용자 회사 의뢰 = 명확히 물음.
 - 사용자 의뢰 = SKILL 30년 노하우 적용 = 도움.
 
 [기본 룰]
@@ -1175,8 +1197,9 @@ function setModel(m) { localStorage.setItem('agent_model', m); }
 
 async function callClaude(apiKey, pid, hist) {
   const p = PERSONAS_MAP[pid];
-  // ★ 회사별 override 우선 = NEXTART·BIRCH = 깨끗한 SKILL / SUNNY = 마스터 그대로
-  const personaPrompt = COMPANY_PERSONA_OVERRIDES[pid] || p.sys_prompt;
+  // ★ 새 설계 (2026-05-13): 마스터 SKILL = 노하우 = 그대로 / 회사 정보 = ADMIN 입력 폼 (commonCtx 안)
+  // = 옛 custom_sys_prompt override = 무시 (= 회사 정보 폼으로 대체)
+  const personaPrompt = p.sys_prompt;
   const systemPrompt = commonCtx() + '\n\n' + personaPrompt;
   const messages = hist.slice(-20).map(m => ({ role: m.role, content: m.content }));
   const isOAuth = apiKey.startsWith('sk-ant-oat');
