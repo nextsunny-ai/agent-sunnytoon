@@ -325,7 +325,12 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
       <p class="sub">본인 ANTHROPIC_API_KEY로 Anthropic API 직접 호출. 키 = 이 브라우저 localStorage·쿠키에만 저장 = 서버 전송 X.</p>
       <p class="info">★ 키 발급 = <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> → "Create Key" → 복사. <strong><code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px">sk-ant-api03-</code>로 시작</strong>. 비용 = 본인 키 본인 차감.</p>
       <label for="setKey">API Key</label>
-      <input type="password" id="setKey" placeholder="sk-ant-api03-..." autocomplete="off">
+      <div style="position:relative">
+        <input type="password" id="setKey" placeholder="sk-ant-api03-..." autocomplete="off" style="padding-right:40px">
+        <button type="button" onclick="togglePwIndex('setKey', this)" aria-label="키 보기/숨기기" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:none;background:transparent;cursor:pointer;display:grid;place-items:center;opacity:0.55;padding:0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
       <div class="actions">
         <button class="btn primary" onclick="saveKeyFromSettings()">저장</button>
       </div>
@@ -527,7 +532,12 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
     <p class="sub">본인 ANTHROPIC_API_KEY로 Anthropic API 직접 호출. 키는 이 브라우저 localStorage·쿠키에만 저장 = 서버 전송 X.</p>
     <p class="info">★ 키 발급 = <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> → "Create Key" → 복사. <strong><code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px">sk-ant-api03-</code>로 시작</strong>. 비용 = 본인 키 본인 차감.</p>
     <label for="apiKeyInput">API Key</label>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off">
+    <div style="position:relative">
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" style="padding-right:40px">
+      <button type="button" onclick="togglePwIndex('apiKeyInput', this)" aria-label="키 보기/숨기기" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:none;background:transparent;cursor:pointer;display:grid;place-items:center;opacity:0.55;padding:0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
     <div class="actions">
       <button class="btn" onclick="closeKeyModal()">취소</button>
       <button class="btn primary" onclick="saveKey()">저장</button>
@@ -640,6 +650,17 @@ function stripMarkdown(s) {
     .replace(/\[(.+?)\]\((.+?)\)/g, '$1 ($2)');
 }
 function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+
+// ★ 비밀번호·API 키 보기/숨기기 토글
+function togglePwIndex(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  if (!inp) return;
+  const visible = inp.type === 'text';
+  inp.type = visible ? 'password' : 'text';
+  btn.innerHTML = visible
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;pointer-events:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+}
 
 // ★ 아바타 파일 확장자 매핑 (= 옛 home/team에서 복사)
 const AVATAR_EXT = {
