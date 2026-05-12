@@ -969,15 +969,37 @@ let currentPersona = null;
 let attachments = []; let recognition = null; let isRecording = false;
 
 function commonCtx() {
-  return `[SUNNY 공통]
-대표: 유희정(Sunny Ryu), 30년 CD, 한국 최초 여성 VFX 감독.
-클라이언트: ${COMPANY.name_en} (${COMPANY.name_ko}).
-호칭 "대표님" / "박다·박혀·박힘·박았" 표현 금지 / 모르면 모른다고 정직히 / 마크다운 ** # 등 기호 X = 일반 텍스트로.
+  const isSunnyAdmin = (COMPANY.slug === 'sunny' && IS_ADMIN);
+  const userName = (USER?.user_metadata?.name) || (USER?.email ? USER.email.split('@')[0] : '');
+  const userTitle = isSunnyAdmin
+    ? '대표님 (= 유희정, 30년 CD, 한국 최초 여성 VFX 감독, 12명 페르소나 = 대표님이 학습시킨 외주 에이전트 시스템 소유주)'
+    : `${COMPANY.name_ko}(${COMPANY.name_en}) 소속 클라이언트 (이메일: ${USER?.email || '미상'}${userName ? `, 이름: ${userName}`:''})`;
+  const honorific = isSunnyAdmin ? '대표님' : '고객님';
 
-[★ 답변 룰 — 사용자 비용 절감]
-- 간결하게. 핵심만. 미사여구 X.
-- 사용자가 "자세히" 명시할 때만 = 길게.
-- 불필요한 인사·서론·끝 인사 = 생략. = 본론만.`;
+  return `[★ 클라이언트 정체성 — 최우선 룰]
+- 사용자 = ${userTitle}
+- 호칭 = "${honorific}" (= 옛 학습 자료의 "대표님" 호칭 = SUNNY 대표님에만 적용 = 일반 클라이언트엔 "고객님" 또는 회사 담당자 호칭)
+- 사용자 = SUNNY TEAM의 유희정 대표님이 = 아닙니다 (= ${isSunnyAdmin ? '본인이 = 대표님' : '대표님 X = 다른 회사 클라이언트'}).
+
+[★ 옛 학습 자료 = 분리 룰]
+당신 SKILL = 30년 콘텐츠·디자인·기술 노하우 = 공유 자산.
+단 = 옛 SKILL.md에 박혀있는 = SUNNY 회사 정보 (= 유희정·써니엔터·조선요괴전·페로·NORY CITY 등) = SUNNY 대표님 개인·회사 프로젝트 = 클라이언트 회사 (${COMPANY.name_en}) = 무관.
+= 옛 SUNNY 프로젝트·내부 정보 = ${isSunnyAdmin ? '대표님 본인 = 자유롭게 도움' : '언급 X = 클라이언트 회사 (' + COMPANY.name_en + ') 프로젝트만 집중'}.
+= 클라이언트가 = "조선요괴전·페로·NORY 등 SUNNY 작품 알아?" 물으면 = "그건 SUNNY 대표님 작업입니다. 클라이언트님의 ${COMPANY.name_ko} 프로젝트는 = 어떤 거 도와드릴까요?" 정도로 = 분리.
+
+[★ 첫 인사 + 진행]
+- 첫 대화 시작 = 사용자에게 = "${COMPANY.name_ko}의 어떤 프로젝트를 도와드릴까요?" 같이 = 사용자 회사 의뢰 = 명확히 물음.
+- 사용자 의뢰 = SKILL 30년 노하우 적용 = 도움.
+
+[기본 룰]
+- "박다·박혀·박힘·박았" 표현 X (= "저장·기록·반영·추가·넣었" 등)
+- 모르면 = 모른다고 = 거짓말 X
+- 마크다운 기호 X (= **bold**·*italic*·# header) = 일반 텍스트로
+
+[답변 룰 — 사용자 비용 절감]
+- 간결하게. 핵심만.
+- 사용자가 "자세히" 명시 시만 = 길게.
+- 불필요한 인사·서론·끝 인사 = 생략 = 본론만.`;
 }
 
 function openChat(pid) {
@@ -1012,7 +1034,7 @@ function openChat(pid) {
       <div class="chat-input-row">
         <button class="icon-btn" type="button" onclick="pickImage()" title="이미지 첨부">🖼️</button>
         <button class="icon-btn" id="micBtn" type="button" onclick="toggleMic()" title="음성 입력 (Chrome·Edge)">🎤</button>
-        <textarea id="chatInp" placeholder="${escapeHtml(p.ko)}에게 말하기..." rows="1" onkeydown="chatKey(event)" oninput="autoGrow(this)"></textarea>
+        <textarea id="chatInp" placeholder="${escapeHtml(p.ko)}에게 말하기..." rows="1" onkeydown="chatKey(event)" oninput="autoGrow(this)" onclick="forceMobileFocus(this)" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text"></textarea>
         <button class="send-btn" id="sendBtn" type="button" onclick="sendChat()">↑</button>
       </div>
       <input type="file" id="fileInp" accept="image/*" style="display:none" onchange="onImagePicked(this)">
@@ -1024,8 +1046,17 @@ function openChat(pid) {
   scrollChat();
 }
 function closeChat() { document.getElementById('chatModal').classList.remove('show'); currentPersona = null; attachments = []; }
-function chatKey(e) { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } }
+function chatKey(e) {
+  // 모바일·아이패드 = Shift 없는 Enter = 새 줄 (= 자판 = "보내기" 버튼 = 별도)
+  // 데스크탑 = Enter = 보내기 (= Shift+Enter = 새 줄)
+  const isMobile = /iPad|iPhone|iPod|Android/.test(navigator.userAgent) || (navigator.maxTouchPoints > 1);
+  if(e.key === 'Enter' && !e.shiftKey && !isMobile) { e.preventDefault(); sendChat(); }
+}
 function autoGrow(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 130) + 'px'; }
+function forceMobileFocus(el) {
+  // 아이패드/iOS = textarea 클릭 = 자판 표시 강제
+  try { el.focus(); } catch(e){}
+}
 function scrollChat() { const c = document.getElementById('chatMsgs'); if(c) c.scrollTop = c.scrollHeight; }
 
 function appendMsg(role, text, urls) {
@@ -1099,12 +1130,18 @@ async function sendChat() {
     ];
   } else { userContent = t; }
 
-  inp.value = ''; autoGrow(inp);
+  // ★ 옛 글 남는 사고 정정 = 명시적 height·input event + iOS focus 유지
+  inp.value = '';
+  inp.style.height = 'auto';
+  autoGrow(inp);
+  try { inp.dispatchEvent(new Event('input', { bubbles: true })); } catch(e){}
   attachments = []; renderAttachBar();
   history[currentPersona] = history[currentPersona] || [];
   history[currentPersona].push({ role:'user', content: userContent, _displayText: t, _attachUrls: urls });
   saveHistory();
   appendMsg('user', t, urls);
+  // iOS = 보낸 후 = 자판 유지 (= textarea focus 재시도)
+  setTimeout(() => { try { inp.focus(); } catch(e){} }, 50);
 
   const sendBtn = document.getElementById('sendBtn'); sendBtn.disabled = true;
   const msgs = document.getElementById('chatMsgs');
