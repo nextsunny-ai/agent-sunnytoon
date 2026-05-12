@@ -75,6 +75,16 @@ function fail(msg) {
       throw new Error('세션 생성 실패. 다시 로그인해주세요.');
     }
 
+    // ★ URL ?c=slug → user_metadata.preferred_company 저장 (= Google OAuth·매직 링크 = 가입 시점에 박힘)
+    const companySlug = params.get('c');
+    if (companySlug) {
+      const currentMeta = data.session.user.user_metadata || {};
+      // 옛 값 없거나 다른 값이면 = 갱신 (= 최신 클릭 URL 우선)
+      if (currentMeta.preferred_company !== companySlug) {
+        await sb.auth.updateUser({ data: { ...currentMeta, preferred_company: companySlug } });
+      }
+    }
+
     // 안전한 redirect (= 내부 경로만)
     const safe = redirectTo.startsWith('/') && !redirectTo.startsWith('//') ? redirectTo : '/';
     location.href = safe;

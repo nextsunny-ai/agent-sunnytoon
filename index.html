@@ -691,19 +691,57 @@ async function boot() {
   USER = sess.session.user;
   IS_ADMIN = (USER.email === ADMIN_EMAIL);
 
-  // 2. 모든 활성 회사 fetch (= 자유 가입 = 누구나 접근)
+  // 2. 모든 활성 회사 fetch (= 자유 가입)
   const { data: allCompanies, error: cErr } = await sb.from('agent_companies').select('*').eq('active', true).order('created_at');
   if (cErr) { showError('회사 정보 로드 실패: ' + cErr.message); return; }
-  MY_COMPANIES = allCompanies || [];
+  const ALL_COMPANIES_DATA = allCompanies || [];
+
+  // ★ 권한 분기:
+  // - admin (nextsunny@gmail.com) = 모든 회사 = 전환 가능
+  // - 일반 사용자 = preferred_company 1개만 (= URL ?c도 자동 metadata 갱신)
+  if (IS_ADMIN) {
+    MY_COMPANIES = ALL_COMPANIES_DATA;
+  } else {
+    const urlSlugEarly = new URLSearchParams(location.search).get('c');
+    const metaSlugEarly = (USER.user_metadata && USER.user_metadata.preferred_company) || '';
+    const allowedSlugs = new Set();
+    if (urlSlugEarly) allowedSlugs.add(urlSlugEarly);
+    if (metaSlugEarly) allowedSlugs.add(metaSlugEarly);
+    MY_COMPANIES = ALL_COMPANIES_DATA.filter(c => allowedSlugs.has(c.slug));
+    if (MY_COMPANIES.length === 0) {
+      // URL도 metadata도 없음 = SUNNY 디폴트 1개만 표시 (= 옛 사용자 ·시범)
+      MY_COMPANIES = ALL_COMPANIES_DATA.filter(c => c.slug === 'sunny');
+    }
+  }
 
   if (MY_COMPANIES.length === 0) {
     showError('회사가 없습니다. 어드민에 문의해주세요.');
     return;
   }
 
-  // 3. URL ?c=slug 또는 = SUNNY 디폴트
-  const slug = new URLSearchParams(location.search).get('c');
-  COMPANY = MY_COMPANIES.find(c => c.slug === slug) || MY_COMPANIES.find(c => c.slug === 'sunny') || MY_COMPANIES[0];
+  // ★ 회사 선택 우선순위 (= 2026-05-12 정정):
+  // 1. URL ?c=slug (= 명시) → 즉시 사용 + user_metadata 갱신 (= 사용자가 카톡 새 URL 클릭한 경우)
+  // 2. user_metadata.preferred_company (= 옛 가입 시 저장)
+  // 3. admin (= nextsunny@gmail.com) → SUNNY 디폴트
+  // 4. 일반 사용자 + 1·2 둘 다 없음 → 첫 회사 fallback
+  const urlSlug = new URLSearchParams(location.search).get('c');
+  const metaSlug = (USER.user_metadata && USER.user_metadata.preferred_company) || '';
+  let resolvedSlug = '';
+
+  if (urlSlug && MY_COMPANIES.find(c => c.slug === urlSlug)) {
+    resolvedSlug = urlSlug;
+    // URL 명시 + 옛 metadata와 다름 → 갱신 (= 사용자 변경 의도)
+    if (urlSlug !== metaSlug) {
+      sb.auth.updateUser({ data: { ...(USER.user_metadata || {}), preferred_company: urlSlug } }).catch(()=>{});
+    }
+  } else if (metaSlug && MY_COMPANIES.find(c => c.slug === metaSlug)) {
+    resolvedSlug = metaSlug;
+  } else if (IS_ADMIN) {
+    resolvedSlug = 'sunny';
+  } else {
+    resolvedSlug = MY_COMPANIES[0]?.slug || '';
+  }
+  COMPANY = MY_COMPANIES.find(c => c.slug === resolvedSlug) || MY_COMPANIES[0];
 
   // 4. 페르소나 마스터 fetch (= 자동 업데이트 = 매번 최신)
   const { data: allPersonas } = await sb.from('agent_personas').select('*').eq('active', true).order('sort_order');

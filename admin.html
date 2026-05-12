@@ -815,35 +815,33 @@ async function invite() {
 
 async function renderUsers() {
   const el = document.getElementById('usersList');
-  const { data: mems, error } = await sb.from('agent_memberships').select('user_id, role, company_id, created_at');
+  // ★ RPC 호출 = admin만 = 이메일·preferred_company·plan 풀세트
+  const { data: users, error } = await sb.rpc('agent_list_users');
   if (error) { el.innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>'; return; }
-  if (!mems || mems.length === 0) { el.innerHTML = '<div class="empty">가입된 사용자가 없습니다.</div>'; return; }
+  if (!users || users.length === 0) { el.innerHTML = '<div class="empty">가입된 사용자가 없습니다.</div>'; return; }
 
-  // user_id별 = 회사 묶기
-  const userMap = {};
-  mems.forEach(m => {
-    if (!userMap[m.user_id]) userMap[m.user_id] = { roles: [], companies: [] };
-    const c = ALL_COMPANIES.find(x => x.id === m.company_id);
-    userMap[m.user_id].roles.push(m.role);
-    if (c) userMap[m.user_id].companies.push(c.name_en);
-  });
-
-  // 사용자 이메일 = auth.users는 anon key로 직접 조회 X.
-  // 우회 = user_id 표시만 (= 미래 = Edge Function 또는 RPC로 이메일 조회)
   el.innerHTML = `
     <table class="table">
-      <thead><tr><th>USER ID</th><th>회사</th><th>역할</th></tr></thead>
+      <thead><tr><th>이메일</th><th>회사</th><th>PLAN</th><th>가입일</th><th>마지막 로그인</th></tr></thead>
       <tbody>
-        ${Object.entries(userMap).map(([uid, info]) => `
-          <tr>
-            <td><code style="font-family:var(--mono);font-size:10px;color:var(--mute)">${uid.slice(0,8)}...${uid.slice(-4)}</code>${uid === USER.id ? ' <span style="font-size:10px;color:var(--accent);font-weight:600">(나)</span>' : ''}</td>
-            <td>${info.companies.join(', ')}</td>
-            <td>${info.roles.map(r => `<span class="badge ${r}">${r}</span>`).join(' ')}</td>
-          </tr>
-        `).join('')}
+        ${users.map(u => {
+          const company = u.preferred_company || '—';
+          const planColor = u.plan==='free'?'#EEEAE0;color:#5C5C66':u.plan==='pro'?'#1F4D3F;color:#fff':u.plan==='studio'?'#6B4FBB;color:#fff':'linear-gradient(135deg,#C9A35D,#8B6914);color:#fff';
+          const created = u.created_at ? new Date(u.created_at).toLocaleDateString('ko-KR', { dateStyle: 'short' }) : '—';
+          const lastSignIn = u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+          return `
+            <tr>
+              <td><b>${escapeHtml(u.email || '—')}</b>${u.user_id === USER.id ? ' <span style="font-size:10px;color:var(--accent);font-weight:600">(나)</span>' : ''}</td>
+              <td><code style="font-family:var(--mono);font-size:11px;color:var(--sub)">${escapeHtml(company)}</code></td>
+              <td><span class="badge" style="background:${planColor}">${(u.plan||'free').toUpperCase()}</span></td>
+              <td class="meta">${created}</td>
+              <td class="meta">${lastSignIn}</td>
+            </tr>
+          `;
+        }).join('')}
       </tbody>
     </table>
-    <p class="desc" style="margin-top:14px;font-size:11px">※ 이메일 조회 = 다음 버전에서 추가 (= Supabase RPC 또는 Edge Function 필요).</p>
+    <p class="desc" style="margin-top:14px;font-size:11px">★ admin (nextsunny@gmail.com)만 = 이 정보 조회 가능. 사용자 삭제·비밀번호 재설정 = <a href="https://supabase.com/dashboard/project/pddasonkizwviwqzdhpu/auth/users" target="_blank" style="color:var(--accent)">Supabase Dashboard ↗</a></p>
   `;
 }
 

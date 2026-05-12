@@ -221,6 +221,18 @@ function togglePw(inputId, btn) {
 let mode = 'login';
 const params = new URLSearchParams(location.search);
 const redirectTo = params.get('redirect') || '/';
+// ★ URL ?c=slug 보존 (= redirect 안에 포함될 수도 / 명시될 수도)
+function extractCompanySlug() {
+  // 1. 명시: ?c=nextart
+  let slug = params.get('c');
+  if (slug) return slug;
+  // 2. redirect 안에서 추출: ?redirect=%2F%3Fc%3Dnextart
+  try {
+    const r = new URL(redirectTo, location.origin);
+    return r.searchParams.get('c') || '';
+  } catch(e) { return ''; }
+}
+const preferredCompany = extractCompanySlug();
 
 function setMode(m) {
   mode = m;
@@ -277,8 +289,9 @@ async function handleSubmit(e) {
       const { data, error } = await sb.auth.signUp({
         email, password,
         options: {
-          data: { name: name || '' },
-          emailRedirectTo: `${location.origin}/auth_callback.html?redirect=${encodeURIComponent(redirectTo)}`
+          // ★ user_metadata에 preferred_company 저장 (= URL ?c=slug에서 추출)
+          data: { name: name || '', preferred_company: preferredCompany || '' },
+          emailRedirectTo: `${location.origin}/auth_callback.html?redirect=${encodeURIComponent(redirectTo)}${preferredCompany ? `&c=${encodeURIComponent(preferredCompany)}` : ''}`
         }
       });
       if (error) throw error;
@@ -305,7 +318,7 @@ async function signInGoogle() {
   try {
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${location.origin}/auth_callback.html?redirect=${encodeURIComponent(redirectTo)}` }
+      options: { redirectTo: `${location.origin}/auth_callback.html?redirect=${encodeURIComponent(redirectTo)}${preferredCompany ? `&c=${encodeURIComponent(preferredCompany)}` : ''}` }
     });
     if (error) throw error;
   } catch (err) { showError(translate(err.message || String(err))); }
@@ -318,7 +331,10 @@ async function signInMagic() {
   try {
     const { error } = await sb.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${location.origin}/auth_callback.html?redirect=${encodeURIComponent(redirectTo)}` }
+      options: {
+        data: preferredCompany ? { preferred_company: preferredCompany } : undefined,
+        emailRedirectTo: `${location.origin}/auth_callback.html?redirect=${encodeURIComponent(redirectTo)}${preferredCompany ? `&c=${encodeURIComponent(preferredCompany)}` : ''}`
+      }
     });
     if (error) throw error;
     showInfo(`${email} 받은편지함을 확인해주세요. 매직 링크 클릭 = 자동 로그인.`);
