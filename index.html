@@ -830,16 +830,16 @@ async function loadProjects() {
     countEl.textContent = '— PROJECTS';
     grid.innerHTML = `
       <div class="project-placeholder first">
-        <div class="ptitle-ph">첫 프로젝트를 추가하세요</div>
-        <div class="psub-ph">진행 중인 작업·완료된 산출물 = 여기에 표시</div>
+        <div class="ptitle-ph">📂 최근 프로젝트가 여기에 표시됩니다</div>
+        <div class="psub-ph">진행 중·완료된 작업이 = 자동으로 정리됩니다.</div>
       </div>
       <div class="project-placeholder">
         <div class="pdash"></div>
-        <div class="psub-ph">프로젝트 #2</div>
+        <div class="psub-ph">아직 등록된 프로젝트 없음</div>
       </div>
       <div class="project-placeholder">
         <div class="pdash" style="width:40%"></div>
-        <div class="psub-ph">프로젝트 #3</div>
+        <div class="psub-ph">곧 추가 예정</div>
       </div>
     `;
     return;
