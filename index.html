@@ -572,6 +572,7 @@ let MY_COMPANIES = [];
 let COMPANY = null;
 let PERSONAS_MAP = {};
 let COMPANY_PERSONA_IDS = [];
+let COMPANY_PERSONA_OVERRIDES = {}; // ★ 회사별 sys_prompt 오버라이드 (= 옛 약속 = 회사별 인스턴스 격리)
 let SUBSCRIPTION = { plan: 'free' };  // ★ 본인 구독 plan (= 미래 결제용)
 
 // ★ 유료 게이트 헬퍼 (= 미래 결제 도입 시 즉시 활성화)
@@ -760,9 +761,10 @@ async function boot() {
   const { data: allPersonas } = await sb.from('agent_personas').select('*').eq('active', true).order('sort_order');
   PERSONAS_MAP = {}; (allPersonas || []).forEach(p => { PERSONAS_MAP[p.id] = p; });
 
-  // 5. 현재 회사의 페르소나 매핑
-  const { data: cps } = await sb.from('agent_company_personas').select('persona_id, sort_order').eq('company_id', COMPANY.id).order('sort_order');
+  // 5. 현재 회사의 페르소나 매핑 + custom_sys_prompt 오버라이드
+  const { data: cps } = await sb.from('agent_company_personas').select('persona_id, sort_order, custom_sys_prompt').eq('company_id', COMPANY.id).order('sort_order');
   COMPANY_PERSONA_IDS = (cps || []).map(x => x.persona_id);
+  COMPANY_PERSONA_OVERRIDES = {}; (cps || []).forEach(x => { if (x.custom_sys_prompt) COMPANY_PERSONA_OVERRIDES[x.persona_id] = x.custom_sys_prompt; });
 
   // 6. 본인 구독 plan fetch
   const { data: sub } = await sb.from('agent_subscriptions').select('plan, expires_at').eq('user_id', USER.id).maybeSingle();
@@ -1173,7 +1175,9 @@ function setModel(m) { localStorage.setItem('agent_model', m); }
 
 async function callClaude(apiKey, pid, hist) {
   const p = PERSONAS_MAP[pid];
-  const systemPrompt = commonCtx() + '\n\n' + p.sys_prompt;
+  // ★ 회사별 override 우선 = NEXTART·BIRCH = 깨끗한 SKILL / SUNNY = 마스터 그대로
+  const personaPrompt = COMPANY_PERSONA_OVERRIDES[pid] || p.sys_prompt;
+  const systemPrompt = commonCtx() + '\n\n' + personaPrompt;
   const messages = hist.slice(-20).map(m => ({ role: m.role, content: m.content }));
   const isOAuth = apiKey.startsWith('sk-ant-oat');
   // ★ Prompt Caching = 5분 TTL · 캐시 hit = 입력 비용 90% 절감
