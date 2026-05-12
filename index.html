@@ -691,6 +691,21 @@ async function boot() {
   USER = sess.session.user;
   IS_ADMIN = (USER.email === ADMIN_EMAIL);
 
+  // ★ 사용자 = DB 존재 확인 (= admin이 삭제한 사용자 = 옛 JWT 토큰으로 진입 사고 방지)
+  // = getUser() 호출 = server 검증 = 401이면 = 강제 로그아웃
+  try {
+    const { data: userCheck, error: userErr } = await sb.auth.getUser();
+    if (userErr || !userCheck.user) {
+      await sb.auth.signOut();
+      location.href = '/login.html';
+      return;
+    }
+  } catch(e) {
+    await sb.auth.signOut();
+    location.href = '/login.html';
+    return;
+  }
+
   // 2. 모든 활성 회사 fetch (= 자유 가입)
   const { data: allCompanies, error: cErr } = await sb.from('agent_companies').select('*').eq('active', true).order('created_at');
   if (cErr) { showError('회사 정보 로드 실패: ' + cErr.message); return; }
