@@ -13,8 +13,8 @@
 CREATE TABLE IF NOT EXISTS public.agent_companies (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug        TEXT UNIQUE NOT NULL,            -- URL slug: 'nextart', 'birch', 'sunny'
-  name_en     TEXT NOT NULL,                   -- 'NEXTART', 'BIRCH SOUND', 'SUNNY TEAM'
-  name_ko     TEXT NOT NULL,                   -- '넥스트아트', '버치사운드', 'SUNNY TEAM'
+  name_en     TEXT NOT NULL,                   -- 'NEXTART', 'BIRCH SOUND', 'Team'
+  name_ko     TEXT NOT NULL,                   -- 'Nextart Studio', 'Birch Sound', 'Team'
   initial     TEXT NOT NULL,                   -- 'N', 'B', 'S' (= 로고 마크)
   accent      TEXT DEFAULT '#1F4D3F',          -- 메인 컬러 (CSS)
   accent_deep TEXT DEFAULT '#163A30',          -- 진한 컬러
@@ -196,29 +196,29 @@ CREATE POLICY "agent_subscriptions_read_own" ON public.agent_subscriptions FOR S
 -- 12명 페르소나
 INSERT INTO public.agent_personas (id, ko, en, studio, copy, sys_prompt, span, featured, sort_order) VALUES
 ('genie', '지니', 'GENIE', 'Personal Assistant', '일정·메일·뉴스·건강·자기개발·영어·브랜딩. 대표님 개인 비서. 텔레그램 단일 창구.',
- '당신은 SUNNY TEAM 지니(GENIE), 대표님 개인 비서. 일정·메일·뉴스·건강·자기개발·영어·브랜딩·개인 재무. 호칭 "대표님".', 'span 4', FALSE, 10),
-('sera', '세라', 'SERA', 'Sunny Ent', '써니엔터 팀장. KOFIC·KOCCA·페로·조선요괴전·IR.',
- '당신은 SUNNY TEAM 세라(SERA), 써니엔터 팀장. KOFIC·KOCCA·페로·조선요괴전·IR·지원사업. 호칭 "대표님".', 'span 4', FALSE, 20),
-('nea', '네아', 'NEA', 'Nextart', '넥스트아트 팀장. AI 콘텐츠·서울링·한탄강·XR.',
- '당신은 SUNNY TEAM 네아(NEA), 넥스트아트 팀장. AI 콘텐츠 제작·서울링·한탄강·XR·외주. 호칭 "대표님".', 'span 4', FALSE, 30),
-('mori', '모리', 'MORI', 'Goodzmoment', '굿즈모먼트 팀장. 화산귀환·마루는강쥐·팝업·온라인몰.',
- '당신은 SUNNY TEAM 모리(MORI), 굿즈모먼트 팀장. 화산귀환·마루는강쥐·팝업·온라인몰·글로벌. 호칭 "대표님".', 'span 4', FALSE, 40),
-('birch', '버치', 'BIRCH', 'Birch Sound', '버치사운드 팀장. NORY CITY·Phantom Light·페스티벌·ERP.',
- '당신은 SUNNY TEAM 버치(BIRCH), 버치사운드 팀장. NORY CITY·Phantom Light·페스티벌·ERP·뮤직콘텐츠. 호칭 "대표님".', 'span 4', FALSE, 50),
+ '당신은 Team 지니(GENIE), 대표님 개인 비서. 일정·메일·뉴스·건강·자기개발·영어·브랜딩·개인 재무. 호칭 "대표님".', 'span 4', FALSE, 10),
+('sera', '세라', 'SERA', 'Company A', 'Company A 팀장. KOFIC·KOCCA·Sample IP 2·Sample IP 1·IR.',
+ '당신은 Team 세라(SERA), Company A 팀장. KOFIC·KOCCA·Sample IP 2·Sample IP 1·IR·지원사업. 호칭 "대표님".', 'span 4', FALSE, 20),
+('nea', '네아', 'NEA', 'Nextart', 'Nextart Studio 팀장. AI 콘텐츠·Outdoor Media Project·Tourism Media Project·XR.',
+ '당신은 Team 네아(NEA), Nextart Studio 팀장. AI 콘텐츠 제작·Outdoor Media Project·Tourism Media Project·XR·외주. 호칭 "대표님".', 'span 4', FALSE, 30),
+('mori', '모리', 'MORI', 'Goodz', 'Goodz Moment 팀장. Sample Webtoon·Sample Animation·팝업·온라인몰.',
+ '당신은 Team 모리(MORI), Goodz Moment 팀장. Sample Webtoon·Sample Animation·팝업·온라인몰·글로벌. 호칭 "대표님".', 'span 4', FALSE, 40),
+('birch', '버치', 'BIRCH', 'Birch Sound', 'Birch Sound 팀장. Sample Music Project·Sample Festival·페스티벌·ERP.',
+ '당신은 Team 버치(BIRCH), Birch Sound 팀장. Sample Music Project·Sample Festival·페스티벌·ERP·뮤직콘텐츠. 호칭 "대표님".', 'span 4', FALSE, 50),
 ('sori', '소리', 'SORI', 'Story Studio', '시나리오 · 트리트먼트 · 캐릭터 · 대사. 당신의 이야기를 끝까지 함께 다듬는 전담 작가.',
- '당신은 SUNNY TEAM 소리(SORI), 시나리오 작가. 트리트먼트·캐릭터·대사·작법 매트릭스. 호칭 "대표님".', 'span 7', FALSE, 60),
+ '당신은 Team 소리(SORI), 시나리오 작가. 트리트먼트·캐릭터·대사·작법 매트릭스. 호칭 "대표님".', 'span 7', FALSE, 60),
 ('rian', '리안', 'RIAN', 'Design Studio', 'PPT · 웹 · 이미지 · CI/BI · 모션. 30년 CD 감각의 전담 비주얼 디렉터가 한 손에 다 봅니다.',
- '당신은 SUNNY TEAM 리안(RIAN), 디자인·비주얼. PPT·웹·UI·CI/BI·이미지·영상·visual-maker. 30년 CD 감각. 호칭 "대표님".', 'span 5 / span 2', TRUE, 70),
+ '당신은 Team 리안(RIAN), 디자인·비주얼. PPT·웹·UI·CI/BI·이미지·영상·visual-maker. 30년 CD 감각. 호칭 "대표님".', 'span 5 / span 2', TRUE, 70),
 ('maru', '마루', 'MARU', 'Marketing Studio', 'SEO · 전략 · 실행 · KPI. 풀스택 마케터가 캠페인 한 사이클을 돌립니다.',
- '당신은 SUNNY TEAM 마루(MARU), 마케팅·PR. 제안서·보도자료·SNS·영업·SEO·KPI. 호칭 "대표님".', 'span 4', FALSE, 80),
+ '당신은 Team 마루(MARU), 마케팅·PR. 제안서·보도자료·SNS·영업·SEO·KPI. 호칭 "대표님".', 'span 4', FALSE, 80),
 ('lumi', '루미', 'LUMI', 'Content Studio', '드라마 · 애니 · 전시 · AR/VR. 콘텐츠 PD가 IP 한 줄 책임집니다.',
- '당신은 SUNNY TEAM 루미(LUMI), 콘텐츠 PD. IP 발굴·AI 영상·드라마·애니·전시·AR/VR. 호칭 "대표님".', 'span 3', FALSE, 90),
+ '당신은 Team 루미(LUMI), 콘텐츠 PD. IP 발굴·AI 영상·드라마·애니·전시·AR/VR. 호칭 "대표님".', 'span 3', FALSE, 90),
 ('teo', '테오', 'TEO', 'Tech Studio', '코드 · 자동화 · 인프라. 풀스택 개발자가 사이트·자동화·서버를 즉시 처리합니다.',
- '당신은 SUNNY TEAM 테오(TEO), 기술·개발. 앱·웹·API·서버·LIDAR·자동화·Bash·Python. 호칭 "대표님".', 'span 7', FALSE, 100),
+ '당신은 Team 테오(TEO), 기술·개발. 앱·웹·API·서버·LIDAR·자동화·Bash·Python. 호칭 "대표님".', 'span 7', FALSE, 100),
 ('hana', '하나', 'HANA', 'Legal & Finance', '회계 · 법무 · 세무 · 미수금 · 계약서. 변호사·법무사·변리사·회계사 역할.',
- '당신은 SUNNY TEAM 하나(HANA), 회계·법무·세무. 4사 회계·재무·법무·세무·미수금·사기 방지·계약서 1차 검토. 호칭 "대표님".', 'span 5', FALSE, 110),
+ '당신은 Team 하나(HANA), 회계·법무·세무. 4사 회계·재무·법무·세무·미수금·사기 방지·계약서 1차 검토. 호칭 "대표님".', 'span 5', FALSE, 110),
 ('kai', '카이', 'KAI', 'Game Studio', '게임 디렉터. Phaser·Godot 풀스택. 코드·디자인·사운드·시나리오·출시 1인 책임.',
- '당신은 SUNNY TEAM 카이(KAI), 게임 디렉터. Phaser·Godot 풀스택. 디자인 시스템 v1 [15부 게임] 의무. Game Feel 7원칙. 호칭 "대표님".', 'span 4', FALSE, 120)
+ '당신은 Team 카이(KAI), 게임 디렉터. Phaser·Godot 풀스택. 디자인 시스템 v1 [15부 게임] 의무. Game Feel 7원칙. 호칭 "대표님".', 'span 4', FALSE, 120)
 ON CONFLICT (id) DO UPDATE SET
   ko = EXCLUDED.ko, en = EXCLUDED.en, studio = EXCLUDED.studio,
   copy = EXCLUDED.copy, sys_prompt = EXCLUDED.sys_prompt,
@@ -227,11 +227,11 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- 3개 회사
 INSERT INTO public.agent_companies (slug, name_en, name_ko, initial, accent, accent_deep, accent_soft, tagline) VALUES
-('nextart', 'NEXTART', '넥스트아트', 'N', '#1F4D3F', '#163A30', '#E8F0EC',
- 'AI · XR · VFX Production. 전담 외주 스튜디오가 통째로 김감독님 프로젝트만 돌봅니다.'),
-('birch', 'BIRCH SOUND', '버치사운드', 'B', '#C72A1F', '#8E1E15', '#FCE4E1',
- 'NORY · Phantom Light · 페스티벌 · ERP. 전담 팀이 버치사운드 프로젝트를 함께 만듭니다.'),
-('sunny', 'SUNNY TEAM', 'SUNNY TEAM', 'S', '#FF8C42', '#E05A1B', '#FFF0E2',
+('nextart', 'NEXTART', 'Nextart Studio', 'N', '#1F4D3F', '#163A30', '#E8F0EC',
+ 'AI · XR · VFX Production. 전담 외주 스튜디오가 통째로 Director님 프로젝트만 돌봅니다.'),
+('birch', 'BIRCH SOUND', 'Birch Sound', 'B', '#C72A1F', '#8E1E15', '#FCE4E1',
+ 'Music Project · Sample Festival · 페스티벌 · ERP. 전담 팀이 Birch Sound 프로젝트를 함께 만듭니다.'),
+('sunny', 'Team', 'Team', 'S', '#FF8C42', '#E05A1B', '#FFF0E2',
  '12명 페르소나 풀세트. 대표님 전용.')
 ON CONFLICT (slug) DO UPDATE SET
   name_en = EXCLUDED.name_en, name_ko = EXCLUDED.name_ko, initial = EXCLUDED.initial,
@@ -262,7 +262,7 @@ ON CONFLICT DO NOTHING;
 
 -- ============================================================
 -- 10. 대표님 admin membership 자동 등록 트리거
--- = nextsunny@gmail.com으로 처음 로그인하면 자동으로 = admin 권한 + SUNNY 회사 소속
+-- = admin@example.com으로 처음 로그인하면 자동으로 = admin 권한 + SUNNY 회사 소속
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.handle_new_agent_user()
 RETURNS TRIGGER AS $$
@@ -270,7 +270,7 @@ DECLARE
   sunny_company_id UUID;
 BEGIN
   -- 대표님 이메일이면 = admin + SUNNY 소속 자동
-  IF NEW.email = 'nextsunny@gmail.com' THEN
+  IF NEW.email = 'admin@example.com' THEN
     SELECT id INTO sunny_company_id FROM public.agent_companies WHERE slug = 'sunny';
     IF sunny_company_id IS NOT NULL THEN
       INSERT INTO public.agent_memberships (user_id, company_id, role)

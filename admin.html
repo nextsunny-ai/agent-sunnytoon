@@ -165,7 +165,7 @@ input, select, textarea { font: inherit; color: inherit; }
       <p class="desc">회사명·페르소나·로고 컬러 = 입력 → 즉시 공유 URL 생성.</p>
       <div class="form-row"><label>SLUG (URL)</label><input id="newSlug" placeholder="nextart (소문자·영문만)"></div>
       <div class="form-row"><label>영문명</label><input id="newNameEn" placeholder="NEXTART"></div>
-      <div class="form-row"><label>한글명</label><input id="newNameKo" placeholder="넥스트아트"></div>
+      <div class="form-row"><label>한글명</label><input id="newNameKo" placeholder="Nextart Studio"></div>
       <div class="form-row"><label>이니셜</label><input id="newInitial" placeholder="N" maxlength="2"></div>
       <div class="form-row"><label>메인 컬러</label>
         <div class="color-row">
@@ -205,7 +205,7 @@ input, select, textarea { font: inherit; color: inherit; }
       <div class="form-row"><label>회사</label>
         <select id="projCompany"></select>
       </div>
-      <div class="form-row"><label>제목</label><input id="projTitle" placeholder="한탄강 XR 영상"></div>
+      <div class="form-row"><label>제목</label><input id="projTitle" placeholder="Tourism Media Project XR 영상"></div>
       <div class="form-row"><label>부제</label><input id="projSubtitle" placeholder="(옵션) 한 줄 설명"></div>
       <div class="form-row"><label>상태</label>
         <select id="projStatus">
@@ -292,7 +292,7 @@ input, select, textarea { font: inherit; color: inherit; }
       <input type="hidden" id="editId">
       <div class="form-row"><label>SLUG (URL)</label><input id="editSlug" placeholder="nextart"></div>
       <div class="form-row"><label>영문명</label><input id="editNameEn" placeholder="NEXTART"></div>
-      <div class="form-row"><label>한글명</label><input id="editNameKo" placeholder="넥스트아트"></div>
+      <div class="form-row"><label>한글명</label><input id="editNameKo" placeholder="Nextart Studio"></div>
       <div class="form-row"><label>이니셜</label><input id="editInitial" maxlength="2"></div>
       <div class="form-row"><label>메인 컬러</label>
         <div class="color-row">
@@ -322,10 +322,10 @@ input, select, textarea { font: inherit; color: inherit; }
         <div style="font-size:13px;font-weight:700;color:var(--accent-deep);margin-bottom:4px;">회사 정보 (= 페르소나가 이 회사 사용자에게 답변할 때 활용)</div>
         <div style="font-size:11px;color:var(--sub);line-height:1.6;">이 정보 = 페르소나 systemPrompt에 동적으로 합쳐짐. 마스터 SKILL(노하우)은 그대로 유지 + 회사 정보만 이 폼으로 분리. <b>다른 회사 정보·SUNNY 정보 = 노출 X</b>.</div>
       </div>
-      <div class="form-row"><label>주요 프로젝트</label><textarea id="editMainProjects" style="min-height:90px" placeholder="예) 서울링 XR 콘텐츠, 한탄강 관광 미디어, AI 영상 외주 등"></textarea></div>
+      <div class="form-row"><label>주요 프로젝트</label><textarea id="editMainProjects" style="min-height:90px" placeholder="예) Outdoor Media Project XR 콘텐츠, Tourism Media Project 관광 미디어, AI 영상 외주 등"></textarea></div>
       <div class="form-row"><label>관심 분야</label><textarea id="editInterests" style="min-height:70px" placeholder="예) XR/VR, AI 영상, 메타버스, 미디어 아트 등"></textarea></div>
-      <div class="form-row"><label>팀원</label><textarea id="editTeamMembers" style="min-height:70px" placeholder="예) 김감독 (대표·CD), 박실장 (PM), 이팀장 (디자인)"></textarea></div>
-      <div class="form-row"><label>알아야 할 사항</label><textarea id="editNotes" style="min-height:90px" placeholder="예) 페로 프로젝트는 외주 검토 중 / 제안서 톤 = 시네마틱·차분 / 회의 시간 = 오전 선호"></textarea></div>
+      <div class="form-row"><label>팀원</label><textarea id="editTeamMembers" style="min-height:70px" placeholder="예) Director (대표·CD), 박실장 (PM), 이팀장 (디자인)"></textarea></div>
+      <div class="form-row"><label>알아야 할 사항</label><textarea id="editNotes" style="min-height:90px" placeholder="예) Sample IP 2 프로젝트는 외주 검토 중 / 제안서 톤 = 시네마틱·차분 / 회의 시간 = 오전 선호"></textarea></div>
       <div class="form-row"><label>페르소나 할당</label>
         <div>
           <div class="persona-grid" id="editPersonaGrid"></div>
@@ -385,7 +385,7 @@ async function boot() {
   document.getElementById('whoAvatar').textContent = (USER.email || 'A')[0].toUpperCase();
 
   // admin 확인 = 이메일 기준 (= 자유 가입 모델)
-  const ADMIN_EMAIL = 'nextsunny@gmail.com';
+  const ADMIN_EMAIL = 'admin@example.com';
   const isAdmin = (USER.email === ADMIN_EMAIL);
   if (!isAdmin) {
     document.querySelector('.shell').innerHTML = '<div class="card" style="text-align:center;padding:60px 20px"><h3 style="color:var(--danger)">⚠ 권한 없음</h3><p class="desc" style="margin-top:10px">admin 권한이 필요합니다.</p><a href="/" class="btn">← 홈으로</a></div>';
@@ -877,7 +877,7 @@ async function renderUsers() {
         }).join('')}
       </tbody>
     </table>
-    <p class="desc" style="margin-top:14px;font-size:11px">★ admin (nextsunny@gmail.com)만 = 이 정보 조회 가능.<br>★ <strong>삭제 = 즉시 = auth.users + 구독·매핑 cascade 삭제 = 복구 X.</strong> 비밀번호 재설정 = <a href="https://supabase.com/dashboard/project/pddasonkizwviwqzdhpu/auth/users" target="_blank" style="color:var(--accent)">Supabase Dashboard ↗</a></p>
+    <p class="desc" style="margin-top:14px;font-size:11px">★ admin (admin@example.com)만 = 이 정보 조회 가능.<br>★ <strong>삭제 = 즉시 = auth.users + 구독·매핑 cascade 삭제 = 복구 X.</strong> 비밀번호 재설정 = <a href="https://supabase.com/dashboard/project/pddasonkizwviwqzdhpu/auth/users" target="_blank" style="color:var(--accent)">Supabase Dashboard ↗</a></p>
   `;
 }
 

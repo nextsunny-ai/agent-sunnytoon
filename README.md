@@ -6,9 +6,9 @@
 
 | 회사 | URL | 페르소나 |
 |---|---|---|
-| NEXTART (김감독) | `agent.sunnytoon.com/?c=nextart` | 소리·리안·마루·루미·테오·카이 = 6명 |
-| 버치사운드 | `agent.sunnytoon.com/?c=birch` | 버치·테오·리안 = 3명 |
-| SUNNY TEAM (대표님) | `agent.sunnytoon.com/?c=sunny` 또는 `/` | 12명 전체 |
+| NEXTART (Director) | `agent.sunnytoon.com/?c=nextart` | 소리·리안·마루·루미·테오·카이 = 6명 |
+| Birch Sound | `agent.sunnytoon.com/?c=birch` | 버치·테오·리안 = 3명 |
+| Team (대표님) | `agent.sunnytoon.com/?c=sunny` 또는 `/` | 12명 전체 |
 
 ## BYOK 모델
 

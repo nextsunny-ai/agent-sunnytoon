@@ -785,8 +785,8 @@ function avatarUrl(pid) { return `avatars/${pid}.${AVATAR_EXT[pid] || 'png'}`; }
 // - 누구나 가입 = OK
 // - 회사 = URL ?c=xx 로 결정 (= 누구나 접근 가능)
 // - BYOK = 본인 API 키 = 진짜 통제 (= 키 없으면 호출 X)
-// - ADMIN = nextsunny@gmail.com 이메일만 (= 회사·페르소나 편집)
-const ADMIN_EMAIL = 'nextsunny@gmail.com';
+// - ADMIN = admin@example.com 이메일만 (= 회사·페르소나 편집)
+const ADMIN_EMAIL = 'admin@example.com';
 
 async function boot() {
   // 1. 세션 확인 (= 인증 필수)
@@ -820,7 +820,7 @@ async function boot() {
   const ALL_COMPANIES_DATA = allCompanies || [];
 
   // ★ 권한 분기 (2026-05-13 정정 = 일반 사용자 = SUNNY 디폴트 진입 X 사고 정정):
-  // - admin (nextsunny@gmail.com) = 모든 회사 = 전환 가능 + SUNNY 자동
+  // - admin (admin@example.com) = 모든 회사 = 전환 가능 + SUNNY 자동
   // - 일반 사용자 = URL ?c=slug 또는 = preferred_company 박힌 회사만
   // - 일반 사용자 + 둘 다 없음 = 회사 안내 화면 (= "회사 URL이 필요합니다")
   if (IS_ADMIN) {
@@ -843,7 +843,7 @@ async function boot() {
   // ★ 회사 선택 우선순위 (= 2026-05-12 정정):
   // 1. URL ?c=slug (= 명시) → 즉시 사용 + user_metadata 갱신 (= 사용자가 카톡 새 URL 클릭한 경우)
   // 2. user_metadata.preferred_company (= 옛 가입 시 저장)
-  // 3. admin (= nextsunny@gmail.com) → SUNNY 디폴트
+  // 3. admin (= admin@example.com) → SUNNY 디폴트
   // 4. 일반 사용자 + 1·2 둘 다 없음 → 첫 회사 fallback
   const urlSlug = new URLSearchParams(location.search).get('c');
   const metaSlug = (USER.user_metadata && USER.user_metadata.preferred_company) || '';
@@ -1013,7 +1013,7 @@ function showCompanyMissing() {
       <p style="font-size:13px;line-height:1.6;color:#5C5C66;margin-bottom:20px">URL이 없으시거나 분실하셨다면 = 회사 담당자에게 문의해주세요.</p>
       <div style="background:#E8F0EC;border-left:3px solid #1F4D3F;padding:14px 18px;border-radius:8px;margin-bottom:24px">
         <div style="font-size:12px;color:#163A30;line-height:1.6;margin-bottom:10px">담당자 연락처를 모르시면 = 관리자에게 문의 메일:</div>
-        <a href="mailto:nextsunny@gmail.com?subject=Agent%20Pro%20%ED%9A%8C%EC%82%AC%20%EC%B4%88%EB%8C%80%20URL%20%EB%AC%B8%EC%9D%98&body=%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94%2C%20Agent%20Pro%20%EC%82%AC%EC%9A%A9%EC%9D%84%20%EC%9C%84%ED%95%9C%20%ED%9A%8C%EC%82%AC%20%EC%B4%88%EB%8C%80%20URL%EC%9D%84%20%EB%B0%9B%EA%B3%A0%20%EC%8B%B6%EC%8A%B5%EB%8B%88%EB%8B%A4.%0A%0A%C2%B7%20%EC%86%8C%EC%86%8D%20%ED%9A%8C%EC%82%AC%3A%20%0A%C2%B7%20%EC%9D%B4%EB%A6%84%3A%20%0A%C2%B7%20%EC%97%B0%EB%9D%BD%EC%B2%98%3A%20%0A%0A%EA%B0%90%EC%82%AC%ED%95%A9%EB%8B%88%EB%8B%A4." style="display:inline-flex;align-items:center;gap:8px;background:#1F4D3F;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">📧 nextsunny@gmail.com 에 문의</a>
+        <a href="mailto:admin@example.com?subject=Agent%20Pro%20%ED%9A%8C%EC%82%AC%20%EC%B4%88%EB%8C%80%20URL%20%EB%AC%B8%EC%9D%98&body=%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94%2C%20Agent%20Pro%20%EC%82%AC%EC%9A%A9%EC%9D%84%20%EC%9C%84%ED%95%9C%20%ED%9A%8C%EC%82%AC%20%EC%B4%88%EB%8C%80%20URL%EC%9D%84%20%EB%B0%9B%EA%B3%A0%20%EC%8B%B6%EC%8A%B5%EB%8B%88%EB%8B%A4.%0A%0A%C2%B7%20%EC%86%8C%EC%86%8D%20%ED%9A%8C%EC%82%AC%3A%20%0A%C2%B7%20%EC%9D%B4%EB%A6%84%3A%20%0A%C2%B7%20%EC%97%B0%EB%9D%BD%EC%B2%98%3A%20%0A%0A%EA%B0%90%EC%82%AC%ED%95%A9%EB%8B%88%EB%8B%A4." style="display:inline-flex;align-items:center;gap:8px;background:#1F4D3F;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">📧 admin@example.com 에 문의</a>
       </div>
       <div style="display:flex;gap:8px">
         <button onclick="signOutAndReload()" style="flex:1;padding:12px 18px;border:1px solid #E8E5DE;background:#fff;color:#5C5C66;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer">→ 로그아웃</button>
@@ -1081,7 +1081,7 @@ function commonCtx() {
   const isSunnyAdmin = (COMPANY.slug === 'sunny' && IS_ADMIN);
   const userName = (USER?.user_metadata?.name) || (USER?.email ? USER.email.split('@')[0] : '');
   const userTitle = isSunnyAdmin
-    ? '대표님 (= 유희정, 30년 CD, 한국 최초 여성 VFX 감독, 12명 페르소나 = 대표님이 학습시킨 외주 에이전트 시스템 소유주)'
+    ? '대표님 (= Founder, 30년 CD, 한국 최초 여성 VFX 감독, 12명 페르소나 = 대표님이 학습시킨 외주 에이전트 시스템 소유주)'
     : `${COMPANY.name_ko}(${COMPANY.name_en}) 소속 클라이언트 (이메일: ${USER?.email || '미상'}${userName ? `, 이름: ${userName}`:''})`;
   const honorific = isSunnyAdmin ? '대표님' : '고객님';
 
@@ -1099,7 +1099,7 @@ function commonCtx() {
       companyInfoSection = `\n[★ 사용자 회사 정보 = ${COMPANY.name_ko} (${COMPANY.name_en}) = ADMIN 등록]
 ${lines.join('\n')}
 = 이 정보 = 사용자 회사 = 본인 컨텍스트. 답변 시 = 이 회사 프로젝트·팀원·관심 분야 기준으로 = 도움.
-= SUNNY 회사 정보 (조선요괴전·페로·NORY·유희정 등) = 절대 언급 X.\n`;
+= SUNNY 회사 정보 (Sample IP 1·Sample IP 2·Music Project·Founder 등) = 절대 언급 X.\n`;
     } else {
       companyInfoSection = `\n[★ 사용자 회사 정보 = ${COMPANY.name_ko} (${COMPANY.name_en}) = ADMIN 등록 X]
 = 회사 정보 = 아직 등록되지 않음. 사용자에게 = "어떤 프로젝트를 도와드릴까요?" 같이 = 의뢰 내용 명확히 물어보고 = 진행.\n`;
@@ -1109,14 +1109,14 @@ ${lines.join('\n')}
   return `[★ 클라이언트 정체성 — 최우선 룰]
 - 사용자 = ${userTitle}
 - 호칭 = "${honorific}" (= 옛 학습 자료의 "대표님" 호칭 = SUNNY 대표님에만 적용 = 일반 클라이언트엔 "고객님" 또는 회사 담당자 호칭)
-- 사용자 = SUNNY TEAM의 유희정 대표님이 = 아닙니다 (= ${isSunnyAdmin ? '본인이 = 대표님' : '대표님 X = 다른 회사 클라이언트'}).
+- 사용자 = Team의 Founder 대표님이 = 아닙니다 (= ${isSunnyAdmin ? '본인이 = 대표님' : '대표님 X = 다른 회사 클라이언트'}).
 ${companyInfoSection}
 [★ 옛 학습 자료 = 분리 룰]
 당신 SKILL = 30년 콘텐츠·디자인·기술 노하우 = 공유 자산 (= 대표님이 일부러 학습시킨 거 = 외부 회사도 노하우 활용 OK).
-단 = SKILL.md에 들어있는 = SUNNY 회사 정보 (= 유희정·써니엔터·조선요괴전·페로·NORY CITY·넥스트비쥬얼 등 SUNNY 대표님 개인·회사 프로젝트 정보) = ${isSunnyAdmin ? '대표님 본인 = 자유롭게 도움' : '절대 언급 X = 클라이언트 회사 (' + COMPANY.name_en + ') 프로젝트만 집중'}.
+단 = SKILL.md에 들어있는 = SUNNY 회사 정보 (= Founder·Company A·Sample IP 1·Sample IP 2·Sample Music Project·넥스트비쥬얼 등 SUNNY 대표님 개인·회사 프로젝트 정보) = ${isSunnyAdmin ? '대표님 본인 = 자유롭게 도움' : '절대 언급 X = 클라이언트 회사 (' + COMPANY.name_en + ') 프로젝트만 집중'}.
 = 노하우 (= 시나리오 작법·디자인 원칙·코드 패턴·마케팅 기법 등) = 공유 OK.
 = SUNNY 회사 정보 = 비공개.
-= 클라이언트가 = "조선요괴전·페로·NORY 등 SUNNY 작품 알아?" 물으면 = "그건 SUNNY 대표님 작업입니다. ${COMPANY.name_ko} 프로젝트는 = 어떤 거 도와드릴까요?" 정도로 = 분리.
+= 클라이언트가 = "Sample IP 1·Sample IP 2·Music Project 등 SUNNY 작품 알아?" 물으면 = "그건 SUNNY 대표님 작업입니다. ${COMPANY.name_ko} 프로젝트는 = 어떤 거 도와드릴까요?" 정도로 = 분리.
 
 [★ 첫 인사 + 진행]
 - 첫 대화 시작 = "${COMPANY.name_ko}의 어떤 프로젝트를 도와드릴까요?" 같이 = 사용자 회사 의뢰 = 명확히 물음.
