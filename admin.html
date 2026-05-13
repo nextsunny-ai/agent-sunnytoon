@@ -174,11 +174,18 @@ input, select, textarea { font: inherit; color: inherit; }
         </div>
       </div>
       <div class="form-row"><label>태그라인</label><textarea id="newTagline" placeholder="환영 메시지 / 회사 소개 1~2줄"></textarea></div>
-      <div class="form-row"><label>페르소나 할당</label>
-        <div class="persona-grid" id="newPersonaGrid"></div>
+
+      <div style="border-top:1px solid var(--line);margin:18px 0 14px;padding-top:14px">
+        <p class="desc" style="margin:0 0 10px;font-size:12px;color:var(--sub)"><strong>★ 회사 담당 페르소나 (= 1명)</strong> — 전문가 7명 (루미·소리·마루·리안·테오·하나·카이) = 자동 카피</p>
+        <div class="form-row"><label>담당 ID</label><input id="newLeadId" placeholder="예: yang (= ?p=yang URL slug, 영문 소문자)"></div>
+        <div class="form-row"><label>담당 한글명</label><input id="newLeadKo" placeholder="예: 양이"></div>
+        <div class="form-row"><label>담당 영문명</label><input id="newLeadEn" placeholder="예: YANG"></div>
+        <div class="form-row"><label>담당 분야</label><input id="newLeadStudio" placeholder="예: AI/XR Studio"></div>
       </div>
+
+      <p class="desc" style="font-size:11px;color:var(--mute)">★ 회사 추가 = 담당 1명 + 전문가 7명 = 8명 자동 카피 (= 어느 회사 자료도 X). 회사 자료는 = "수정" 모달에서 페르소나별로 입력.</p>
       <div class="btn-row">
-        <button class="btn primary" onclick="createCompany()">회사 추가</button>
+        <button class="btn primary" onclick="createCompany()">회사 추가 (= 담당 1 + 전문가 7 자동 카피)</button>
       </div>
     </div>
 
@@ -326,11 +333,12 @@ input, select, textarea { font: inherit; color: inherit; }
       <div class="form-row"><label>관심 분야</label><textarea id="editInterests" style="min-height:70px" placeholder="예) XR/VR, AI 영상, 메타버스, 미디어 아트 등"></textarea></div>
       <div class="form-row"><label>팀원</label><textarea id="editTeamMembers" style="min-height:70px" placeholder="예) Director (대표·CD), 박실장 (PM), 이팀장 (디자인)"></textarea></div>
       <div class="form-row"><label>알아야 할 사항</label><textarea id="editNotes" style="min-height:90px" placeholder="예) Sample IP 2 프로젝트는 외주 검토 중 / 제안서 톤 = 시네마틱·차분 / 회의 시간 = 오전 선호"></textarea></div>
-      <div class="form-row"><label>페르소나 할당</label>
-        <div>
-          <div class="persona-grid" id="editPersonaGrid"></div>
-          <p style="margin-top:8px;font-size:11px;color:var(--mute)">★ 체크 = 그 회사에서 = 사용 가능. 해제 = 즉시 제거.</p>
-        </div>
+      <div style="margin:24px 0 12px;padding:14px 16px;background:#FFF6E8;border-radius:10px;border-left:3px solid #C9A35D;">
+        <div style="font-size:13px;font-weight:700;color:#7A5C1F;margin-bottom:4px;">★ 회사별 페르소나 카피본 = 자료 격리</div>
+        <div style="font-size:11px;color:var(--sub);line-height:1.6;">각 페르소나 = 이 회사 전용 카피본 (= 다른 회사·SUNNY 자료 노출 X). 빈 자료 = 마스터 기본만. 회사 노하우·스타일·내부 자료 = 아래에 입력.</div>
+      </div>
+      <div class="form-row"><label>페르소나 자료</label>
+        <div id="editPersonaList" style="display:flex;flex-direction:column;gap:14px"></div>
       </div>
     </div>
     <div style="padding:18px 28px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--bg);">
@@ -402,20 +410,25 @@ async function boot() {
 
 let ALL_PROJECTS = [];
 
+let COMPANY_PERSONAS_FULL = {}; // companyId -> [{persona_id, ko, en, studio, copy, sys_prompt, lead, ...}, ...]
+
 async function loadAll() {
   const [personasRes, companiesRes, cpRes, projsRes] = await Promise.all([
     sb.from('agent_personas').select('*').order('sort_order'),
     sb.from('agent_companies').select('*').order('created_at'),
-    sb.from('agent_company_personas').select('company_id, persona_id, sort_order').order('sort_order'),
+    sb.from('agent_company_personas').select('*').order('sort_order'),
     sb.from('agent_projects').select('*').order('sort_order').order('updated_at', { ascending: false })
   ]);
   ALL_PERSONAS = personasRes.data || [];
   ALL_COMPANIES = companiesRes.data || [];
   ALL_PROJECTS = projsRes.data || [];
   COMPANY_PERSONAS_MAP = {};
+  COMPANY_PERSONAS_FULL = {};
   (cpRes.data || []).forEach(cp => {
     if (!COMPANY_PERSONAS_MAP[cp.company_id]) COMPANY_PERSONAS_MAP[cp.company_id] = [];
     COMPANY_PERSONAS_MAP[cp.company_id].push(cp.persona_id);
+    if (!COMPANY_PERSONAS_FULL[cp.company_id]) COMPANY_PERSONAS_FULL[cp.company_id] = [];
+    COMPANY_PERSONAS_FULL[cp.company_id].push(cp);
   });
 
   renderNewPersonaGrid();
@@ -582,7 +595,12 @@ function copyUrl(url) {
 }
 
 function renderNewPersonaGrid() {
+  // v2 = 회사 생성 시 자동 카피 (담당 1 + 전문가 7) = 체크박스 영역 X
   const grid = document.getElementById('newPersonaGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  return;
+  // === 옛 코드 (= 사용 X) ===
   grid.innerHTML = ALL_PERSONAS.map(p => `
     <label class="persona-check" data-pid="${p.id}">
       <input type="checkbox" value="${p.id}">
@@ -597,6 +615,9 @@ function renderNewPersonaGrid() {
   });
 }
 
+// ★ 전문가 7 = 4사 공통 (lumi·sori·maru·rian·teo·hana·kai)
+const EXPERT_PERSONA_IDS = ['lumi','sori','maru','rian','teo','hana','kai'];
+
 async function createCompany() {
   const slug = document.getElementById('newSlug').value.trim().toLowerCase();
   const name_en = document.getElementById('newNameEn').value.trim();
@@ -604,33 +625,62 @@ async function createCompany() {
   const initial = document.getElementById('newInitial').value.trim();
   const accent = document.getElementById('newAccentText').value.trim() || '#1F4D3F';
   const tagline = document.getElementById('newTagline').value.trim();
-  const personaIds = Array.from(document.querySelectorAll('#newPersonaGrid input:checked')).map(i => i.value);
 
-  if (!slug || !name_en || !name_ko || !initial) { toast('필수 항목을 채워주세요.', true); return; }
-  if (personaIds.length === 0) { toast('페르소나 1명 이상 선택.', true); return; }
+  // 담당 페르소나
+  const leadId = document.getElementById('newLeadId').value.trim().toLowerCase();
+  const leadKo = document.getElementById('newLeadKo').value.trim();
+  const leadEn = document.getElementById('newLeadEn').value.trim();
+  const leadStudio = document.getElementById('newLeadStudio').value.trim();
+
+  if (!slug || !name_en || !name_ko || !initial) { toast('회사 필수 항목을 채워주세요.', true); return; }
+  if (!leadId || !leadKo || !leadEn) { toast('담당 페르소나 ID·한글·영문 필수.', true); return; }
 
   // 컬러 변형 (deep·soft 자동 계산)
   const accent_deep = adjustColor(accent, -25);
   const accent_soft = adjustColor(accent, +90, 0.12);
 
+  // 1) 회사 생성
   const { data: company, error } = await sb.from('agent_companies').insert({
     slug, name_en, name_ko, initial, accent, accent_deep, accent_soft, tagline
   }).select().single();
 
   if (error) { toast('회사 추가 실패: ' + error.message, true); return; }
 
-  // 페르소나 매핑
-  const mappings = personaIds.map((pid, i) => ({ company_id: company.id, persona_id: pid, sort_order: i }));
-  const { error: mapErr } = await sb.from('agent_company_personas').insert(mappings);
-  if (mapErr) { toast('페르소나 매핑 실패: ' + mapErr.message, true); return; }
+  // 2) 담당 페르소나 마스터에 등록 (= 카탈로그에 신규 추가, 이미 있으면 그대로)
+  const { error: persErr } = await sb.from('agent_personas').upsert({
+    id: leadId,
+    ko: leadKo,
+    en: leadEn.toUpperCase(),
+    studio: leadStudio || `${name_en} Studio`,
+    copy: `${name_en} 담당 페르소나 영역.`,
+    sys_prompt: `당신은 ${name_en} 담당 페르소나입니다. 호칭 "대표님". "박다" 표현 금지.`,
+    span: 'span 4',
+    featured: false,
+    sort_order: 100
+  }, { onConflict: 'id' });
+  if (persErr) { toast('담당 페르소나 등록 실패: ' + persErr.message, true); return; }
 
-  toast(`${name_en} 추가 완료. URL: agent.sunnytoon.com/?c=${slug}`);
-  document.getElementById('newSlug').value = '';
-  document.getElementById('newNameEn').value = '';
-  document.getElementById('newNameKo').value = '';
-  document.getElementById('newInitial').value = '';
-  document.getElementById('newTagline').value = '';
-  document.querySelectorAll('#newPersonaGrid input').forEach(i => { i.checked = false; i.closest('.persona-check').classList.remove('checked'); });
+  // 3) 회사별 카피 = 담당 1 + 전문가 7 = 8명 (= 회사 자료 X 깨끗한 카피)
+  const ids = [leadId, ...EXPERT_PERSONA_IDS];
+  const { data: masterRows } = await sb.from('agent_personas').select('*').in('id', ids);
+  const rows = ids.map((pid, i) => {
+    const m = masterRows.find(r => r.id === pid) || {};
+    return {
+      company_id: company.id,
+      persona_id: pid,
+      sort_order: i,
+      ko: m.ko, en: m.en, studio: m.studio, copy: m.copy,
+      sys_prompt: m.sys_prompt, span: m.span, avatar: m.avatar,
+      featured: false,
+      lead: (pid === leadId)
+    };
+  });
+  const { error: mapErr } = await sb.from('agent_company_personas').insert(rows);
+  if (mapErr) { toast('페르소나 카피 실패: ' + mapErr.message, true); return; }
+
+  toast(`${name_en} 추가 완료 = ${ids.length}명 카피 (담당:${leadId} + 전문가7). URL: /?c=${slug}`);
+  ['newSlug','newNameEn','newNameKo','newInitial','newTagline','newLeadId','newLeadKo','newLeadEn','newLeadStudio']
+    .forEach(id => { document.getElementById(id).value = ''; });
   await loadAll();
 }
 
@@ -675,19 +725,31 @@ function openEditModal(id) {
   document.getElementById('editTeamMembers').value = c.team_members || '';
   document.getElementById('editNotes').value = c.notes || '';
 
-  // 페르소나 체크박스
-  const currentPersonas = COMPANY_PERSONAS_MAP[id] || [];
-  const grid = document.getElementById('editPersonaGrid');
-  grid.innerHTML = ALL_PERSONAS.map(p => `
-    <label class="persona-check ${currentPersonas.includes(p.id) ? 'checked' : ''}" data-pid="${p.id}">
-      <input type="checkbox" value="${p.id}" ${currentPersonas.includes(p.id) ? 'checked' : ''}>
-      <span class="ko">${escapeHtml(p.ko)}</span>
-      <span class="en">${p.en}</span>
-    </label>
-  `).join('');
-  grid.querySelectorAll('input').forEach(inp => {
-    inp.addEventListener('change', e => e.target.closest('.persona-check').classList.toggle('checked', e.target.checked));
-  });
+  // 페르소나 자료 카드 (= 회사별 격리 카피본)
+  const list = COMPANY_PERSONAS_FULL[id] || [];
+  const wrap = document.getElementById('editPersonaList');
+  wrap.innerHTML = list.length === 0
+    ? '<p style="font-size:12px;color:var(--mute);padding:14px;background:var(--bg);border-radius:8px">카피본 없음 = SQL 카피 또는 신규 회사 추가 시 자동 생성됨.</p>'
+    : list.map((cp, i) => `
+      <div class="persona-edit-card" data-pid="${cp.persona_id}" style="padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--bg)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <strong style="font-size:14px">${escapeHtml(cp.ko || cp.persona_id)}</strong>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:0.08em">${escapeHtml(cp.en || cp.persona_id.toUpperCase())}</span>
+            ${cp.lead ? '<span style="font-size:10px;padding:2px 6px;border-radius:999px;background:var(--accent);color:#fff;font-family:var(--mono)">LEAD</span>' : ''}
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--sub);cursor:pointer">
+            <input type="checkbox" class="cp-featured" ${cp.featured ? 'checked' : ''}> FEATURED
+          </label>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <input type="text" class="cp-studio" value="${escapeHtml(cp.studio || '')}" placeholder="studio (예: AI/XR Studio)">
+          <input type="text" class="cp-span" value="${escapeHtml(cp.span || 'span 4')}" placeholder="span (예: span 4)">
+        </div>
+        <input type="text" class="cp-copy" value="${escapeHtml(cp.copy || '')}" placeholder="copy (= 카드 짧은 설명, 1줄)" style="width:100%;margin-bottom:8px">
+        <textarea class="cp-sys" placeholder="sys_prompt = 이 회사용 노하우·맥락·톤 (= 다른 회사 자료 X)" style="width:100%;min-height:100px;font-family:var(--mono);font-size:11px;line-height:1.5">${escapeHtml(cp.sys_prompt || '')}</textarea>
+      </div>
+    `).join('');
 
   // 컬러 sync
   ['Accent','AccentDeep','AccentSoft'].forEach(n => {
@@ -721,8 +783,6 @@ async function saveEditCompany() {
   const interests = document.getElementById('editInterests').value.trim();
   const team_members = document.getElementById('editTeamMembers').value.trim();
   const notes = document.getElementById('editNotes').value.trim();
-  const selectedPids = Array.from(document.querySelectorAll('#editPersonaGrid input:checked')).map(i => i.value);
-
   if (!slug || !name_en || !name_ko || !initial) { toast('필수 항목을 채워주세요.', true); return; }
 
   // 1. 회사 정보 UPDATE
@@ -733,17 +793,26 @@ async function saveEditCompany() {
   }).eq('id', id);
   if (upErr) { toast('회사 수정 실패: ' + upErr.message, true); return; }
 
-  // 2. 페르소나 매핑 = 기존 다 삭제 후 = 새로 INSERT
-  const { error: delErr } = await sb.from('agent_company_personas').delete().eq('company_id', id);
-  if (delErr) { toast('옛 매핑 삭제 실패: ' + delErr.message, true); return; }
-
-  if (selectedPids.length > 0) {
-    const rows = selectedPids.map((pid, i) => ({ company_id: id, persona_id: pid, sort_order: i }));
-    const { error: insErr } = await sb.from('agent_company_personas').insert(rows);
-    if (insErr) { toast('새 매핑 추가 실패: ' + insErr.message, true); return; }
+  // 2. 페르소나 카피본 = 각 카드별 자료 update
+  const cards = document.querySelectorAll('#editPersonaList .persona-edit-card');
+  let updated = 0, errored = 0;
+  for (const card of cards) {
+    const pid = card.dataset.pid;
+    const patch = {
+      studio: card.querySelector('.cp-studio').value.trim(),
+      span: card.querySelector('.cp-span').value.trim() || 'span 4',
+      copy: card.querySelector('.cp-copy').value.trim(),
+      sys_prompt: card.querySelector('.cp-sys').value.trim(),
+      featured: card.querySelector('.cp-featured').checked,
+      updated_at: new Date().toISOString()
+    };
+    const { error: cpErr } = await sb.from('agent_company_personas').update(patch)
+      .eq('company_id', id).eq('persona_id', pid);
+    if (cpErr) { errored++; console.warn('persona update fail:', pid, cpErr.message); }
+    else updated++;
   }
 
-  toast(`${name_en} 수정 완료 (= 사용자 새로고침 시 자동 반영)`);
+  toast(`${name_en} 수정 완료. 페르소나 ${updated}/${cards.length}건 update${errored ? ` (${errored}건 실패)` : ''}`);
   closeEditModal();
   await loadAll();
 }

@@ -826,14 +826,30 @@ async function boot() {
   }
   COMPANY = MY_COMPANIES.find(c => c.slug === resolvedSlug) || MY_COMPANIES[0];
 
-  // 4. 페르소나 마스터 fetch (= 자동 업데이트 = 매번 최신)
+  // 4. 페르소나 마스터 fetch (= 카탈로그 = avatar 등 보조 자료)
   const { data: allPersonas } = await sb.from('agent_personas').select('*').eq('active', true).order('sort_order');
   PERSONAS_MAP = {}; (allPersonas || []).forEach(p => { PERSONAS_MAP[p.id] = p; });
 
-  // 5. 현재 회사의 페르소나 매핑 + custom_sys_prompt 오버라이드
-  const { data: cps } = await sb.from('agent_company_personas').select('persona_id, sort_order, custom_sys_prompt').eq('company_id', COMPANY.id).order('sort_order');
+  // 5. ★ 현재 회사의 페르소나 카피본 fetch (= v2 = 회사별 격리 자료)
+  const { data: cps } = await sb.from('agent_company_personas').select('*').eq('company_id', COMPANY.id).order('sort_order');
   COMPANY_PERSONA_IDS = (cps || []).map(x => x.persona_id);
-  COMPANY_PERSONA_OVERRIDES = {}; (cps || []).forEach(x => { if (x.custom_sys_prompt) COMPANY_PERSONA_OVERRIDES[x.persona_id] = x.custom_sys_prompt; });
+  COMPANY_PERSONA_OVERRIDES = {};
+  (cps || []).forEach(cp => {
+    // ★ 카피본 자료가 = 마스터를 오버라이드 (= 마스터 = 어느 회사 자료도 X / 카피본 = 회사 전용)
+    const masterP = PERSONAS_MAP[cp.persona_id] || {};
+    PERSONAS_MAP[cp.persona_id] = {
+      ...masterP,
+      ko: cp.ko || masterP.ko,
+      en: cp.en || masterP.en,
+      studio: cp.studio || masterP.studio,
+      copy: cp.copy || masterP.copy,
+      span: cp.span || masterP.span,
+      avatar: cp.avatar || masterP.avatar,
+      featured: cp.featured ?? masterP.featured,
+      sys_prompt: cp.sys_prompt || masterP.sys_prompt
+    };
+    if (cp.sys_prompt) COMPANY_PERSONA_OVERRIDES[cp.persona_id] = cp.sys_prompt;
+  });
 
   // 6. 본인 구독 plan fetch
   const { data: sub } = await sb.from('agent_subscriptions').select('plan, expires_at').eq('user_id', USER.id).maybeSingle();
@@ -1011,8 +1027,22 @@ async function switchCompany(slug) {
   const newCompany = MY_COMPANIES.find(c => c.slug === slug);
   if (!newCompany) return;
   COMPANY = newCompany;
-  const { data: cps } = await sb.from('agent_company_personas').select('persona_id, sort_order').eq('company_id', COMPANY.id).order('sort_order');
+  // ★ v2 = 회사 전환 시 카피본 전체 fetch (= 격리 자료 다 재로드)
+  const { data: cps } = await sb.from('agent_company_personas').select('*').eq('company_id', COMPANY.id).order('sort_order');
   COMPANY_PERSONA_IDS = (cps || []).map(x => x.persona_id);
+  COMPANY_PERSONA_OVERRIDES = {};
+  (cps || []).forEach(cp => {
+    const masterP = PERSONAS_MAP[cp.persona_id] || {};
+    PERSONAS_MAP[cp.persona_id] = {
+      ...masterP,
+      ko: cp.ko || masterP.ko, en: cp.en || masterP.en,
+      studio: cp.studio || masterP.studio, copy: cp.copy || masterP.copy,
+      span: cp.span || masterP.span, avatar: cp.avatar || masterP.avatar,
+      featured: cp.featured ?? masterP.featured,
+      sys_prompt: cp.sys_prompt || masterP.sys_prompt
+    };
+    if (cp.sys_prompt) COMPANY_PERSONA_OVERRIDES[cp.persona_id] = cp.sys_prompt;
+  });
   applyCompany();
   loadHistory();
   renderBento();
