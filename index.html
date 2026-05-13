@@ -360,7 +360,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
       <button class="company-switch" id="companySwitch" onclick="openPicker()" style="display:none">회사 전환</button>
       <a class="admin-link" id="adminLink" href="./admin.html">⚙ ADMIN</a>
       <span class="plan-badge free" id="planBadge" style="display:none">FREE</span>
-      <button class="key-btn" id="keyBtn" onclick="openKeyModal()">🔑 <span id="keyLabel">키 설정</span></button>
+      <button class="key-btn" id="keyBtn" onclick="openKeyModal()" style="display:none">🔑 <span id="keyLabel">옛 BYOK (사용 X)</span></button>
       <div class="user-menu">
         <div class="user-trigger" onclick="toggleUserMenu(event)">
           <span class="email" id="userEmail">···</span>
@@ -421,7 +421,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
       <button onclick="closeSettings()" style="width:32px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:14px;color:var(--sub);cursor:pointer">✕</button>
     </div>
     <div style="display:flex;gap:2px;padding:0 28px;border-bottom:1px solid var(--line);margin-top:18px">
-      <button class="set-tab active" data-tab="key" onclick="setSetTab('key')">🔑 키 설정</button>
+      <button class="set-tab active" data-tab="key" onclick="setSetTab('key')" style="display:none">🔑 옛 BYOK</button>
       <button class="set-tab" data-tab="model" onclick="setSetTab('model')">⚡ 모델</button>
       <button class="set-tab" data-tab="tg" onclick="setSetTab('tg')">📱 텔레그램</button>
       <button class="set-tab" data-tab="account" onclick="setSetTab('account')">👤 계정</button>
@@ -429,8 +429,8 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 
     <!-- KEY tab -->
     <div class="set-panel active" data-tab="key" style="padding:24px 28px">
-      <p class="sub">본인 ANTHROPIC_API_KEY로 Anthropic API 직접 호출. 키 = 이 브라우저 localStorage·쿠키에만 저장 = 서버 전송 X.</p>
-      <p class="info">★ 키 발급 = <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> → "Create Key" → 복사. <strong><code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px">sk-ant-api03-</code>로 시작</strong>. 비용 = 본인 키 본인 차감. <strong>★ Haiku 모델 선택 시 Sonnet 1/10 비용</strong> = $5 충전 = 시나리오 장편 5편 + PPT 50개 사용 가능.</p>
+      <p class="sub">★ V1.0 = 데스크탑 앱 + 본인 Claude Pro/Max 구독 = 비용 0.</p>
+      <p class="info">★ 데스크탑 앱 다운로드 = <a href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/tag/v1.0.0-beta" target="_blank">GitHub Releases v1.0.0-beta</a> → Mac/Windows zip 다운 → 자동 설치 후 사용. 추가 비용 0 (= 본인 Claude Pro $20/월 또는 Max $200/월 구독만).</p>
       <label for="setKey">API Key</label>
       <div style="position:relative">
         <input type="password" id="setKey" placeholder="sk-ant-api03-..." autocomplete="off" style="padding-right:40px">
@@ -518,7 +518,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
         <span style="font-family:var(--font-mono);font-size:11px;color:var(--mute);letter-spacing:0.08em">VERSION</span>
         <span style="font-size:13px;color:var(--sub)">Agent Pro 1.0</span>
       </div>
-      <p class="info" style="margin-top:18px;font-size:11px">유료 plan = 미래 결제 통합 후 활성화 (= Stripe·토스). 현재 = 모두 FREE + BYOK.</p>
+      <p class="info" style="margin-top:18px;font-size:11px">유료 plan = 미래 (= 본인 Claude 구독만 필요). 현재 = 베타 무료.</p>
     </div>
 
   </div>
@@ -635,9 +635,9 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 <!-- Key Modal -->
 <div class="modal-bg" id="keyModal">
   <div class="key-modal">
-    <h3>Anthropic API 키 설정 (BYOK)</h3>
-    <p class="sub">본인 ANTHROPIC_API_KEY로 Anthropic API 직접 호출. 키는 이 브라우저 localStorage·쿠키에만 저장 = 서버 전송 X.</p>
-    <p class="info">★ 키 발급 = <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> → "Create Key" → 복사. <strong><code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px">sk-ant-api03-</code>로 시작</strong>. 비용 = 본인 키 본인 차감. <strong>★ Haiku 모델 선택 = $5 충전 = 시나리오 장편 5편 + PPT 50개 사용 가능</strong>.</p>
+    <h3>V1.0 데스크탑 앱 사용</h3>
+    <p class="sub">★ V1.0 = 데스크탑 앱 + 본인 Claude Pro/Max 구독 사용 = 추가 비용 0.</p>
+    <p class="info">★ 다운로드 = <a href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/tag/v1.0.0-beta" target="_blank">GitHub Releases v1.0.0-beta</a>. Mac/Windows zip → 자동 설치 → 사용. 옛 BYOK (API 키 입력) 방식은 더 이상 사용 X.</p>
     <label for="apiKeyInput">API Key</label>
     <div style="position:relative">
       <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" style="padding-right:40px">
@@ -1149,7 +1149,7 @@ function openChat(pid) {
     </div>
     <div class="chat-msgs" id="chatMsgs">${
       msgs.length === 0
-        ? `<div class="msg sys">${escapeHtml(p.ko)}와 대화 시작. 본인 ANTHROPIC_API_KEY 저장돼야 호출 가능.</div>`
+        ? `<div class="msg sys">${escapeHtml(p.ko)}와 대화 시작. 데스크탑 앱 = 본인 Claude 구독으로 호출.</div>`
         : msgs.map(m => {
             let txt = '';
             if (typeof m.content === 'string') txt = m.content;
@@ -1169,7 +1169,7 @@ function openChat(pid) {
         <button class="send-btn" id="sendBtn" type="button" onclick="sendChat()">↑</button>
       </div>
       <input type="file" id="fileInp" accept="image/*" style="display:none" onchange="onImagePicked(this)">
-      <div class="chat-hint">Enter 보내기 · 🖼️ 이미지 · 🎤 음성 · BYOK · ${getKey()?'키 저장됨':'키 미설정 → 먼저 키 설정 필요'}</div>
+      <div class="chat-hint">Enter 보내기 · 🖼️ 이미지 · 🎤 음성 · 본인 Claude 구독 사용</div>
     </div>
   `;
   document.getElementById('chatModal').classList.add('show');
@@ -1290,7 +1290,7 @@ async function sendChat() {
     sendTelegramNotification(PERSONAS_MAP[currentPersona]?.ko || currentPersona, reply);
   } catch(e) {
     document.getElementById('typing')?.remove();
-    appendMsg('agent', `⚠️ 호출 실패: ${e.message}\n\n키 확인 → console.anthropic.com 발급한 sk-ant-... 키 저장됐는지 확인`);
+    appendMsg('agent', `⚠️ 호출 실패: ${e.message}\n\n웹 = 데모용. 진짜 사용 = 데스크탑 앱 다운로드 (= 본인 Claude 구독 = 비용 0)`);
   } finally { sendBtn.disabled = false; }
 }
 
@@ -1424,7 +1424,7 @@ function setSetTab(tab) {
 function saveKeyFromSettings() {
   const v = document.getElementById('setKey').value.trim();
   setKey(v);
-  alert('API 키 저장 완료');
+  alert('데스크탑 앱 = 자동 인증 (= 본인 Claude 구독)');
 }
 function saveModelFromSettings() {
   const v = document.querySelector('input[name=setModel]:checked')?.value;
