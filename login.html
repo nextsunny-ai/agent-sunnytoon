@@ -143,6 +143,24 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
     <div class="form-eyebrow">SIGN IN</div>
     <h1 class="form-title" id="formTitle">로그인</h1>
 
+    <!-- ★ 2026-05-14: 데스크탑 앱 다운로드 영역 -->
+    <div id="desktopDownload" style="background:var(--accent-soft);border:1px solid rgba(31,77,63,0.15);border-radius:12px;padding:14px 16px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:18px;">⬇️</span>
+        <span style="font-size:13px;font-weight:700;color:var(--accent);">데스크탑 앱 V1.0 베타</span>
+      </div>
+      <div style="font-size:11px;color:var(--sub);line-height:1.5;margin-bottom:10px;">
+        본인 Claude Pro/Max 구독 = 비용 0. 더블클릭 = 자동 설치.
+      </div>
+      <div style="display:flex;gap:6px;">
+        <a id="dlMac" href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/download/v1.0.0-beta/agent-pro-beta-v1-mac.zip" style="flex:1;padding:8px;background:var(--accent);color:#fff;border-radius:8px;text-align:center;font-size:11px;font-weight:600;text-decoration:none;font-family:var(--font-mono);letter-spacing:0.04em;">Mac (7MB)</a>
+        <a id="dlWin" href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/download/v1.0.0-beta/agent-pro-beta-v1-windows.zip" style="flex:1;padding:8px;background:var(--accent);color:#fff;border-radius:8px;text-align:center;font-size:11px;font-weight:600;text-decoration:none;font-family:var(--font-mono);letter-spacing:0.04em;">Windows (4.6MB)</a>
+      </div>
+      <div style="margin-top:8px;font-size:10px;color:var(--mute);text-align:center;">
+        압축 풀기 → 1_Setup_First 더블클릭 → 2_SUNNY_Agent_Pro 더블클릭
+      </div>
+    </div>
+
     <div class="mode-tabs">
       <button class="mode-tab active" id="tabLogin" onclick="setMode('login')">로그인</button>
       <button class="mode-tab" id="tabSignup" onclick="setMode('signup')">가입</button>
@@ -345,6 +363,28 @@ async function signInMagic() {
 (async () => {
   const { data } = await sb.auth.getSession();
   if (data.session) location.href = redirectTo;
+})();
+</script>
+
+<script>
+// ★ OS 자동 감지 = 본인 OS 다운로드 강조
+(function() {
+  const ua = navigator.userAgent.toLowerCase();
+  const isMac = /mac/.test(ua);
+  const isWin = /win/.test(ua);
+  const dlMac = document.getElementById('dlMac');
+  const dlWin = document.getElementById('dlWin');
+  if (dlMac && dlWin) {
+    if (isMac) {
+      dlMac.style.fontSize = '13px';
+      dlMac.innerHTML = '★ Mac 다운로드 (7MB)';
+      dlWin.style.opacity = '0.5';
+    } else if (isWin) {
+      dlWin.style.fontSize = '13px';
+      dlWin.innerHTML = '★ Windows 다운로드 (4.6MB)';
+      dlMac.style.opacity = '0.5';
+    }
+  }
 })();
 </script>
 </body>
