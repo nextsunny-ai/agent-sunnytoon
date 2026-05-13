@@ -702,7 +702,7 @@ function adjustColor(hex, amt, alpha) {
 
 let EDIT_COMPANY_ID = null;
 
-function openEditModal(id) {
+async function openEditModal(id) {
   const c = ALL_COMPANIES.find(x => x.id === id); if (!c) return;
   EDIT_COMPANY_ID = id;
   document.getElementById('editTitle').textContent = `${c.name_en} 수정`;
@@ -725,8 +725,15 @@ function openEditModal(id) {
   document.getElementById('editTeamMembers').value = c.team_members || '';
   document.getElementById('editNotes').value = c.notes || '';
 
-  // 에이전트 자료 카드 (= 회사별 격리 카피본)
+  // 에이전트 자료 카드 (= 회사별 격리 카피본 + learnings)
   const list = COMPANY_PERSONAS_FULL[id] || [];
+  // ★ v4 = 회사 페르소나별 pending learnings 카운트 fetch
+  const { data: learnings } = await sb.from('agent_learnings').select('*').eq('company_id', id).eq('status', 'pending').order('created_at', { ascending: false });
+  const learnByPid = {};
+  (learnings || []).forEach(l => {
+    if (!learnByPid[l.persona_id]) learnByPid[l.persona_id] = [];
+    learnByPid[l.persona_id].push(l);
+  });
   const wrap = document.getElementById('editPersonaList');
   wrap.innerHTML = list.length === 0
     ? '<p style="font-size:12px;color:var(--mute);padding:14px;background:var(--bg);border-radius:8px">카피본 없음 = SQL 카피 또는 신규 회사 추가 시 자동 생성됨.</p>'
@@ -748,6 +755,26 @@ function openEditModal(id) {
         </div>
         <input type="text" class="cp-copy" value="${escapeHtml(cp.copy || '')}" placeholder="copy (= 카드 짧은 설명, 1줄)" style="width:100%;margin-bottom:8px">
         <textarea class="cp-sys" placeholder="sys_prompt = 이 회사용 노하우·맥락·톤 (= 다른 회사 자료 X)" style="width:100%;min-height:100px;font-family:var(--mono);font-size:11px;line-height:1.5">${escapeHtml(cp.sys_prompt || '')}</textarea>
+        ${(learnByPid[cp.persona_id] || []).length > 0 ? `
+          <div style="margin-top:10px;padding:10px 12px;background:#FFF8E8;border-radius:8px;border-left:3px solid #C9A35D">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <strong style="font-size:12px;color:#7A5C1F">★ 자동 학습 누적 ${learnByPid[cp.persona_id].length}건 (검토 대기)</strong>
+              <button type="button" onclick="mergeAllLearnings('${id}','${cp.persona_id}')" style="font-size:11px;padding:4px 10px;background:#1F4D3F;color:#fff;border:none;border-radius:6px;cursor:pointer">★ sys_prompt에 통합</button>
+            </div>
+            <div style="max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:6px">
+              ${learnByPid[cp.persona_id].map(l => `
+                <div style="padding:8px 10px;background:#fff;border-radius:6px;font-size:11px;line-height:1.5">
+                  <div style="color:#7A5C1F;font-family:var(--mono);font-size:10px;margin-bottom:3px">★ ${escapeHtml(l.trigger_keyword)} · ${new Date(l.created_at).toLocaleDateString('ko-KR')}</div>
+                  <div style="color:var(--sub);margin-bottom:3px"><strong>사용자:</strong> ${escapeHtml((l.user_message || '').slice(0,120))}</div>
+                  <div style="color:var(--text)"><strong>답변:</strong> ${escapeHtml((l.assistant_reply || '').slice(0,200))}${(l.assistant_reply || '').length > 200 ? '...' : ''}</div>
+                  <div style="margin-top:4px;display:flex;gap:6px">
+                    <button type="button" onclick="rejectLearning('${l.id}')" style="font-size:10px;padding:2px 8px;background:#fff;border:1px solid var(--line);border-radius:4px;cursor:pointer">기각</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
       </div>
     `).join('');
 
@@ -814,6 +841,68 @@ async function saveEditCompany() {
 
   toast(`${name_en} 수정 완료. 에이전트 ${updated}/${cards.length}건 update${errored ? ` (${errored}건 실패)` : ''}`);
   closeEditModal();
+  await loadAll();
+}
+
+// ════════════════════════════════════════════
+// ★ v4 = 자동 학습 통합·기각 함수
+// ════════════════════════════════════════════
+
+async function mergeAllLearnings(companyId, personaId) {
+  const learnings = (COMPANY_PERSONAS_FULL[companyId] || []).length > 0
+    ? (await sb.from('agent_learnings').select('*').eq('company_id', companyId).eq('persona_id', personaId).eq('status', 'pending')).data || []
+    : [];
+  if (learnings.length === 0) { toast('통합할 learnings 없음'); return; }
+
+  const cp = (COMPANY_PERSONAS_FULL[companyId] || []).find(x => x.persona_id === personaId);
+  if (!cp) { toast('에이전트 카피본 없음', true); return; }
+
+  // 누적 자료 = sys_prompt 끝에 append (= 형식 = "★ 학습 누적 (YYYY-MM-DD): ...")
+  const lines = learnings.map(l => {
+    const date = new Date(l.created_at).toISOString().slice(0,10);
+    return `- [${date}] (${l.trigger_keyword}) ${(l.assistant_reply || '').slice(0,300).replace(/\n+/g, ' ')}`;
+  }).join('\n');
+
+  const oldSys = cp.sys_prompt || '';
+  const learnSection = '\n\n[자동 학습 누적]\n' + lines;
+  const newSys = oldSys.includes('[자동 학습 누적]')
+    ? oldSys.replace(/\[자동 학습 누적\][\s\S]*$/, learnSection.trim())
+    : (oldSys + learnSection);
+
+  // 1) sys_prompt 정정
+  const { error: upErr } = await sb.from('agent_company_personas').update({
+    sys_prompt: newSys,
+    updated_at: new Date().toISOString()
+  }).eq('company_id', companyId).eq('persona_id', personaId);
+  if (upErr) { toast('통합 실패: ' + upErr.message, true); return; }
+
+  // 2) learnings = status='merged' 처리
+  const ids = learnings.map(l => l.id);
+  await sb.from('agent_learnings').update({
+    status: 'merged',
+    reviewed_at: new Date().toISOString()
+  }).in('id', ids);
+
+  toast(`${learnings.length}건 sys_prompt에 통합 완료`);
+  closeEditModal();
+  setTimeout(() => openEditModal(companyId), 100);
+  await loadAll();
+}
+
+async function rejectLearning(learningId) {
+  if (!confirm('이 학습 자료를 기각하시겠어요?')) return;
+  const { error } = await sb.from('agent_learnings').update({
+    status: 'rejected',
+    reviewed_at: new Date().toISOString()
+  }).eq('id', learningId);
+  if (error) { toast('기각 실패: ' + error.message, true); return; }
+  toast('기각 완료');
+  // 모달 재로드
+  if (EDIT_COMPANY_ID) {
+    const cid = EDIT_COMPANY_ID;
+    closeEditModal();
+    setTimeout(() => openEditModal(cid), 100);
+  }
   await loadAll();
 }
 

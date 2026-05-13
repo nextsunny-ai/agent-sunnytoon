@@ -1263,6 +1263,8 @@ async function sendChat() {
   history[currentPersona].push({ role:'user', content: userContent, _displayText: t, _attachUrls: urls });
   saveHistory();
   appendMsg('user', t, urls);
+  // ★ v4 = 사용자 메시지 DB 자동 저장 (= 다른 PC 접속해도 옛 대화 보임)
+  saveMessageToDb('user', t, urls);
   // iOS = 보낸 후 = 자판 유지 (= textarea focus 재시도)
   setTimeout(() => { try { inp.focus(); } catch(e){} }, 50);
 
@@ -1278,12 +1280,70 @@ async function sendChat() {
     history[currentPersona].push({ role:'assistant', content: reply });
     saveHistory();
     appendMsg('agent', reply);
+    // ★ v4 = 에이전트 답변 DB 자동 저장
+    saveMessageToDb('assistant', reply);
+    // ★ v4 = 학습 키워드 감지 + 자동 캡처 (= 사용자 직전 메시지 + 답변)
+    detectAndCaptureLearning(t, reply);
     // ★ 텔레그램 알림 (= 본인이 활성화한 경우)
     sendTelegramNotification(PERSONAS_MAP[currentPersona]?.ko || currentPersona, reply);
   } catch(e) {
     document.getElementById('typing')?.remove();
     appendMsg('agent', `⚠️ 호출 실패: ${e.message}\n\n웹 = 데모용. 진짜 사용 = 데스크탑 앱 다운로드 (= 본인 Claude 구독 = 비용 0)`);
   } finally { sendBtn.disabled = false; }
+}
+
+// ============================================================
+// ★ v4 = 자동 학습 시스템 (= DB 누적 + 키워드 캡처)
+// ============================================================
+
+// 학습 키워드 (= 사용자가 박으면 = 직전 답변·메시지 = learnings 자동 저장)
+const LEARN_KEYWORDS = ['기억해', '다음엔', '다음에도', '이건 좋아', '이거 좋아', '기록해', '저장해', '학습해', '이렇게 해', '이 방식으로'];
+
+async function saveMessageToDb(role, content, attachUrls) {
+  if (!USER || !COMPANY || !currentPersona) return;
+  try {
+    await sb.from('agent_messages').insert({
+      company_id: COMPANY.id,
+      persona_id: currentPersona,
+      user_id: USER.id,
+      role: role,
+      content: content,
+      attachments: attachUrls && attachUrls.length ? { urls: attachUrls } : null
+    });
+  } catch(e) { console.warn('msg save fail:', e.message); }
+}
+
+async function detectAndCaptureLearning(userMsg, assistantReply) {
+  if (!USER || !COMPANY || !currentPersona) return;
+  const matched = LEARN_KEYWORDS.find(kw => userMsg.includes(kw));
+  if (!matched) return;
+  try {
+    const { error } = await sb.from('agent_learnings').insert({
+      company_id: COMPANY.id,
+      persona_id: currentPersona,
+      user_id: USER.id,
+      trigger_keyword: matched,
+      user_message: userMsg.slice(0, 2000),
+      assistant_reply: assistantReply.slice(0, 5000),
+      status: 'pending'
+    });
+    if (!error) {
+      // ★ UI 알림 = 화면에 "학습 누적됨" 토스트
+      showLearningToast(matched);
+    }
+  } catch(e) { console.warn('learn capture fail:', e.message); }
+}
+
+function showLearningToast(keyword) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:12px 18px;background:#1F4D3F;color:#fff;border-radius:10px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,0.15);z-index:9999;opacity:0;transform:translateY(20px);transition:all .25s';
+  t.innerHTML = `★ 학습 누적됨 <span style="opacity:0.7;font-size:11px;margin-left:6px">"${keyword}" 감지 = 어드민 검토 대기</span>`;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => { t.style.opacity = '1'; t.style.transform = 'translateY(0)'; });
+  setTimeout(() => {
+    t.style.opacity = '0'; t.style.transform = 'translateY(20px)';
+    setTimeout(() => t.remove(), 300);
+  }, 3000);
 }
 
 // ★ 모델 선택 (= 사용자별 = localStorage)
