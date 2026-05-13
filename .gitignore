@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Tauri build
+src-tauri/target/
+src-tauri/Cargo.lock
+
+# Tauri signer private keys (★ NEVER COMMIT)
+src-tauri/.keys/
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*

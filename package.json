@@ -1,0 +1,14 @@
+{
+  "name": "sunny-agent-pro-tauri",
+  "version": "1.0.0",
+  "description": "SUNNY Agent Pro Tauri wrapper (= agent.sunnytoon.com)",
+  "private": true,
+  "scripts": {
+    "tauri": "tauri",
+    "tauri:build": "tauri build",
+    "tauri:dev": "tauri dev"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.1"
+  }
+}

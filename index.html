@@ -233,6 +233,113 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 </head>
 <body>
 
+<!-- ★ V1.0 Tauri 데스크탑 = claude CLI 자동 로그인 게이트 (= 웹 환경에서는 비활성) -->
+<div id="claudeCliGate" style="display:none;position:fixed;inset:0;z-index:100000;background:rgba(248,246,242,0.96);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;">
+  <div style="max-width:560px;width:100%;background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:16px;box-shadow:0 12px 48px rgba(0,0,0,0.12);padding:36px 40px;color:#1a1a1a;">
+    <div style="font-size:13px;color:#888;letter-spacing:0.04em;margin-bottom:8px;">SUNNY Agent Pro</div>
+    <h2 id="cliGateTitle" style="font-size:22px;font-weight:700;line-height:1.35;margin:0 0 16px;">Claude 로그인이 필요합니다</h2>
+    <div id="cliGateBody"></div>
+    <div id="cliGateError" style="display:none;background:#fff4e5;border:1px solid #ffd9a8;border-radius:8px;padding:10px 14px;font-size:13px;color:#8b4500;margin-bottom:16px;white-space:pre-wrap;line-height:1.6;"></div>
+    <button id="cliGateRecheck" style="width:100%;padding:12px 18px;background:#f3f1ec;color:#1a1a1a;border:1px solid rgba(0,0,0,0.08);border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;">다시 확인</button>
+  </div>
+</div>
+<script>
+(function() {
+  function isTauri() { return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window; }
+  if (!isTauri()) return; // 웹 환경 = 게이트 비활성
+
+  const gate = document.getElementById('claudeCliGate');
+  const title = document.getElementById('cliGateTitle');
+  const body = document.getElementById('cliGateBody');
+  const errBox = document.getElementById('cliGateError');
+  const recheckBtn = document.getElementById('cliGateRecheck');
+
+  async function invokeCmd(name, args) {
+    const core = window.__TAURI__?.core || (await import('@tauri-apps/api/core'));
+    return core.invoke(name, args);
+  }
+
+  function renderInstall() {
+    title.textContent = 'Claude Code CLI 설치가 필요합니다';
+    body.innerHTML = `
+      <p style="font-size:15px;line-height:1.7;color:#333;margin:0 0 16px;">
+        작가 본인의 Claude Pro/Max 구독으로 작업하려면 = 본인 PC에 Claude Code CLI가 설치돼 있어야 합니다.
+      </p>
+      <ol style="font-size:14px;line-height:1.8;color:#333;padding-left:20px;margin:0 0 24px;">
+        <li><a href="https://claude.com/code" target="_blank" rel="noreferrer" style="color:#1a73e8;text-decoration:underline;">https://claude.com/code</a> 에서 Claude Code 다운로드 + 설치</li>
+        <li>설치 후 = 이 창의 <strong>'다시 확인'</strong> 버튼 클릭</li>
+      </ol>
+    `;
+  }
+
+  function renderLogin() {
+    title.textContent = 'Claude 로그인이 필요합니다';
+    body.innerHTML = `
+      <p style="font-size:15px;line-height:1.7;color:#333;margin:0 0 16px;">
+        본인 Claude 구독으로 사용하려면 = <strong>로그인 1회</strong>가 필요합니다 (= 한 번만 하면 됩니다).
+      </p>
+      <div style="background:#f8f6f2;border:1px solid rgba(0,0,0,0.06);border-radius:10px;padding:14px 16px;font-size:13.5px;line-height:1.7;color:#444;margin:0 0 20px;">
+        <strong style="color:#1a1a1a;">아래 버튼을 누르면:</strong>
+        <ol style="padding-left:18px;margin:8px 0 0;">
+          <li>검은 창이 잠시 뜹니다 — <em>정상입니다</em></li>
+          <li>자동으로 브라우저가 열려 = Claude 로그인 페이지가 표시됩니다</li>
+          <li>브라우저에서 로그인 완료 후 = 이 화면이 자동으로 사라집니다 (= 5초마다 자동 감지)</li>
+        </ol>
+      </div>
+      <button id="cliGateLoginBtn" style="width:100%;padding:14px 20px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px;">Claude로 로그인하기</button>
+    `;
+    document.getElementById('cliGateLoginBtn').onclick = async function() {
+      this.disabled = true;
+      this.textContent = '로그인 시작 중...';
+      try {
+        await invokeCmd('claude_open_login_terminal');
+      } catch (e) {
+        showError('터미널 자동 실행 실패: ' + (e?.message || String(e)));
+      } finally {
+        this.disabled = false;
+        this.textContent = 'Claude로 로그인하기';
+      }
+    };
+  }
+
+  function showError(msg) {
+    if (!msg) { errBox.style.display = 'none'; return; }
+    errBox.textContent = msg;
+    errBox.style.display = 'block';
+  }
+
+  async function check() {
+    try {
+      const res = await invokeCmd('claude_cli_status');
+      if (res && res.available) {
+        gate.style.display = 'none';
+        return true;
+      }
+      gate.style.display = 'flex';
+      if (res?.reason === 'not-installed') renderInstall();
+      else renderLogin();
+      showError(res?.error || null);
+      return false;
+    } catch (e) {
+      gate.style.display = 'flex';
+      renderInstall();
+      showError('CLI 상태 확인 실패: ' + (e?.message || String(e)));
+      return false;
+    }
+  }
+
+  recheckBtn.onclick = check;
+
+  // 초기 1회 + 5초 polling (= 미통과 시만)
+  check();
+  setInterval(async () => {
+    if (gate.style.display !== 'none') {
+      await check();
+    }
+  }, 5000);
+})();
+</script>
+
 <!-- Loading splash -->
 <div class="splash" id="splash">
   <div>
@@ -1195,15 +1302,27 @@ const MODELS = {
 function getModel() { return localStorage.getItem('agent_model') || 'sonnet'; }
 function setModel(m) { localStorage.setItem('agent_model', m); }
 
+// ★ Tauri 데스크탑 환경 검사 (= window.__TAURI_INTERNALS__ 존재)
+function isTauriEnv() {
+  return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+}
+
 async function callClaude(apiKey, pid, hist) {
   const p = PERSONAS_MAP[pid];
   // ★ 새 설계 (2026-05-13): 마스터 SKILL = 노하우 = 그대로 / 회사 정보 = ADMIN 입력 폼 (commonCtx 안)
-  // = 옛 custom_sys_prompt override = 무시 (= 회사 정보 폼으로 대체)
   const personaPrompt = p.sys_prompt;
   const systemPrompt = commonCtx() + '\n\n' + personaPrompt;
   const messages = hist.slice(-20).map(m => ({ role: m.role, content: m.content }));
+  const modelKey = getModel();
+  const modelId = MODELS[modelKey]?.id || MODELS.sonnet.id;
+
+  // ★ V2.12: Tauri 데스크탑 환경 = claude CLI subprocess 호출 (= 작가 본인 Pro/Max 구독으로 비용 0)
+  if (isTauriEnv()) {
+    return callClaudeViaTauri(systemPrompt, messages, modelKey);
+  }
+
+  // 웹 환경 = 옛 path = 작가 본인 BYOK API key (sk-ant-api03-)
   const isOAuth = apiKey.startsWith('sk-ant-oat');
-  // ★ Prompt Caching = 5분 TTL · 캐시 hit = 입력 비용 90% 절감
   const headers = {
     'Content-Type':'application/json',
     'anthropic-version':'2023-06-01',
@@ -1212,13 +1331,10 @@ async function callClaude(apiKey, pid, hist) {
   };
   if (isOAuth) headers['Authorization'] = 'Bearer ' + apiKey;
   else headers['x-api-key'] = apiKey;
-  const modelKey = getModel();
-  const modelId = MODELS[modelKey]?.id || MODELS.sonnet.id;
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST', headers, body: JSON.stringify({
       model: modelId,
-      max_tokens: 1024, // ★ 2048 → 1024 = 출력 비용 절감
-      // ★ system = 배열 형식 + cache_control = 캐싱
+      max_tokens: 1024,
       system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
       messages
     })
@@ -1226,6 +1342,46 @@ async function callClaude(apiKey, pid, hist) {
   if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error?.message || `HTTP ${res.status}`); }
   const data = await res.json();
   return data.content[0].text;
+}
+
+// ★ Tauri Rust subprocess (claude CLI) 호출 = 작가 Pro/Max 구독으로 비용 0
+async function callClaudeViaTauri(systemPrompt, messages, modelKey) {
+  const core = window.__TAURI__?.core || (await import('@tauri-apps/api/core'));
+  const { invoke, Channel } = core;
+
+  // 마지막 user 메시지 = subprocess의 user message로
+  const lastUser = messages[messages.length - 1];
+  const userMessage = lastUser?.content || '';
+
+  // 옛 turn들 = system prompt에 첨부 (= "한 클로드가 모든 turn 인식" 모델)
+  let combinedSystem = systemPrompt;
+  if (messages.length > 1) {
+    const priorTurns = messages.slice(0, -1).map(m => {
+      const roleLabel = m.role === 'user' ? '대표님' : '어시스턴트';
+      return `[${roleLabel}] ${m.content}`;
+    }).join('\n\n');
+    combinedSystem += '\n\n---\n\n# 옛 대화 흐름 (참조)\n\n' + priorTurns;
+  }
+
+  const channel = new Channel();
+  let full = '';
+  let errorMsg = null;
+
+  channel.onmessage = (msg) => {
+    if (msg.event === 'delta' && typeof msg.text === 'string') {
+      full += msg.text;
+    } else if (msg.event === 'error' && typeof msg.message === 'string') {
+      errorMsg = msg.message;
+    }
+  };
+
+  await invoke('stream_agent', {
+    args: { model: modelKey, systemPrompt: combinedSystem, userMessage },
+    channel,
+  });
+
+  if (errorMsg) throw new Error(errorMsg);
+  return full;
 }
 
 // ============================================================
