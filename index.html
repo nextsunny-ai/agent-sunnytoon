@@ -360,7 +360,6 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
       <button class="company-switch" id="companySwitch" onclick="openPicker()" style="display:none">회사 전환</button>
       <a class="admin-link" id="adminLink" href="./admin.html">⚙ ADMIN</a>
       <span class="plan-badge free" id="planBadge" style="display:none">FREE</span>
-      <button class="key-btn" id="keyBtn" onclick="openKeyModal()" style="display:none">🔑 <span id="keyLabel">옛 BYOK (사용 X)</span></button>
       <div class="user-menu">
         <div class="user-trigger" onclick="toggleUserMenu(event)">
           <span class="email" id="userEmail">···</span>
@@ -421,30 +420,13 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
       <button onclick="closeSettings()" style="width:32px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:14px;color:var(--sub);cursor:pointer">✕</button>
     </div>
     <div style="display:flex;gap:2px;padding:0 28px;border-bottom:1px solid var(--line);margin-top:18px">
-      <button class="set-tab active" data-tab="key" onclick="setSetTab('key')" style="display:none">🔑 옛 BYOK</button>
-      <button class="set-tab" data-tab="model" onclick="setSetTab('model')">⚡ 모델</button>
+      <button class="set-tab active" data-tab="model" onclick="setSetTab('model')">⚡ 모델</button>
       <button class="set-tab" data-tab="tg" onclick="setSetTab('tg')">📱 텔레그램</button>
       <button class="set-tab" data-tab="account" onclick="setSetTab('account')">👤 계정</button>
     </div>
 
-    <!-- KEY tab -->
-    <div class="set-panel active" data-tab="key" style="padding:24px 28px">
-      <p class="sub">★ V1.0 = 데스크탑 앱 + 본인 Claude Pro/Max 구독 = 비용 0.</p>
-      <p class="info">★ 데스크탑 앱 다운로드 = <a href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/tag/v1.0.0-beta" target="_blank">GitHub Releases v1.0.0-beta</a> → Mac/Windows zip 다운 → 자동 설치 후 사용. 추가 비용 0 (= 본인 Claude Pro $20/월 또는 Max $200/월 구독만).</p>
-      <label for="setKey">API Key</label>
-      <div style="position:relative">
-        <input type="password" id="setKey" placeholder="sk-ant-api03-..." autocomplete="off" style="padding-right:40px">
-        <button type="button" onclick="togglePwIndex('setKey', this)" aria-label="키 보기/숨기기" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:none;background:transparent;cursor:pointer;display:grid;place-items:center;opacity:0.55;padding:0">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
-      </div>
-      <div class="actions">
-        <button class="btn primary" onclick="saveKeyFromSettings()">저장</button>
-      </div>
-    </div>
-
     <!-- MODEL tab -->
-    <div class="set-panel" data-tab="model" style="padding:24px 28px;display:none">
+    <div class="set-panel active" data-tab="model" style="padding:24px 28px">
       <p class="sub">페르소나 답변 모델 선택. <strong>Haiku 4.5</strong> = Sonnet 1/10 비용 + 빠름 = 일반 대화 추천.</p>
       <p class="info" style="font-size:11px;line-height:1.55">✅ <strong>Prompt Caching = 자동 적용</strong> = 5분 안에 같은 페르소나 연속 대화 = <strong>입력 비용 90% 절감</strong>.</p>
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
@@ -632,26 +614,6 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
   </div>
 </div>
 
-<!-- Key Modal -->
-<div class="modal-bg" id="keyModal">
-  <div class="key-modal">
-    <h3>V1.0 데스크탑 앱 사용</h3>
-    <p class="sub">★ V1.0 = 데스크탑 앱 + 본인 Claude Pro/Max 구독 사용 = 추가 비용 0.</p>
-    <p class="info">★ 다운로드 = <a href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/tag/v1.0.0-beta" target="_blank">GitHub Releases v1.0.0-beta</a>. Mac/Windows zip → 자동 설치 → 사용. 옛 BYOK (API 키 입력) 방식은 더 이상 사용 X.</p>
-    <label for="apiKeyInput">API Key</label>
-    <div style="position:relative">
-      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" style="padding-right:40px">
-      <button type="button" onclick="togglePwIndex('apiKeyInput', this)" aria-label="키 보기/숨기기" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:none;background:transparent;cursor:pointer;display:grid;place-items:center;opacity:0.55;padding:0">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      </button>
-    </div>
-    <div class="actions">
-      <button class="btn" onclick="closeKeyModal()">취소</button>
-      <button class="btn primary" onclick="saveKey()">저장</button>
-    </div>
-  </div>
-</div>
-
 <!-- Company picker (admin) -->
 <div class="picker-bg" id="pickerBg">
   <div class="picker">
@@ -693,7 +655,7 @@ function requirePlan(needed) {
 }
 
 // ============================================================
-// BYOK (쿠키 공유)
+// 옛 키 (쿠키 공유, V1.0 = 사용 X)
 // ============================================================
 const LS_KEY = 'sunny_team_apikey';
 function getCookieKey() {
@@ -784,7 +746,7 @@ function avatarUrl(pid) { return `avatars/${pid}.${AVATAR_EXT[pid] || 'png'}`; }
 // ★ 자유 가입 모델 (= 스토리메이커 동일)
 // - 누구나 가입 = OK
 // - 회사 = URL ?c=xx 로 결정 (= 누구나 접근 가능)
-// - BYOK = 본인 API 키 = 진짜 통제 (= 키 없으면 호출 X)
+// - 호출 path = 데스크탑 앱 = 본인 Claude Pro/Max 구독 (= 비용 0)
 // - ADMIN = nextsunny@gmail.com 이메일만 (= 회사·페르소나 편집)
 const ADMIN_EMAIL = 'nextsunny@gmail.com';
 
@@ -1321,7 +1283,7 @@ async function callClaude(apiKey, pid, hist) {
     return callClaudeViaTauri(systemPrompt, messages, modelKey);
   }
 
-  // 웹 환경 = 옛 path = 작가 본인 BYOK API key (sk-ant-api03-)
+  // 웹 환경 = 옛 path (= V1.0 = 사용 X = 데스크탑 앱 = native invoke만)
   const isOAuth = apiKey.startsWith('sk-ant-oat');
   const headers = {
     'Content-Type':'application/json',
@@ -1388,8 +1350,6 @@ async function callClaudeViaTauri(systemPrompt, messages, modelKey) {
 // 통합 설정 모달 (= 4탭: 키·모델·텔레그램·계정)
 // ============================================================
 function openSettings() {
-  // Key tab data
-  document.getElementById('setKey').value = getKey();
   // Model tab data
   const curModel = getModel();
   const radio = document.querySelector(`input[name=setModel][value=${curModel}]`);
@@ -1412,7 +1372,7 @@ function openSettings() {
   const planEl = document.getElementById('acctPlan');
   planEl.innerHTML = `<span class="plan-badge ${SUBSCRIPTION.plan}">${SUBSCRIPTION.plan.toUpperCase()}</span>`;
 
-  setSetTab('key');
+  setSetTab('model');
   document.getElementById('settingsModal').classList.add('show');
   document.getElementById('userMenuPop').classList.remove('show');
 }
@@ -1420,11 +1380,6 @@ function closeSettings() { document.getElementById('settingsModal').classList.re
 function setSetTab(tab) {
   document.querySelectorAll('#settingsModal .set-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   document.querySelectorAll('#settingsModal .set-panel').forEach(p => p.style.display = p.dataset.tab === tab ? 'block' : 'none');
-}
-function saveKeyFromSettings() {
-  const v = document.getElementById('setKey').value.trim();
-  setKey(v);
-  alert('데스크탑 앱 = 자동 인증 (= 본인 Claude 구독)');
 }
 function saveModelFromSettings() {
   const v = document.querySelector('input[name=setModel]:checked')?.value;
@@ -1474,7 +1429,7 @@ function saveModel() {
 }
 
 // ============================================================
-// Telegram (BYOK = 사용자 본인 봇·본인 chat_id)
+// Telegram (= 사용자 본인 봇·본인 chat_id)
 // ============================================================
 function tgStorageKey() { return `agent_telegram_${USER?.id || 'anon'}`; }
 function getTelegram() {
@@ -1529,21 +1484,13 @@ async function sendTelegramNotification(personaName, replyText) {
 }
 
 // ============================================================
-// Key modal
+// Key modal = 옛 자료 삭제됨 (= V1.0 = 데스크탑 앱만 사용)
 // ============================================================
 function openKeyModal() {
-  document.getElementById('apiKeyInput').value = getKey();
-  document.getElementById('keyModal').classList.add('show');
-  setTimeout(() => document.getElementById('apiKeyInput').focus(), 50);
-}
-function closeKeyModal() { document.getElementById('keyModal').classList.remove('show'); }
-function saveKey() {
-  const v = document.getElementById('apiKeyInput').value.trim();
-  setKey(v); closeKeyModal();
+  alert('웹 = 데모용. 진짜 사용 = 데스크탑 앱 다운로드 (= 본인 Claude 구독).');
 }
 
 // Modal close on backdrop
-document.getElementById('keyModal').addEventListener('click', (e) => { if (e.target.id === 'keyModal') closeKeyModal(); });
 document.getElementById('tgModal').addEventListener('click', (e) => { if (e.target.id === 'tgModal') closeTgModal(); });
 document.getElementById('modelModal').addEventListener('click', (e) => { if (e.target.id === 'modelModal') closeModelModal(); });
 document.getElementById('settingsModal').addEventListener('click', (e) => { if (e.target.id === 'settingsModal') closeSettings(); });
