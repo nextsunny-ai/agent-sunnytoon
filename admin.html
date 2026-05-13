@@ -385,7 +385,7 @@ async function boot() {
   document.getElementById('whoAvatar').textContent = (USER.email || 'A')[0].toUpperCase();
 
   // admin 확인 = 이메일 기준 (= 자유 가입 모델)
-  const ADMIN_EMAIL = 'admin@example.com';
+  const ADMIN_EMAIL = 'nextsunny@gmail.com';
   const isAdmin = (USER.email === ADMIN_EMAIL);
   if (!isAdmin) {
     document.querySelector('.shell').innerHTML = '<div class="card" style="text-align:center;padding:60px 20px"><h3 style="color:var(--danger)">⚠ 권한 없음</h3><p class="desc" style="margin-top:10px">admin 권한이 필요합니다.</p><a href="/" class="btn">← 홈으로</a></div>';
@@ -877,7 +877,7 @@ async function renderUsers() {
         }).join('')}
       </tbody>
     </table>
-    <p class="desc" style="margin-top:14px;font-size:11px">★ admin (admin@example.com)만 = 이 정보 조회 가능.<br>★ <strong>삭제 = 즉시 = auth.users + 구독·매핑 cascade 삭제 = 복구 X.</strong> 비밀번호 재설정 = <a href="https://supabase.com/dashboard/project/pddasonkizwviwqzdhpu/auth/users" target="_blank" style="color:var(--accent)">Supabase Dashboard ↗</a></p>
+    <p class="desc" style="margin-top:14px;font-size:11px">★ admin (nextsunny@gmail.com)만 = 이 정보 조회 가능.<br>★ <strong>삭제 = 즉시 = auth.users + 구독·매핑 cascade 삭제 = 복구 X.</strong> 비밀번호 재설정 = <a href="https://supabase.com/dashboard/project/pddasonkizwviwqzdhpu/auth/users" target="_blank" style="color:var(--accent)">Supabase Dashboard ↗</a></p>
   `;
 }
 

@@ -262,7 +262,7 @@ ON CONFLICT DO NOTHING;
 
 -- ============================================================
 -- 10. 대표님 admin membership 자동 등록 트리거
--- = admin@example.com으로 처음 로그인하면 자동으로 = admin 권한 + SUNNY 회사 소속
+-- = nextsunny@gmail.com으로 처음 로그인하면 자동으로 = admin 권한 + SUNNY 회사 소속
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.handle_new_agent_user()
 RETURNS TRIGGER AS $$
@@ -270,7 +270,7 @@ DECLARE
   sunny_company_id UUID;
 BEGIN
   -- 대표님 이메일이면 = admin + SUNNY 소속 자동
-  IF NEW.email = 'admin@example.com' THEN
+  IF NEW.email = 'nextsunny@gmail.com' THEN
     SELECT id INTO sunny_company_id FROM public.agent_companies WHERE slug = 'sunny';
     IF sunny_company_id IS NOT NULL THEN
       INSERT INTO public.agent_memberships (user_id, company_id, role)
