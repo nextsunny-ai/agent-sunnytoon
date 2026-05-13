@@ -37,7 +37,7 @@
       "dmg",
       "app"
     ],
-    "createUpdaterArtifacts": true,
+    "createUpdaterArtifacts": false,
     "publisher": "Sunny Soft",
     "homepage": "https://agent.sunnytoon.com",
     "category": "Productivity",
