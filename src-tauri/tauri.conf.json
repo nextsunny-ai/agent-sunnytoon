@@ -24,12 +24,19 @@
     ],
     "security": {
       "csp": null,
-      "capabilities": ["default"]
+      "capabilities": [
+        "default"
+      ]
     }
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis", "msi"],
+    "targets": [
+      "nsis",
+      "msi",
+      "dmg",
+      "app"
+    ],
     "createUpdaterArtifacts": true,
     "publisher": "Sunny Soft",
     "homepage": "https://agent.sunnytoon.com",
@@ -47,7 +54,10 @@
       "nsis": {
         "installerIcon": "icons/icon.ico",
         "installMode": "perMachine",
-        "languages": ["Korean", "English"]
+        "languages": [
+          "Korean",
+          "English"
+        ]
       }
     },
     "android": {
