@@ -1564,7 +1564,7 @@ async function sendTelegramNotification(personaName, replyText) {
   const cfg = getTelegram();
   if (!cfg || !cfg.enabled || !cfg.token || !cfg.chatId) return;
   const truncated = replyText.length > 3500 ? replyText.substring(0, 3500) + '\n\n[...답변 길어서 잘림. 전체는 웹에서 확인]' : replyText;
-  const text = `💬 ${personaName} (${COMPANY?.name_en || 'Agent Pro'})\n\n${truncated}\n\n— Agent Pro 1.0`;
+  const text = `💬 ${personaName} · ${COMPANY?.name_ko || '에이전트 프로'}\n\n${truncated}\n\n— 에이전트 프로 1.0`;
   try {
     await fetch(`https://api.telegram.org/bot${cfg.token}/sendMessage`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
