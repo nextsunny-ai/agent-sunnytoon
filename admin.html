@@ -141,7 +141,7 @@ input, select, textarea { font: inherit; color: inherit; }
   <div class="page-head">
     <div>
       <div class="page-eyebrow">ADMIN CONSOLE</div>
-      <h1 class="page-title">회사 · 페르소나 · 사용자 <em>관리</em></h1>
+      <h1 class="page-title">회사 · 에이전트 · 사용자 <em>관리</em></h1>
     </div>
     <div class="page-meta">
       <div>VERSION <b>1.0</b></div>
@@ -151,7 +151,7 @@ input, select, textarea { font: inherit; color: inherit; }
 
   <div class="tabs">
     <button class="tab active" onclick="setTab('companies')">회사</button>
-    <button class="tab" onclick="setTab('personas')">페르소나</button>
+    <button class="tab" onclick="setTab('personas')">에이전트</button>
     <button class="tab" onclick="setTab('projects')">프로젝트</button>
     <button class="tab" onclick="setTab('users')">사용자 <span id="newUsersBadge" style="display:none;background:#F03E3E;color:#fff;font-size:10px;padding:1px 6px;border-radius:999px;margin-left:4px;font-family:var(--mono)"></span></button>
     <button class="tab" onclick="setTab('subscriptions')">구독</button>
@@ -162,7 +162,7 @@ input, select, textarea { font: inherit; color: inherit; }
 
     <div class="card">
       <h3>새 회사 추가</h3>
-      <p class="desc">회사명·페르소나·로고 컬러 = 입력 → 즉시 공유 URL 생성.</p>
+      <p class="desc">회사명·에이전트·로고 컬러 = 입력 → 즉시 공유 URL 생성.</p>
       <div class="form-row"><label>SLUG (URL)</label><input id="newSlug" placeholder="nextart (소문자·영문만)"></div>
       <div class="form-row"><label>영문명</label><input id="newNameEn" placeholder="NEXTART"></div>
       <div class="form-row"><label>한글명</label><input id="newNameKo" placeholder="Nextart Studio"></div>
@@ -176,14 +176,14 @@ input, select, textarea { font: inherit; color: inherit; }
       <div class="form-row"><label>태그라인</label><textarea id="newTagline" placeholder="환영 메시지 / 회사 소개 1~2줄"></textarea></div>
 
       <div style="border-top:1px solid var(--line);margin:18px 0 14px;padding-top:14px">
-        <p class="desc" style="margin:0 0 10px;font-size:12px;color:var(--sub)"><strong>★ 회사 담당 페르소나 (= 1명)</strong> — 전문가 7명 (루미·소리·마루·리안·테오·하나·카이) = 자동 카피</p>
+        <p class="desc" style="margin:0 0 10px;font-size:12px;color:var(--sub)"><strong>★ 회사 담당 에이전트 (= 1명)</strong> — 전문가 7명 (루미·소리·마루·리안·테오·하나·카이) = 자동 카피</p>
         <div class="form-row"><label>담당 ID</label><input id="newLeadId" placeholder="예: yang (= ?p=yang URL slug, 영문 소문자)"></div>
         <div class="form-row"><label>담당 한글명</label><input id="newLeadKo" placeholder="예: 양이"></div>
         <div class="form-row"><label>담당 영문명</label><input id="newLeadEn" placeholder="예: YANG"></div>
         <div class="form-row"><label>담당 분야</label><input id="newLeadStudio" placeholder="예: AI/XR Studio"></div>
       </div>
 
-      <p class="desc" style="font-size:11px;color:var(--mute)">★ 회사 추가 = 담당 1명 + 전문가 7명 = 8명 자동 카피 (= 어느 회사 자료도 X). 회사 자료는 = "수정" 모달에서 페르소나별로 입력.</p>
+      <p class="desc" style="font-size:11px;color:var(--mute)">★ 회사 추가 = 담당 1명 + 전문가 7명 = 8명 자동 카피 (= 어느 회사 자료도 X). 회사 자료는 = "수정" 모달에서 에이전트별로 입력.</p>
       <div class="btn-row">
         <button class="btn primary" onclick="createCompany()">회사 추가 (= 담당 1 + 전문가 7 자동 카피)</button>
       </div>
@@ -198,7 +198,7 @@ input, select, textarea { font: inherit; color: inherit; }
   <!-- ============================================================ PERSONAS ============================================================ -->
   <div class="panel" id="panel-personas">
     <div class="card">
-      <h3>페르소나 마스터 (12명)</h3>
+      <h3>에이전트 마스터 (12명)</h3>
       <p class="desc">SKILL·시스템 프롬프트 갱신 = 사용자 다음 접속 시 = 자동 반영. 일렬 편집 = 클릭 → 수정 → 저장.</p>
       <div id="personasList" class="loading">로드 중...</div>
     </div>
@@ -276,7 +276,7 @@ input, select, textarea { font: inherit; color: inherit; }
       <table class="table">
         <thead><tr><th>Plan</th><th>설명</th><th>가격 (미래)</th></tr></thead>
         <tbody>
-          <tr><td><span class="badge member">FREE</span></td><td>본인 Claude Pro/Max 구독 (= 데스크탑 앱) · 모든 페르소나 사용 가능</td><td>$0</td></tr>
+          <tr><td><span class="badge member">FREE</span></td><td>본인 Claude Pro/Max 구독 (= 데스크탑 앱) · 모든 에이전트 사용 가능</td><td>$0</td></tr>
           <tr><td><span class="badge" style="background:#1F4D3F;color:#fff">PRO</span></td><td>+ 고급 기능 (미래)</td><td>$? (미정)</td></tr>
           <tr><td><span class="badge" style="background:#6B4FBB;color:#fff">STUDIO</span></td><td>+ 회사 풀세트 (미래)</td><td>$? (미정)</td></tr>
           <tr><td><span class="badge" style="background:linear-gradient(135deg,#C9A35D,#8B6914);color:#fff">LIFETIME</span></td><td>평생 · 미래 모든 기능</td><td>$? (미정)</td></tr>
@@ -326,18 +326,18 @@ input, select, textarea { font: inherit; color: inherit; }
       </div>
 
       <div style="margin:24px 0 12px;padding:14px 16px;background:var(--accent-soft);border-radius:10px;border-left:3px solid var(--accent);">
-        <div style="font-size:13px;font-weight:700;color:var(--accent-deep);margin-bottom:4px;">회사 정보 (= 페르소나가 이 회사 사용자에게 답변할 때 활용)</div>
-        <div style="font-size:11px;color:var(--sub);line-height:1.6;">이 정보 = 페르소나 systemPrompt에 동적으로 합쳐짐. 마스터 SKILL(노하우)은 그대로 유지 + 회사 정보만 이 폼으로 분리. <b>다른 회사 정보·SUNNY 정보 = 노출 X</b>.</div>
+        <div style="font-size:13px;font-weight:700;color:var(--accent-deep);margin-bottom:4px;">회사 정보 (= 에이전트가 이 회사 사용자에게 답변할 때 활용)</div>
+        <div style="font-size:11px;color:var(--sub);line-height:1.6;">이 정보 = 에이전트 systemPrompt에 동적으로 합쳐짐. 마스터 SKILL(노하우)은 그대로 유지 + 회사 정보만 이 폼으로 분리. <b>다른 회사 정보·SUNNY 정보 = 노출 X</b>.</div>
       </div>
       <div class="form-row"><label>주요 프로젝트</label><textarea id="editMainProjects" style="min-height:90px" placeholder="예) Outdoor Media Project XR 콘텐츠, Tourism Media Project 관광 미디어, AI 영상 외주 등"></textarea></div>
       <div class="form-row"><label>관심 분야</label><textarea id="editInterests" style="min-height:70px" placeholder="예) XR/VR, AI 영상, 메타버스, 미디어 아트 등"></textarea></div>
       <div class="form-row"><label>팀원</label><textarea id="editTeamMembers" style="min-height:70px" placeholder="예) Director (대표·CD), 박실장 (PM), 이팀장 (디자인)"></textarea></div>
       <div class="form-row"><label>알아야 할 사항</label><textarea id="editNotes" style="min-height:90px" placeholder="예) Sample IP 2 프로젝트는 외주 검토 중 / 제안서 톤 = 시네마틱·차분 / 회의 시간 = 오전 선호"></textarea></div>
       <div style="margin:24px 0 12px;padding:14px 16px;background:#FFF6E8;border-radius:10px;border-left:3px solid #C9A35D;">
-        <div style="font-size:13px;font-weight:700;color:#7A5C1F;margin-bottom:4px;">★ 회사별 페르소나 카피본 = 자료 격리</div>
-        <div style="font-size:11px;color:var(--sub);line-height:1.6;">각 페르소나 = 이 회사 전용 카피본 (= 다른 회사·SUNNY 자료 노출 X). 빈 자료 = 마스터 기본만. 회사 노하우·스타일·내부 자료 = 아래에 입력.</div>
+        <div style="font-size:13px;font-weight:700;color:#7A5C1F;margin-bottom:4px;">★ 회사별 에이전트 카피본 = 자료 격리</div>
+        <div style="font-size:11px;color:var(--sub);line-height:1.6;">각 에이전트 = 이 회사 전용 카피본 (= 다른 회사·SUNNY 자료 노출 X). 빈 자료 = 마스터 기본만. 회사 노하우·스타일·내부 자료 = 아래에 입력.</div>
       </div>
-      <div class="form-row"><label>페르소나 자료</label>
+      <div class="form-row"><label>에이전트 자료</label>
         <div id="editPersonaList" style="display:flex;flex-direction:column;gap:14px"></div>
       </div>
     </div>
@@ -566,7 +566,7 @@ function renderCompanies() {
   if (ALL_COMPANIES.length === 0) { el.innerHTML = '<div class="empty">회사가 없습니다. 위에서 추가하세요.</div>'; return; }
   el.innerHTML = `
     <table class="table">
-      <thead><tr><th>SLUG</th><th>영문 / 한글</th><th>페르소나</th><th>공유 URL</th><th></th></tr></thead>
+      <thead><tr><th>SLUG</th><th>영문 / 한글</th><th>에이전트</th><th>공유 URL</th><th></th></tr></thead>
       <tbody>
         ${ALL_COMPANIES.map(c => {
           const fullUrl = `${location.origin}/?c=${c.slug}`;
@@ -626,14 +626,14 @@ async function createCompany() {
   const accent = document.getElementById('newAccentText').value.trim() || '#1F4D3F';
   const tagline = document.getElementById('newTagline').value.trim();
 
-  // 담당 페르소나
+  // 담당 에이전트
   const leadId = document.getElementById('newLeadId').value.trim().toLowerCase();
   const leadKo = document.getElementById('newLeadKo').value.trim();
   const leadEn = document.getElementById('newLeadEn').value.trim();
   const leadStudio = document.getElementById('newLeadStudio').value.trim();
 
   if (!slug || !name_en || !name_ko || !initial) { toast('회사 필수 항목을 채워주세요.', true); return; }
-  if (!leadId || !leadKo || !leadEn) { toast('담당 페르소나 ID·한글·영문 필수.', true); return; }
+  if (!leadId || !leadKo || !leadEn) { toast('담당 에이전트 ID·한글·영문 필수.', true); return; }
 
   // 컬러 변형 (deep·soft 자동 계산)
   const accent_deep = adjustColor(accent, -25);
@@ -646,19 +646,19 @@ async function createCompany() {
 
   if (error) { toast('회사 추가 실패: ' + error.message, true); return; }
 
-  // 2) 담당 페르소나 마스터에 등록 (= 카탈로그에 신규 추가, 이미 있으면 그대로)
+  // 2) 담당 에이전트 마스터에 등록 (= 카탈로그에 신규 추가, 이미 있으면 그대로)
   const { error: persErr } = await sb.from('agent_personas').upsert({
     id: leadId,
     ko: leadKo,
     en: leadEn.toUpperCase(),
     studio: leadStudio || `${name_en} Studio`,
-    copy: `${name_en} 담당 페르소나 영역.`,
-    sys_prompt: `당신은 ${name_en} 담당 페르소나입니다. 호칭 "대표님". "박다" 표현 금지.`,
+    copy: `${name_en} 담당 에이전트 영역.`,
+    sys_prompt: `당신은 ${name_en} 담당 에이전트입니다. 호칭 "대표님". "박다" 표현 금지.`,
     span: 'span 4',
     featured: false,
     sort_order: 100
   }, { onConflict: 'id' });
-  if (persErr) { toast('담당 페르소나 등록 실패: ' + persErr.message, true); return; }
+  if (persErr) { toast('담당 에이전트 등록 실패: ' + persErr.message, true); return; }
 
   // 3) 회사별 카피 = 담당 1 + 전문가 7 = 8명 (= 회사 자료 X 깨끗한 카피)
   const ids = [leadId, ...EXPERT_PERSONA_IDS];
@@ -676,7 +676,7 @@ async function createCompany() {
     };
   });
   const { error: mapErr } = await sb.from('agent_company_personas').insert(rows);
-  if (mapErr) { toast('페르소나 카피 실패: ' + mapErr.message, true); return; }
+  if (mapErr) { toast('에이전트 카피 실패: ' + mapErr.message, true); return; }
 
   toast(`${name_en} 추가 완료 = ${ids.length}명 카피 (담당:${leadId} + 전문가7). URL: /?c=${slug}`);
   ['newSlug','newNameEn','newNameKo','newInitial','newTagline','newLeadId','newLeadKo','newLeadEn','newLeadStudio']
@@ -725,7 +725,7 @@ function openEditModal(id) {
   document.getElementById('editTeamMembers').value = c.team_members || '';
   document.getElementById('editNotes').value = c.notes || '';
 
-  // 페르소나 자료 카드 (= 회사별 격리 카피본)
+  // 에이전트 자료 카드 (= 회사별 격리 카피본)
   const list = COMPANY_PERSONAS_FULL[id] || [];
   const wrap = document.getElementById('editPersonaList');
   wrap.innerHTML = list.length === 0
@@ -793,7 +793,7 @@ async function saveEditCompany() {
   }).eq('id', id);
   if (upErr) { toast('회사 수정 실패: ' + upErr.message, true); return; }
 
-  // 2. 페르소나 카피본 = 각 카드별 자료 update
+  // 2. 에이전트 카피본 = 각 카드별 자료 update
   const cards = document.querySelectorAll('#editPersonaList .persona-edit-card');
   let updated = 0, errored = 0;
   for (const card of cards) {
@@ -812,7 +812,7 @@ async function saveEditCompany() {
     else updated++;
   }
 
-  toast(`${name_en} 수정 완료. 페르소나 ${updated}/${cards.length}건 update${errored ? ` (${errored}건 실패)` : ''}`);
+  toast(`${name_en} 수정 완료. 에이전트 ${updated}/${cards.length}건 update${errored ? ` (${errored}건 실패)` : ''}`);
   closeEditModal();
   await loadAll();
 }

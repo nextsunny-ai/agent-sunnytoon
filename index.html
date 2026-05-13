@@ -427,8 +427,8 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 
     <!-- MODEL tab -->
     <div class="set-panel active" data-tab="model" style="padding:24px 28px">
-      <p class="sub">페르소나 답변 모델 선택. <strong>Haiku 4.5</strong> = Sonnet 1/10 비용 + 빠름 = 일반 대화 추천.</p>
-      <p class="info" style="font-size:11px;line-height:1.55">✅ <strong>Prompt Caching = 자동 적용</strong> = 5분 안에 같은 페르소나 연속 대화 = <strong>입력 비용 90% 절감</strong>.</p>
+      <p class="sub">에이전트 답변 모델 선택. <strong>Haiku 4.5</strong> = Sonnet 1/10 비용 + 빠름 = 일반 대화 추천.</p>
+      <p class="info" style="font-size:11px;line-height:1.55">✅ <strong>Prompt Caching = 자동 적용</strong> = 5분 안에 같은 에이전트 연속 대화 = <strong>입력 비용 90% 절감</strong>.</p>
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
         <label class="model-opt" id="setOptSonnet">
           <input type="radio" name="setModel" value="sonnet" style="margin-top:3px">
@@ -454,7 +454,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 
     <!-- TELEGRAM tab -->
     <div class="set-panel" data-tab="tg" style="padding:24px 28px;display:none">
-      <p class="sub">페르소나 답변 = 본인 텔레그램 봇으로 모바일 푸시. 본인 봇·본인 chat_id = 본인 운영 (= 비용 0).</p>
+      <p class="sub">에이전트 답변 = 본인 텔레그램 봇으로 모바일 푸시. 본인 봇·본인 chat_id = 본인 운영 (= 비용 0).</p>
       <details style="margin-bottom:14px;background:var(--accent-soft);border-radius:8px;padding:12px 14px">
         <summary style="font-weight:700;cursor:pointer;font-size:13px;color:var(--accent-deep)">📖 4단계 가이드 (= 처음 1번만)</summary>
         <div style="margin-top:12px;font-size:12px;line-height:1.7;color:var(--text)">
@@ -477,7 +477,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
       <div style="margin-top:14px">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text)">
           <input type="checkbox" id="setTgEnabled">
-          <span>페르소나 답변 = 텔레그램으로도 받기</span>
+          <span>에이전트 답변 = 텔레그램으로도 받기</span>
         </label>
       </div>
       <div class="actions">
@@ -510,9 +510,9 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 <div class="modal-bg" id="modelModal">
   <div class="key-modal">
     <h3>⚡ 모델 선택 = 비용 절감</h3>
-    <p class="sub">페르소나 답변 모델 선택. <strong>Haiku 4.5</strong> = Sonnet 1/10 비용 + 빠름 = 일반 대화 추천.</p>
+    <p class="sub">에이전트 답변 모델 선택. <strong>Haiku 4.5</strong> = Sonnet 1/10 비용 + 빠름 = 일반 대화 추천.</p>
     <p class="info" style="font-size:11px;line-height:1.55">
-      ✅ <strong>Prompt Caching = 자동 적용</strong> = 5분 안에 같은 페르소나와 연속 대화하면 = <strong>입력 비용 90% 절감</strong> (= 모든 모델 적용).
+      ✅ <strong>Prompt Caching = 자동 적용</strong> = 5분 안에 같은 에이전트와 연속 대화하면 = <strong>입력 비용 90% 절감</strong> (= 모든 모델 적용).
     </p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
       <label style="display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;cursor:pointer" id="modelOptSonnet">
@@ -543,7 +543,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 <div class="modal-bg" id="tgModal">
   <div class="key-modal" style="max-width:580px;max-height:90vh;overflow-y:auto">
     <h3>📱 텔레그램 알림 설정</h3>
-    <p class="sub">페르소나 답변 = 본인 텔레그램으로 = 모바일 푸시 알림. 본인 봇·본인 chat_id = 본인 운영 (= 비용 0 · 우리 서버 무관 · 끄고 싶을 때 끔).</p>
+    <p class="sub">에이전트 답변 = 본인 텔레그램으로 = 모바일 푸시 알림. 본인 봇·본인 chat_id = 본인 운영 (= 비용 0 · 우리 서버 무관 · 끄고 싶을 때 끔).</p>
 
     <div style="background:#FFF8E8;border-left:3px solid #C9A35D;padding:12px 14px;border-radius:8px;margin-bottom:14px;font-size:12px;line-height:1.6;color:#5C4A1F">
       <strong>왜 본인 봇?</strong><br>
@@ -586,7 +586,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
           <li>chat_id = 본인 ID 숫자 붙여넣기</li>
           <li>☑ 활성화 체크 → <strong>"테스트 발송"</strong> 클릭</li>
           <li>본인 봇 채팅 = "✅ 연결 성공" 메시지 확인되면 = <strong>"저장"</strong></li>
-          <li>= 끝. 이후 = 페르소나 답변 = 자동 푸시</li>
+          <li>= 끝. 이후 = 에이전트 답변 = 자동 푸시</li>
         </ol>
       </div>
     </details>
@@ -598,7 +598,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
     <div style="margin-top:14px">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text)">
         <input type="checkbox" id="tgEnabled">
-        <span>페르소나 답변 = 텔레그램으로도 받기 (= 활성화)</span>
+        <span>에이전트 답변 = 텔레그램으로도 받기 (= 활성화)</span>
       </label>
     </div>
     <div style="margin-top:10px;font-size:11px;color:var(--mute);line-height:1.55">
@@ -741,13 +741,13 @@ const AVATAR_EXT = {
 function avatarUrl(pid) { return `avatars/${pid}.${AVATAR_EXT[pid] || 'png'}`; }
 
 // ============================================================
-// Boot — 인증 → 회사·페르소나 fetch → 렌더
+// Boot — 인증 → 회사·에이전트 fetch → 렌더
 // ============================================================
 // ★ 자유 가입 모델 (= 스토리메이커 동일)
 // - 누구나 가입 = OK
 // - 회사 = URL ?c=xx 로 결정 (= 누구나 접근 가능)
 // - 호출 path = 데스크탑 앱 = 본인 Claude Pro/Max 구독 (= 비용 0)
-// - ADMIN = nextsunny@gmail.com 이메일만 (= 회사·페르소나 편집)
+// - ADMIN = nextsunny@gmail.com 이메일만 (= 회사·에이전트 편집)
 const ADMIN_EMAIL = 'nextsunny@gmail.com';
 
 async function boot() {
@@ -826,11 +826,11 @@ async function boot() {
   }
   COMPANY = MY_COMPANIES.find(c => c.slug === resolvedSlug) || MY_COMPANIES[0];
 
-  // 4. 페르소나 마스터 fetch (= 카탈로그 = avatar 등 보조 자료)
+  // 4. 에이전트 마스터 fetch (= 카탈로그 = avatar 등 보조 자료)
   const { data: allPersonas } = await sb.from('agent_personas').select('*').eq('active', true).order('sort_order');
   PERSONAS_MAP = {}; (allPersonas || []).forEach(p => { PERSONAS_MAP[p.id] = p; });
 
-  // 5. ★ 현재 회사의 페르소나 카피본 fetch (= v2 = 회사별 격리 자료)
+  // 5. ★ 현재 회사의 에이전트 카피본 fetch (= v2 = 회사별 격리 자료)
   const { data: cps } = await sb.from('agent_company_personas').select('*').eq('company_id', COMPANY.id).order('sort_order');
   COMPANY_PERSONA_IDS = (cps || []).map(x => x.persona_id);
   COMPANY_PERSONA_OVERRIDES = {};
@@ -1073,7 +1073,7 @@ function commonCtx() {
   const isSunnyAdmin = (COMPANY.slug === 'sunny' && IS_ADMIN);
   const userName = (USER?.user_metadata?.name) || (USER?.email ? USER.email.split('@')[0] : '');
   const userTitle = isSunnyAdmin
-    ? '대표님 (= Founder, 30년 CD, 한국 최초 여성 VFX 감독, 12명 페르소나 = 대표님이 학습시킨 외주 에이전트 시스템 소유주)'
+    ? '대표님 (= Founder, 30년 CD, 한국 최초 여성 VFX 감독, 12명 에이전트 = 대표님이 학습시킨 외주 에이전트 시스템 소유주)'
     : `${COMPANY.name_ko}(${COMPANY.name_en}) 소속 클라이언트 (이메일: ${USER?.email || '미상'}${userName ? `, 이름: ${userName}`:''})`;
   const honorific = isSunnyAdmin ? '대표님' : '고객님';
 
@@ -1493,7 +1493,7 @@ async function testTelegram() {
   try {
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text: '✅ Agent Pro 1.0 = 텔레그램 연결 성공! 이제 페르소나 응답을 받으실 수 있어요.' })
+      body: JSON.stringify({ chat_id: chatId, text: '✅ Agent Pro 1.0 = 텔레그램 연결 성공! 이제 에이전트 응답을 받으실 수 있어요.' })
     });
     const data = await res.json();
     if (data.ok) alert('✅ 발송 성공. 텔레그램 확인해주세요.');
