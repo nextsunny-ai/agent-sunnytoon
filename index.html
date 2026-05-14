@@ -630,6 +630,8 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 const SUPABASE_URL = 'https://pddasonkizwviwqzdhpu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_g_WkmPy-txtru1D93pl8iA_kddaB4GQ';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ★ Tauri deep link handler가 호출 가능하게 = global 노출 (= agent-pro://auth deep link path)
+window.sb = sb;
 
 // ============================================================
 // State

@@ -1,0 +1,12 @@
+{
+  "id": "session-1778701334754",
+  "startedAt": "2026-05-13T19:42:14.754Z",
+  "cwd": "/private/tmp/agent_sunnytoon_v2",
+  "context": {},
+  "metrics": {
+    "edits": 45,
+    "commands": 0,
+    "tasks": 0,
+    "errors": 0
+  }
+}

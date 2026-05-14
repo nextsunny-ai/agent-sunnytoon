@@ -223,6 +223,7 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
 const SUPABASE_URL = 'https://pddasonkizwviwqzdhpu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_g_WkmPy-txtru1D93pl8iA_kddaB4GQ';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+window.sb = sb; // ★ Tauri deep link handler용 global 노출
 
 // ★ 비밀번호 보기/숨기기 토글
 function togglePw(inputId, btn) {
@@ -334,11 +335,33 @@ async function handleSubmit(e) {
 async function signInGoogle() {
   clearMsg();
   try {
-    const { error } = await sb.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${location.origin}/auth_callback.html?redirect=${encodeURIComponent(redirectTo)}${preferredCompany ? `&c=${encodeURIComponent(preferredCompany)}` : ''}` }
-    });
-    if (error) throw error;
+    // ★ Tauri 환경 = 외부 브라우저 (= 본인 Chrome) 박음 = 옛 Google 자료 자동 인증
+    const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+    const callbackUrl = `${location.origin}/auth_callback.html?redirect=${encodeURIComponent(redirectTo)}${preferredCompany ? `&c=${encodeURIComponent(preferredCompany)}` : ''}${isTauri ? '&app=desktop' : ''}`;
+    if (isTauri) {
+      // Tauri = 본인 Chrome으로 OAuth URL 열기 + skip browser redirect
+      const { data, error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: callbackUrl, skipBrowserRedirect: true }
+      });
+      if (error) throw error;
+      // 본인 Chrome 열기 (= Tauri opener plugin)
+      if (window.__TAURI__?.opener?.openUrl) {
+        await window.__TAURI__.opener.openUrl(data.url);
+      } else {
+        // fallback
+        window.open(data.url, '_blank');
+      }
+      // 본 webview = 안내 자료 박음
+      showError('★ 본인 Chrome에서 Google 인증 진행 → 인증 완료 = 본 앱 자동 진입');
+    } else {
+      // 웹 = 옛 path 그대로 (= 본인 Chrome에서 = OAuth 자동 박힘)
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: callbackUrl }
+      });
+      if (error) throw error;
+    }
   } catch (err) { showError(translate(err.message || String(err))); }
 }
 

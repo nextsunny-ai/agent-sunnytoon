@@ -13,6 +13,9 @@
     "updater:default",
     "process:default",
     "log:default",
-    "http:default"
+    "http:default",
+    "deep-link:default",
+    "opener:default",
+    "opener:allow-open-url"
   ]
 }

@@ -176,6 +176,50 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_opener::init())
+        .setup(|app| {
+            // ★ Deep link handler = agent-pro://auth#access_token=... 받음
+            // 본인 Chrome OAuth 콜백 = auth_callback.html이 = agent-pro://auth URL로 redirect
+            // = 본 앱 = 토큰 자료 받음 → webview localStorage에 박음 → reload
+            use tauri::Manager;
+            use tauri_plugin_deep_link::DeepLinkExt;
+            let app_handle = app.handle().clone();
+            app.deep_link().on_open_url(move |event| {
+                let urls = event.urls();
+                if let Some(url) = urls.first() {
+                    let url_str = url.as_str().to_string();
+                    log::info!("[deep-link] received: {}", url_str);
+                    // agent-pro://auth#access_token=...&refresh_token=... 자료 파싱
+                    if let Some(window) = app_handle.get_webview_window("main") {
+                        // localStorage에 hash 박음 (= Supabase JS = hash 자료 자동 인식)
+                        // 단순 path = JS = location.hash 박음 + supabase 자동 처리
+                        let hash = url_str.split('#').nth(1).unwrap_or("").to_string();
+                        let js = format!(
+                            r#"(async () => {{
+                                console.log('[deep-link] auth hash 박힘');
+                                // Supabase JS = hash 자료 자동 처리 = setSession 호출
+                                const params = new URLSearchParams('{}');
+                                const access_token = params.get('access_token');
+                                const refresh_token = params.get('refresh_token');
+                                if (access_token && refresh_token && window.sb) {{
+                                    await window.sb.auth.setSession({{ access_token, refresh_token }});
+                                    location.href = '/';
+                                }} else {{
+                                    // fallback = hash 박음 + reload
+                                    location.hash = '{}';
+                                    location.reload();
+                                }}
+                            }})();"#,
+                            hash, hash
+                        );
+                        let _ = window.eval(&js);
+                        let _ = window.set_focus();
+                    }
+                }
+            });
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             license_check_local,
             license_save,

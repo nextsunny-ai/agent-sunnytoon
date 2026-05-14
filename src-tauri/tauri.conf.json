@@ -66,6 +66,11 @@
     }
   },
   "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["agent-pro"]
+      }
+    },
     "updater": {
       "active": true,
       "endpoints": [

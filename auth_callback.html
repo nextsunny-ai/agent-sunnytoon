@@ -85,7 +85,24 @@ function fail(msg) {
       }
     }
 
-    // 안전한 redirect (= 내부 경로만)
+    // ★ Tauri 데스크탑 앱 사용자 = 본 콜백 = 본인 Chrome (= 외부 브라우저)에서 박힘
+    // = 본 페이지 = session 자료 deep link로 = 본 앱에 박음 → 본 창 닫음 안내
+    const isDesktop = params.get('app') === 'desktop';
+    if (isDesktop) {
+      const session = data.session;
+      const desktopUrl = `agent-pro://auth#access_token=${encodeURIComponent(session.access_token)}&refresh_token=${encodeURIComponent(session.refresh_token)}&expires_in=${session.expires_in}&token_type=Bearer`;
+      // 본 앱에 deep link 박음 = Tauri = on_open_url handler 받음
+      location.href = desktopUrl;
+      // 본 창 = 안내 자료 박음 (= 자동 redirect 후도 표시)
+      setTimeout(() => {
+        document.getElementById('title').textContent = '인증 완료';
+        document.getElementById('sub').innerHTML = '★ Agent Pro 앱으로 자동 진입.<br>본 브라우저 창 = 닫으셔도 됩니다.';
+        document.querySelector('.spinner').style.display = 'none';
+      }, 500);
+      return;
+    }
+
+    // 웹 사용자 = 옛 path 그대로
     const safe = redirectTo.startsWith('/') && !redirectTo.startsWith('//') ? redirectTo : '/';
     location.href = safe;
   } catch (err) {
