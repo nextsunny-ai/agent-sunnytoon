@@ -352,7 +352,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
   <div class="top-row">
     <div class="brand">
       <span class="brand-name">Agent Pro</span>
-      <span class="brand-ver">1.0</span>
+      <span class="brand-ver" title="2026-05-14 빌드 = Mac Keychain OAuth + withGlobalTauri 정정 박힘">v1.0.0-beta-2</span>
       <span class="brand-divider"></span>
       <span class="brand-group" id="group-label">CLIENT</span>
     </div>
@@ -889,7 +889,7 @@ function applyCompany() {
   set('logo-mark', COMPANY.initial);
   set('hero-name', COMPANY.name_ko);
   set('hero-desc', COMPANY.tagline);
-  set('meta-client', `AGENT PRO 1.0 · ${COMPANY.name_en} · ${COMPANY_PERSONA_IDS.length} AGENTS`);
+  set('meta-client', `AGENT PRO v1.0.0-beta-2 (2026-05-14) · ${COMPANY.name_en} · ${COMPANY_PERSONA_IDS.length} AGENTS`);
   set('foot-client', COMPANY.name_en);
   set('foot-id', `GROUP/${COMPANY.name_en.replace(/\s/g,'')}`);
   set('section-meta', `${COMPANY_PERSONA_IDS.length} DEDICATED · ON-CALL`);
