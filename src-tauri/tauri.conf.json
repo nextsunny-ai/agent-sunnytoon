@@ -7,6 +7,7 @@
     "frontendDist": "https://agent.sunnytoon.com"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "title": "SUNNY Agent Pro — 12명 에이전트",
