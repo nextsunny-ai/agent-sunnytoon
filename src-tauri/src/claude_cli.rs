@@ -38,22 +38,9 @@ pub fn is_installed() -> bool {
     find_claude_bin().is_some()
 }
 
-/// claude /login 완료 여부 (= ~/.claude/.credentials.json + accessToken + 만료 X).
-pub fn is_logged_in() -> bool {
-    let mut path = match dirs::home_dir() {
-        Some(p) => p,
-        None => return false,
-    };
-    path.push(".claude");
-    path.push(".credentials.json");
-    if !path.exists() {
-        return false;
-    }
-    let content = match fs::read_to_string(&path) {
-        Ok(c) => c,
-        Err(_) => return false,
-    };
-    let v: serde_json::Value = match serde_json::from_str(&content) {
+/// JSON content에서 claudeAiOauth.accessToken 검증 (= 공통 path).
+fn validate_oauth_json(content: &str) -> bool {
+    let v: serde_json::Value = match serde_json::from_str(content) {
         Ok(v) => v,
         Err(_) => return false,
     };
@@ -72,6 +59,43 @@ pub fn is_logged_in() -> bool {
         }
     }
     true
+}
+
+/// claude /login 완료 여부 = 2단 fallback:
+/// 1. macOS = Keychain ("Claude Code-credentials") = ★ Mac 핵심 path
+///    (= 외부 사용자 리포트 2026-05-14 = `security find-generic-password -s "Claude Code-credentials" -w`)
+/// 2. ~/.claude/.credentials.json (= Linux/Windows + 옛 Mac path)
+pub fn is_logged_in() -> bool {
+    // Path 1 = macOS Keychain
+    #[cfg(target_os = "macos")]
+    {
+        if let Ok(output) = std::process::Command::new("security")
+            .args(["find-generic-password", "-s", "Claude Code-credentials", "-w"])
+            .output()
+        {
+            if output.status.success() {
+                let content = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                if validate_oauth_json(&content) {
+                    return true;
+                }
+            }
+        }
+    }
+    // Path 2 = credentials.json file
+    let mut path = match dirs::home_dir() {
+        Some(p) => p,
+        None => return false,
+    };
+    path.push(".claude");
+    path.push(".credentials.json");
+    if !path.exists() {
+        return false;
+    }
+    let content = match fs::read_to_string(&path) {
+        Ok(c) => c,
+        Err(_) => return false,
+    };
+    validate_oauth_json(&content)
 }
 
 /// claude CLI 사용 가능 여부 (= 설치 + 로그인).
