@@ -1288,7 +1288,7 @@ async function sendChat() {
     sendTelegramNotification(PERSONAS_MAP[currentPersona]?.ko || currentPersona, reply);
   } catch(e) {
     document.getElementById('typing')?.remove();
-    appendMsg('agent', `⚠️ 호출 실패: ${e.message}\n\n웹 = 데모용. 진짜 사용 = 데스크탑 앱 다운로드 (= 본인 Claude 구독 = 비용 0)`);
+    appendMsg('agent', `⚠️ 호출 실패: ${e.message}\n\n데스크탑 앱에서 사용하세요.`);
   } finally { sendBtn.disabled = false; }
 }
 
@@ -1577,7 +1577,7 @@ async function sendTelegramNotification(personaName, replyText) {
 // Key modal = 옛 자료 삭제됨 (= V1.0 = 데스크탑 앱만 사용)
 // ============================================================
 function openKeyModal() {
-  alert('웹 = 데모용. 진짜 사용 = 데스크탑 앱 다운로드 (= 본인 Claude 구독).');
+  alert('데스크탑 앱에서 사용하세요.');
 }
 
 // Modal close on backdrop
