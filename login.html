@@ -382,8 +382,15 @@ async function signInGoogle() {
 
 async function signInMagic() {
   clearMsg();
-  const email = document.getElementById('email').value.trim();
-  if (!email) { showError('이메일을 입력해주세요.'); return; }
+  const emailEl = document.getElementById('email');
+  const email = emailEl.value.trim();
+  if (!email) {
+    showError('이메일을 먼저 입력해주세요. 입력 후 매직 링크 버튼 다시 클릭.');
+    emailEl.focus();
+    emailEl.style.borderColor = 'var(--danger, #DC2626)';
+    setTimeout(() => { emailEl.style.borderColor = ''; }, 2500);
+    return;
+  }
   try {
     const { error } = await sb.auth.signInWithOtp({
       email,
