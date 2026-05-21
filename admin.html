@@ -189,9 +189,9 @@ input, select, textarea { font: inherit; color: inherit; }
         <div class="form-row"><label>담당 분야</label><input id="newLeadStudio" placeholder="예: AI/XR Studio"></div>
       </div>
 
-      <p class="desc" style="font-size:11px;color:var(--mute)">★ 회사 추가 = 담당 1명 + 전문가 7명 = 8명 자동 카피 (= 어느 회사 자료도 X). 회사 자료는 = "수정" 모달에서 에이전트별로 입력.</p>
+      <p class="desc" style="font-size:11px;color:var(--mute)">★ 회사 추가 = 마스터 12명 풀세트 카피. 담당 1명만 노출 ON 기본 / 나머지 11명 = 어드민 "노출" 체크박스로 ON·OFF 컨트롤.</p>
       <div class="btn-row">
-        <button class="btn primary" onclick="createCompany()">회사 추가 (= 담당 1 + 전문가 7 자동 카피)</button>
+        <button class="btn primary" onclick="createCompany()">회사 추가 (= 마스터 12명 풀세트 카피)</button>
       </div>
     </div>
 
@@ -622,7 +622,8 @@ function renderNewPersonaGrid() {
 }
 
 // ★ 전문가 7 = 4사 공통 (lumi·sori·maru·rian·teo·hana·kai)
-const EXPERT_PERSONA_IDS = ['lumi','sori','maru','rian','teo','hana','kai'];
+// 마스터 12명 풀세트 (= 회사 담당 4명 + 비서 1 + 에이전시 6 + 게임 1)
+const ALL_PERSONA_IDS = ['sera','nea','mori','birch','genie','lumi','sori','maru','rian','teo','hana','kai'];
 
 async function createCompany() {
   const slug = document.getElementById('newSlug').value.trim().toLowerCase();
@@ -666,8 +667,8 @@ async function createCompany() {
   }, { onConflict: 'id' });
   if (persErr) { toast('담당 에이전트 등록 실패: ' + persErr.message, true); return; }
 
-  // 3) 회사별 카피 = 담당 1 + 전문가 7 = 8명 (= 회사 자료 X 깨끗한 카피)
-  const ids = [leadId, ...EXPERT_PERSONA_IDS];
+  // 3) 회사별 카피 = 마스터 12명 풀세트 = 어드민에서 노출 체크박스로 ON/OFF 토글
+  const ids = [leadId, ...ALL_PERSONA_IDS.filter(p => p !== leadId)];
   const { data: masterRows } = await sb.from('agent_personas').select('*').in('id', ids);
   const rows = ids.map((pid, i) => {
     const m = masterRows.find(r => r.id === pid) || {};
@@ -677,7 +678,7 @@ async function createCompany() {
       sort_order: i,
       ko: m.ko, en: m.en, studio: m.studio, copy: m.copy,
       sys_prompt: m.sys_prompt, span: m.span, avatar: m.avatar,
-      featured: false,
+      featured: (pid === leadId),  // 담당 1명만 = 노출 ON 기본. 나머지 11명 = 대표님이 어드민에서 체크.
       lead: (pid === leadId)
     };
   });
