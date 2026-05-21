@@ -53,10 +53,10 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
   width: 280px; height: 280px; border-radius: 50%;
   background: radial-gradient(closest-side, rgba(255,255,255,0.08), transparent);
 }
-.quote-brand { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; opacity: 0.7; }
-.quote-text { font-size: 28px; font-weight: 700; line-height: 1.25; letter-spacing: -0.025em; max-width: 320px; position: relative; z-index: 1; }
-.quote-text em { font-style: normal; opacity: 0.8; display: block; margin-top: 8px; }
-.quote-by { font-family: var(--font-mono); font-size: 11px; opacity: 0.6; letter-spacing: 0.06em; }
+.quote-brand { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.7; }
+.quote-title { font-size: clamp(40px, 4.5vw, 56px); font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 16px; position: relative; z-index: 1; }
+.quote-text { font-size: 18px; font-weight: 400; line-height: 1.6; opacity: 0.75; max-width: 40ch; margin: 0; position: relative; z-index: 1; }
+.quote-by { font-family: var(--font-mono); font-size: 11px; opacity: 0.6; letter-spacing: 0.08em; text-transform: uppercase; }
 
 /* Right = form */
 .form-panel { padding: 56px 48px; display: flex; flex-direction: column; justify-content: center; }
@@ -131,11 +131,12 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
 <div class="login-wrap">
   <!-- Left: quote -->
   <aside class="quote-panel">
-    <div class="quote-brand">AGENT PRO 1.0</div>
+    <div class="quote-brand">AGENT PRO · V1.0 BETA</div>
     <div>
-      <p class="quote-text" id="brandQuote" style="opacity:0.85;"></p>
+      <h1 class="quote-title">SUNNY<br>Agent Pro.</h1>
+      <p class="quote-text" id="brandQuote"></p>
     </div>
-    <div class="quote-by">— Team</div>
+    <div class="quote-by">— SUNNY ENTERTAINMENT</div>
   </aside>
 
   <!-- Right: form -->
