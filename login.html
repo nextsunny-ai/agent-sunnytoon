@@ -405,24 +405,16 @@ async function signInMagic() {
 </script>
 
 <script>
-// ★ OS 자동 감지 = 본인 OS 다운로드 강조
+// OS 감지 = 본인 OS 버튼만 살짝 강조 (= 글자 변경 X = 대칭 유지)
 (function() {
   const ua = navigator.userAgent.toLowerCase();
   const isMac = /mac/.test(ua);
   const isWin = /win/.test(ua);
   const dlMac = document.getElementById('dlMac');
   const dlWin = document.getElementById('dlWin');
-  if (dlMac && dlWin) {
-    if (isMac) {
-      dlMac.style.fontSize = '13px';
-      dlMac.innerHTML = '★ Mac 다운로드 (7MB)';
-      dlWin.style.opacity = '0.5';
-    } else if (isWin) {
-      dlWin.style.fontSize = '13px';
-      dlWin.innerHTML = '★ Windows 다운로드 (4.6MB)';
-      dlMac.style.opacity = '0.5';
-    }
-  }
+  if (!dlMac || !dlWin) return;
+  if (isMac) { dlWin.style.opacity = '0.5'; }
+  else if (isWin) { dlMac.style.opacity = '0.5'; }
 })();
 </script>
 </body>
