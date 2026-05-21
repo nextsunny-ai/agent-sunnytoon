@@ -751,9 +751,12 @@ async function openEditModal(id) {
             <span style="font-family:var(--mono);font-size:10px;color:var(--mute);letter-spacing:0.08em">${escapeHtml(cp.en || cp.persona_id.toUpperCase())}</span>
             ${cp.lead ? '<span style="font-size:10px;padding:2px 6px;border-radius:999px;background:var(--accent);color:#fff;font-family:var(--mono)">LEAD</span>' : ''}
           </div>
-          <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--sub);cursor:pointer">
-            <input type="checkbox" class="cp-featured" ${cp.featured ? 'checked' : ''}> FEATURED
-          </label>
+          <div style="display:flex;align-items:center;gap:12px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--sub);cursor:pointer">
+              <input type="checkbox" class="cp-featured" ${cp.featured ? 'checked' : ''}> FEATURED
+            </label>
+            <button type="button" onclick="removeCompanyPersona('${id}','${cp.persona_id}','${escapeHtml(cp.ko || cp.persona_id)}')" title="이 회사에서 제거 (= 직원이 안 보임)" style="font-size:11px;padding:4px 10px;background:transparent;color:#B91C1C;border:1px solid #FCA5A5;border-radius:6px;cursor:pointer;font-family:var(--mono)">✕ 제거</button>
+          </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
           <input type="text" class="cp-studio" value="${escapeHtml(cp.studio || '')}" placeholder="studio (예: AI/XR Studio)">
@@ -849,6 +852,20 @@ async function saveEditCompany() {
   closeEditModal();
   await loadAll();
 }
+
+// ════════════════════════════════════════════
+// ★ 페르소나 회사에서 제거 (= 직원에게 안 보이게)
+// ════════════════════════════════════════════
+
+window.removeCompanyPersona = async function(companyId, personaId, personaName) {
+  if (!confirm(`'${personaName}'을(를) 이 회사에서 제거하시겠습니까?\n\n= 회사 직원들에게 더 이상 안 보입니다.\n= 다시 추가하려면 SQL 또는 회사 재생성 필요.\n= 자동 학습 자료는 보존됩니다.`)) return;
+  const { error } = await sb.from('agent_company_personas').delete().eq('company_id', companyId).eq('persona_id', personaId);
+  if (error) { toast('제거 실패: ' + error.message); return; }
+  toast(`${personaName} 제거됨`);
+  // 옛 카드 즉시 사라지게 = 부모 li 또는 카드 DOM 제거
+  const card = document.querySelector(`.persona-edit-card[data-pid="${personaId}"]`);
+  if (card) card.remove();
+};
 
 // ════════════════════════════════════════════
 // ★ v4 = 자동 학습 통합·기각 함수
