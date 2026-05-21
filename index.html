@@ -276,7 +276,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
     title.textContent = 'Claude 로그인이 필요합니다';
     body.innerHTML = `
       <p style="font-size:15px;line-height:1.7;color:#333;margin:0 0 16px;">
-        본인 Claude 구독으로 사용하려면 = <strong>로그인 1회</strong>가 필요합니다 (= 한 번만 하면 됩니다).
+        Claude 로그인이 1회 필요합니다.
       </p>
       <div style="background:#f8f6f2;border:1px solid rgba(0,0,0,0.06);border-radius:10px;padding:14px 16px;font-size:13.5px;line-height:1.7;color:#444;margin:0 0 20px;">
         <strong style="color:#1a1a1a;">아래 버튼을 누르면:</strong>
@@ -378,7 +378,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
   <div>
     <span class="eyebrow" id="hero-eyebrow">Welcome back</span>
     <h1>Welcome back,<br><span class="name" id="hero-name">···</span><span class="period">.</span></h1>
-    <p id="hero-desc">Your dedicated agency. 전담 에이전트가 통째로 당신의 프로젝트만 돌봅니다.</p>
+    <p id="hero-desc"></p>
   </div>
   <aside class="projects-aside" id="projectsAside">
     <div class="projects-aside-head">
@@ -454,7 +454,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 
     <!-- TELEGRAM tab -->
     <div class="set-panel" data-tab="tg" style="padding:24px 28px;display:none">
-      <p class="sub">에이전트 답변 = 본인 텔레그램 봇으로 모바일 푸시. 본인 봇·본인 chat_id = 본인 운영 (= 비용 0).</p>
+      <p class="sub">에이전트 답변을 본인 텔레그램 봇으로 모바일 푸시 받기.</p>
       <details style="margin-bottom:14px;background:var(--accent-soft);border-radius:8px;padding:12px 14px">
         <summary style="font-weight:700;cursor:pointer;font-size:13px;color:var(--accent-deep)">📖 4단계 가이드 (= 처음 1번만)</summary>
         <div style="margin-top:12px;font-size:12px;line-height:1.7;color:var(--text)">
@@ -500,7 +500,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
         <span style="font-family:var(--font-mono);font-size:11px;color:var(--mute);letter-spacing:0.08em">VERSION</span>
         <span style="font-size:13px;color:var(--sub)">Agent Pro 1.0</span>
       </div>
-      <p class="info" style="margin-top:18px;font-size:11px">유료 plan = 미래 (= 본인 Claude 구독만 필요). 현재 = 베타 무료.</p>
+      <p class="info" style="margin-top:18px;font-size:11px">v1.0.0 · 베타</p>
     </div>
 
   </div>
@@ -543,14 +543,12 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 <div class="modal-bg" id="tgModal">
   <div class="key-modal" style="max-width:580px;max-height:90vh;overflow-y:auto">
     <h3>📱 텔레그램 알림 설정</h3>
-    <p class="sub">에이전트 답변 = 본인 텔레그램으로 = 모바일 푸시 알림. 본인 봇·본인 chat_id = 본인 운영 (= 비용 0 · 우리 서버 무관 · 끄고 싶을 때 끔).</p>
+    <p class="sub">에이전트 답변을 본인 텔레그램으로 모바일 푸시 알림.</p>
 
     <div style="background:#FFF8E8;border-left:3px solid #C9A35D;padding:12px 14px;border-radius:8px;margin-bottom:14px;font-size:12px;line-height:1.6;color:#5C4A1F">
       <strong>왜 본인 봇?</strong><br>
-      • 모든 사용자가 한 봇 = 안 됨 (= 우리가 다른 사람 메시지 다 받음)<br>
       • 본인 봇 = 본인만 사용 = 안전 + 본인 통제<br>
-      • 비용 0 (= 텔레그램 무료 · 봇 무료)<br>
-      • 1번만 만들면 = 영구 사용
+      • 1번만 만들면 영구 사용
     </div>
 
     <details style="margin-bottom:14px;background:var(--accent-soft);border-radius:8px;padding:12px 14px" open>
@@ -1143,7 +1141,7 @@ function openChat(pid) {
     </div>
     <div class="chat-msgs" id="chatMsgs">${
       msgs.length === 0
-        ? `<div class="msg sys">${escapeHtml(p.ko)}와 대화 시작. 데스크탑 앱 = 본인 Claude 구독으로 호출.</div>`
+        ? `<div class="msg sys">${escapeHtml(p.ko)}와 대화 시작.</div>`
         : msgs.map(m => {
             let txt = '';
             if (typeof m.content === 'string') txt = m.content;
@@ -1163,7 +1161,7 @@ function openChat(pid) {
         <button class="send-btn" id="sendBtn" type="button" onclick="sendChat()">↑</button>
       </div>
       <input type="file" id="fileInp" accept="image/*" style="display:none" onchange="onImagePicked(this)">
-      <div class="chat-hint">Enter 보내기 · 🖼️ 이미지 · 🎤 음성 · 본인 Claude 구독 사용</div>
+      <div class="chat-hint">Enter 보내기 · 🖼️ 이미지 · 🎤 음성</div>
     </div>
   `;
   document.getElementById('chatModal').classList.add('show');
