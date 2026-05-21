@@ -1070,6 +1070,20 @@ async function signOut() {
 }
 
 boot();
+
+// ★ 외부 회사 시점 어드민 진입 (= ?c=birch 같은) = '에이전트' 탭 + 마스터 카탈로그 숨김
+// 대표님 본인 진입 (= 파라미터 없음 또는 ?c=sunny) = 전체 표시
+(function() {
+  const viewAs = new URLSearchParams(location.search).get('c');
+  if (!viewAs || viewAs === 'sunny') return;
+  // '에이전트' 탭 버튼 숨김
+  document.querySelectorAll('.tabs .tab').forEach(t => {
+    if (t.textContent.trim() === '에이전트') t.style.display = 'none';
+  });
+  // panel-personas 섹션 숨김
+  const panel = document.getElementById('panel-personas');
+  if (panel) panel.style.display = 'none';
+})();
 </script>
 </body>
 </html>
