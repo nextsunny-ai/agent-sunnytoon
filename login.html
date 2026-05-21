@@ -133,7 +133,7 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
   <aside class="quote-panel">
     <div class="quote-brand">AGENT PRO 1.0</div>
     <div>
-      <p class="quote-text">전담 에이전트가,<em>당신의 프로젝트만 돌봅니다.</em></p>
+      <p class="quote-text" id="brandQuote" style="opacity:0.85;"></p>
     </div>
     <div class="quote-by">— Team</div>
   </aside>
@@ -148,9 +148,6 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
         <span style="font-size:18px;">⬇️</span>
         <span style="font-size:13px;font-weight:700;color:var(--accent);">데스크탑 앱 V1.0 베타</span>
-      </div>
-      <div style="font-size:11px;color:var(--sub);line-height:1.5;margin-bottom:10px;">
-        본인 Claude Pro/Max 구독 = 비용 0. 더블클릭 = 자동 설치.
       </div>
       <div style="display:flex;gap:6px;">
         <a id="dlMac" href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/download/v1.0.0-beta/agent-pro-beta-v1-mac.zip" style="flex:1;padding:8px;background:var(--accent);color:#fff;border-radius:8px;text-align:center;font-size:11px;font-weight:600;text-decoration:none;font-family:var(--font-mono);letter-spacing:0.04em;">Mac (7MB)</a>
@@ -210,7 +207,7 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
       📧 매직 링크로 로그인 (비밀번호 없이)
     </button>
 
-    <p class="foot-note">V1.0 베타 · 본인 Claude 구독 · 비용 0</p>
+    <p class="foot-note">v1.0.0 · 베타</p>
   </section>
 </div>
 
@@ -252,6 +249,26 @@ function extractCompanySlug() {
   } catch(e) { return ''; }
 }
 const preferredCompany = extractCompanySlug();
+
+// ★ Tauri 환경 = 데스크탑 앱 안에서는 다운로드 카드 숨김 (= 이미 설치됨)
+if (window.__TAURI__ || window.__TAURI_INTERNALS__) {
+  const dl = document.getElementById('desktopDownload');
+  if (dl) dl.style.display = 'none';
+}
+
+// ★ 회사명 동적 표시 (= 좌측 hero, ?c=slug 기반)
+const COMPANY_NAMES = {
+  birch: 'Birch Sound',
+  nextart: 'Nextart',
+  mori: 'Goods Moment',
+  sera: 'Sunny Entertainment',
+  sunny: 'Sunny',
+};
+(function () {
+  const el = document.getElementById('brandQuote');
+  if (!el || !preferredCompany) return;
+  el.textContent = COMPANY_NAMES[preferredCompany] || preferredCompany.replace(/^./, c => c.toUpperCase());
+})();
 
 function setMode(m) {
   mode = m;
