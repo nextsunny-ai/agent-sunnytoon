@@ -831,7 +831,8 @@ async function boot() {
   PERSONAS_MAP = {}; (allPersonas || []).forEach(p => { PERSONAS_MAP[p.id] = p; });
 
   // 5. ★ 현재 회사의 에이전트 카피본 fetch (= v2 = 회사별 격리 자료)
-  const { data: cps } = await sb.from('agent_company_personas').select('*').eq('company_id', COMPANY.id).order('sort_order');
+  // ★ featured=true만 노출 (= 어드민에서 '노출' 체크된 페르소나만 직원에게 표시 / 체크 해제 = 자료 보존 + 숨김)
+  const { data: cps } = await sb.from('agent_company_personas').select('*').eq('company_id', COMPANY.id).eq('featured', true).order('sort_order');
   COMPANY_PERSONA_IDS = (cps || []).map(x => x.persona_id);
   COMPANY_PERSONA_OVERRIDES = {};
   (cps || []).forEach(cp => {
@@ -1027,8 +1028,8 @@ async function switchCompany(slug) {
   const newCompany = MY_COMPANIES.find(c => c.slug === slug);
   if (!newCompany) return;
   COMPANY = newCompany;
-  // ★ v2 = 회사 전환 시 카피본 전체 fetch (= 격리 자료 다 재로드)
-  const { data: cps } = await sb.from('agent_company_personas').select('*').eq('company_id', COMPANY.id).order('sort_order');
+  // ★ v2 = 회사 전환 시 카피본 fetch (= featured=true만 = 노출 체크된 페르소나만)
+  const { data: cps } = await sb.from('agent_company_personas').select('*').eq('company_id', COMPANY.id).eq('featured', true).order('sort_order');
   COMPANY_PERSONA_IDS = (cps || []).map(x => x.persona_id);
   COMPANY_PERSONA_OVERRIDES = {};
   (cps || []).forEach(cp => {
