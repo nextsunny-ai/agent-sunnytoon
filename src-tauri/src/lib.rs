@@ -185,6 +185,14 @@ pub fn run() {
             use tauri::Manager;
             use tauri_plugin_deep_link::DeepLinkExt;
             let app_handle = app.handle().clone();
+            // ★ Windows Registry 자동 등록 = agent-pro:// protocol handler 박음
+            // (= NSIS installer 누락 사고 회복)
+            #[cfg(any(target_os = "windows", target_os = "linux"))]
+            {
+                if let Err(e) = app.deep_link().register_all() {
+                    log::error!("[deep-link] register_all 실패: {:?}", e);
+                }
+            }
             app.deep_link().on_open_url(move |event| {
                 let urls = event.urls();
                 if let Some(url) = urls.first() {
