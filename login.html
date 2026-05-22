@@ -404,10 +404,42 @@ async function signInMagic() {
   } catch (err) { showError(translate(err.message || String(err))); }
 }
 
-// 이미 로그인됐으면 → redirect
+// ★ Deep link hash 자료 명시 처리 (= Tauri 앱에서 = agent-pro://auth#access_token=...&refresh_token=... 받음)
+// 옛 사고: Supabase JS detectSessionInUrl 자동 처리 신뢰 X = getSession() 호출 시점 = null = redirect X.
+// 정정: hash에 access_token 박혀있으면 = setSession 명시 호출 + redirect.
 (async () => {
-  const { data } = await sb.auth.getSession();
-  if (data.session) location.href = redirectTo;
+  try {
+    // 1. hash 자료 = access_token 박혀있으면 = 직접 setSession 호출
+    if (location.hash && location.hash.includes('access_token')) {
+      console.log('[login] deep-link hash 감지 = setSession 명시 호출');
+      const hashParams = new URLSearchParams(location.hash.slice(1));
+      const access_token = hashParams.get('access_token');
+      const refresh_token = hashParams.get('refresh_token');
+      if (access_token && refresh_token) {
+        const { data: sessionData, error: sessionErr } = await sb.auth.setSession({ access_token, refresh_token });
+        if (sessionErr) {
+          console.error('[login] setSession 사고:', sessionErr);
+          showError('인증 자료 박는 사고: ' + sessionErr.message);
+        } else if (sessionData?.session) {
+          console.log('[login] setSession OK = redirect:', redirectTo);
+          // hash 자료 = 옛 URL에서 제거 (= 보안)
+          history.replaceState(null, '', location.pathname + location.search);
+          // session 확실히 박힌 후 = redirect (= 짧은 지연 = supabase localStorage write 완료 보장)
+          await new Promise(r => setTimeout(r, 100));
+          location.href = redirectTo;
+          return;
+        }
+      }
+    }
+    // 2. 옛 path = 세션 자동 체크
+    const { data } = await sb.auth.getSession();
+    if (data.session) {
+      console.log('[login] 옛 session 감지 = redirect:', redirectTo);
+      location.href = redirectTo;
+    }
+  } catch (err) {
+    console.error('[login] boot 사고:', err);
+  }
 })();
 </script>
 
