@@ -380,9 +380,21 @@ function setNow() { const d = new Date(); document.getElementById('now').textCon
 
 function setTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
+  // event 객체 사용 X = onclick·JS 직접 호출 둘 다 작동
+  const labels = { companies: '회사', personas: '에이전트', projects: '프로젝트', users: '사용자', subscriptions: '구독' };
+  const label = labels[name] || name;
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.textContent.trim().startsWith(label)) t.classList.add('active');
+  });
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
+  const panel = document.getElementById('panel-' + name);
+  if (panel) panel.classList.add('active');
+  // 탭 진입 시 = 자동 render 트리거 (= 옛 사고: 사용자 탭 표시 X = 자동 fetch X)
+  if (name === 'users' && typeof renderUsers === 'function') renderUsers();
+  if (name === 'companies' && typeof renderCompanies === 'function') renderCompanies();
+  if (name === 'personas' && typeof renderPersonas === 'function') renderPersonas();
+  if (name === 'projects' && typeof renderProjects === 'function') renderProjects();
+  if (name === 'subscriptions' && typeof renderSubscriptions === 'function') renderSubscriptions();
 }
 
 // ============================================================
