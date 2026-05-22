@@ -162,6 +162,20 @@ async fn stream_agent(args: StreamArgs, channel: Channel<StreamEvent>) -> Result
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        // ★ Single instance plugin = MUST FIRST (= Tauri 2.0 deep link 공식 권유)
+        // 옛 사고 원인: deep link 받았을 때 = 옛 인스턴스 안 켜져 있으면 = 새 인스턴스 생성 = 옛 자료 못 박힘.
+        // 정정: single instance = 옛 인스턴스에 deep link args 전달 + 옛 인스턴스 focus.
+        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+            log::info!("[single-instance] 새 인스턴스 시도 = args: {:?}", args);
+            // 옛 인스턴스 = 메인 창 focus + 보이게
+            use tauri::Manager;
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.unminimize();
+                let _ = window.set_focus();
+            }
+            // deep link plugin = 새 인스턴스 args에서 = URL 자동 추출 + on_open_url 호출
+        }))
         .plugin(tauri_plugin_log::Builder::default()
             .level(if cfg!(debug_assertions) {
                 log::LevelFilter::Info
@@ -198,31 +212,34 @@ pub fn run() {
                 if let Some(url) = urls.first() {
                     let url_str = url.as_str().to_string();
                     log::info!("[deep-link] received: {}", url_str);
-                    // agent-pro://auth#access_token=...&refresh_token=... 자료 파싱
+                    // agent-pro://auth#access_token=...&refresh_token=...&expires_in=...&token_type=Bearer
+                    // 핵심: setSession + location.href = '/' 박는 옛 path = WebView2 race·서버 검증 사고 빈번.
+                    // 정정 path = login.html#hash 로 navigate = Supabase JS detectSessionInUrl 자동 처리에 위임.
+                    // login.html은 = 세션 있으면 = redirectTo (= '/') 로 자동 redirect.
                     if let Some(window) = app_handle.get_webview_window("main") {
-                        // localStorage에 hash 박음 (= Supabase JS = hash 자료 자동 인식)
-                        // 단순 path = JS = location.hash 박음 + supabase 자동 처리
                         let hash = url_str.split('#').nth(1).unwrap_or("").to_string();
+                        log::info!("[deep-link] hash len: {}", hash.len());
+
+                        let target_url = if hash.is_empty() {
+                            "https://agent.sunnytoon.com/".to_string()
+                        } else {
+                            // login.html#hash = supabase JS = detectSessionInUrl=true가 = hash 자동 처리 + setSession + hash 제거
+                            // login.html boot = getSession() OK = redirectTo (= '/') 로 자동 redirect = index.html 진입
+                            format!("https://agent.sunnytoon.com/login.html#{}", hash)
+                        };
+
+                        // JS escape 안전 path = JSON.stringify로 자료 박기
+                        let url_json = serde_json::to_string(&target_url).unwrap_or_else(|_| "\"https://agent.sunnytoon.com/\"".to_string());
                         let js = format!(
-                            r#"(async () => {{
-                                console.log('[deep-link] auth hash 박힘');
-                                // Supabase JS = hash 자료 자동 처리 = setSession 호출
-                                const params = new URLSearchParams('{}');
-                                const access_token = params.get('access_token');
-                                const refresh_token = params.get('refresh_token');
-                                if (access_token && refresh_token && window.sb) {{
-                                    await window.sb.auth.setSession({{ access_token, refresh_token }});
-                                    location.href = '/';
-                                }} else {{
-                                    // fallback = hash 박음 + reload
-                                    location.hash = '{}';
-                                    location.reload();
-                                }}
-                            }})();"#,
-                            hash, hash
+                            r#"console.log('[deep-link] navigating to login with hash'); location.href = {};"#,
+                            url_json
                         );
-                        let _ = window.eval(&js);
+                        if let Err(e) = window.eval(&js) {
+                            log::error!("[deep-link] eval 사고: {:?}", e);
+                        }
                         let _ = window.set_focus();
+                    } else {
+                        log::error!("[deep-link] webview window 'main' 못 찾음");
                     }
                 }
             });
