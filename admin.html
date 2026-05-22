@@ -265,7 +265,15 @@ input, select, textarea { font: inherit; color: inherit; }
     </div>
 
     <div class="card">
-      <h3>가입된 사용자 + 권한</h3>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+        <h3 style="margin:0">가입된 사용자 + 권한</h3>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label for="userCompanyFilter" style="font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:0.08em">회사 필터</label>
+          <select id="userCompanyFilter" onchange="renderUsers()" style="padding:6px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:var(--surface);color:var(--text);cursor:pointer">
+            <option value="">전체</option>
+          </select>
+        </div>
+      </div>
       <div id="usersList" class="loading">로드 중...</div>
     </div>
   </div>
@@ -1012,9 +1020,23 @@ async function invite() {
 async function renderUsers() {
   const el = document.getElementById('usersList');
   // ★ RPC 호출 = admin만 = 이메일·preferred_company·plan 풀세트
-  const { data: users, error } = await sb.rpc('agent_list_users');
+  const { data: allUsers, error } = await sb.rpc('agent_list_users');
   if (error) { el.innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>'; return; }
-  if (!users || users.length === 0) { el.innerHTML = '<div class="empty">가입된 사용자가 없습니다.</div>'; return; }
+  if (!allUsers || allUsers.length === 0) { el.innerHTML = '<div class="empty">가입된 사용자가 없습니다.</div>'; return; }
+
+  // ★ 회사 필터 드롭다운 자동 채움 (= 가입자 자료의 preferred_company 풀세트)
+  const filterEl = document.getElementById('userCompanyFilter');
+  if (filterEl) {
+    const currentVal = filterEl.value;
+    const companies = [...new Set(allUsers.map(u => u.preferred_company).filter(Boolean))].sort();
+    filterEl.innerHTML = `<option value="">전체 (${allUsers.length}명)</option>` +
+      companies.map(c => `<option value="${escapeHtml(c)}"${c === currentVal ? ' selected' : ''}>${escapeHtml(c)} (${allUsers.filter(u => u.preferred_company === c).length}명)</option>`).join('');
+  }
+
+  // ★ 회사 필터 적용
+  const filter = filterEl?.value || '';
+  const users = filter ? allUsers.filter(u => u.preferred_company === filter) : allUsers;
+  if (users.length === 0) { el.innerHTML = `<div class="empty">'${escapeHtml(filter)}' 회사 = 가입자 0명.</div>`; return; }
 
   // ★ 신규 가입 = 옛 본 시각 이후 = NEW 배지
   const lastSeenStr = localStorage.getItem('agent_admin_last_seen_users') || '';
