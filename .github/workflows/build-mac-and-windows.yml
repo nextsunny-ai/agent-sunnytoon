@@ -10,6 +10,10 @@ on:
     tags:
       - "release-*"
 
+# ★ v1.1 = softprops/action-gh-release = Release 등록 위해 = contents write 권한 필수
+permissions:
+  contents: write
+
 jobs:
   build:
     strategy:
