@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "SUNNY Agent Pro",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "identifier": "com.sunnytoon.agent-pro",
   "build": {
     "frontendDist": "https://agent.sunnytoon.com"
@@ -24,7 +24,7 @@
       }
     ],
     "security": {
-      "csp": null,
+      "csp": "default-src 'self' https://agent.sunnytoon.com; script-src 'self' 'unsafe-inline' https://agent.sunnytoon.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://agent.sunnytoon.com https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://agent.sunnytoon.com https://pddasonkizwviwqzdhpu.supabase.co wss://pddasonkizwviwqzdhpu.supabase.co https://api.anthropic.com https://api.telegram.org https://story.sunnytoon.com; frame-src 'none'; object-src 'none'; base-uri 'self'",
       "capabilities": [
         "default"
       ]

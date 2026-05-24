@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>개인정보처리방침 — SUNNY Agent Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --accent:#1F4D3F; --sub:#3D3D43; --mute:#8E8E92; --line:rgba(20,18,15,0.08); --bg:#FAFAF7; --surface:#FFFFFF; --font-body:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif; --font-mono:'JetBrains Mono',ui-monospace,monospace; }
+  * { box-sizing:border-box }
+  html, body { margin:0; padding:0; background:var(--bg); color:#1A1A1F; font-family:var(--font-body); font-size:15px; line-height:1.7; }
+  .wrap { max-width:780px; margin:0 auto; padding:64px 28px 80px; }
+  .eyebrow { font-family:var(--font-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; display:block; }
+  h1 { font-size:36px; font-weight:700; letter-spacing:-0.025em; line-height:1.15; margin:0 0 8px; }
+  .meta { font-family:var(--font-mono); font-size:11px; color:var(--mute); letter-spacing:0.06em; margin-bottom:48px; }
+  h2 { font-size:18px; font-weight:700; letter-spacing:-0.01em; margin:40px 0 14px; padding-top:24px; border-top:1px solid var(--line); }
+  h2:first-of-type { border-top:0; padding-top:0; }
+  p, li, td { color:var(--sub); }
+  ul { padding-left:22px; }
+  a { color:var(--accent); }
+  .back { display:inline-block; margin-bottom:32px; font-family:var(--font-mono); font-size:12px; color:var(--mute); text-decoration:none; letter-spacing:0.06em; }
+  .back:hover { color:var(--accent); }
+  table { width:100%; border-collapse:collapse; margin:14px 0; font-size:14px; }
+  th, td { padding:10px 12px; border:1px solid var(--line); text-align:left; vertical-align:top; }
+  th { background:rgba(31,77,63,0.04); font-weight:600; color:#1A1A1F; }
+  .foot { margin-top:64px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--font-mono); font-size:11px; color:var(--mute); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">← 홈으로</a>
+  <span class="eyebrow">PRIVACY POLICY</span>
+  <h1>개인정보처리방침</h1>
+  <p class="meta">최종 갱신 = 2026-05-26 · v1.1.0 · 시행일 = 2026-05-26</p>
+
+  <h2>1. 처리하는 개인정보 항목</h2>
+  <table>
+    <tr><th>항목</th><th>수집 시점</th><th>이용 목적</th></tr>
+    <tr><td>이메일</td><td>가입 시</td><td>계정 식별·로그인·알림</td></tr>
+    <tr><td>이름 (선택)</td><td>가입 시</td><td>사용자 호칭</td></tr>
+    <tr><td>preferred_company</td><td>가입 시</td><td>회사별 페르소나 묶음 자동 매핑</td></tr>
+    <tr><td>대화 본문 (선택 저장)</td><td>채팅 시</td><td>본인 사용 이력 (= 본인만 read)</td></tr>
+    <tr><td>API 키 (= localStorage)</td><td>본인 입력 시</td><td>본인 PC 내부 보관 (= 회사 서버 전송 X)</td></tr>
+    <tr><td>텔레그램 봇 토큰 (= localStorage)</td><td>본인 입력 시</td><td>본인 PC 내부 (= 알림 발송)</td></tr>
+  </table>
+
+  <h2>2. 처리 목적</h2>
+  <ul>
+    <li>서비스 제공 = 계정 식별·페르소나 매칭·사용 이력</li>
+    <li>고객 응대 = 문의·사고 대응</li>
+    <li>공지·약관 변경 = 이메일 발송</li>
+  </ul>
+
+  <h2>3. 보유 기간</h2>
+  <ul>
+    <li>계정 정보 = 회원 탈퇴 시 = 즉시 삭제 (= 관련 데이터 cascade 삭제)</li>
+    <li>대화 본문 = 본인 삭제 또는 회원 탈퇴 시 = 즉시 삭제</li>
+    <li>법령 보존 의무 (= 통신비밀보호법 등) = 해당 시 별도 분리 보관</li>
+  </ul>
+
+  <h2>4. 제 3자 제공</h2>
+  <ul>
+    <li>원칙 = 제공 X</li>
+    <li>예외 = 사용자 본인 동의 시 / 법령 의무 시</li>
+    <li>처리 위탁 = Supabase (= DB·인증, AWS ap-northeast-2) / Resend (= 이메일 발송, AWS) / Anthropic (= 본인 API 호출 = 본인 직접 = 회사 미관여)</li>
+  </ul>
+
+  <h2>5. 정보주체 권리</h2>
+  <ul>
+    <li>본인 정보 = 조회·정정·삭제 = "내 설정" 또는 메일 요청</li>
+    <li>회원 탈퇴 = "내 설정" → 계정 삭제 또는 메일 요청</li>
+    <li>처리 정지·열람 요청 = 메일 요청</li>
+  </ul>
+
+  <h2>6. 안전성 확보 조치</h2>
+  <ul>
+    <li>Supabase RLS (Row Level Security) 박힘 = 사용자별 데이터 격리</li>
+    <li>HTTPS 전송 = TLS 1.2+ 의무</li>
+    <li>비밀번호 = bcrypt 해시 (= Supabase 표준)</li>
+    <li>API 키·텔레그램 토큰 = 사용자 PC 내부 보관 (= 회사 서버 전송 X)</li>
+  </ul>
+
+  <h2>7. 쿠키·로컬 스토리지</h2>
+  <ul>
+    <li>로그인 세션 = Supabase JWT (= localStorage)</li>
+    <li>회사 자동 매핑 = preferred_company (= user_metadata)</li>
+    <li>API 키·텔레그램 토큰 = localStorage (= 본인 PC 내부)</li>
+    <li>분석·광고 쿠키 = ★ 사용 X</li>
+  </ul>
+
+  <h2>8. 개인정보 보호 책임자</h2>
+  <ul>
+    <li>회사 = 주식회사 써니엔터테인먼트</li>
+    <li>책임자 = 대표 유희정</li>
+    <li>문의 = <a href="mailto:support@sunnytoon.com">support@sunnytoon.com</a></li>
+  </ul>
+
+  <h2>9. 변경 시 고지</h2>
+  <p>본 방침 변경 시 = 본 페이지 갱신 + 사용자 메일 공지. 시행 14일 전 공지 의무.</p>
+
+  <p class="foot">© 2026 SUNNY ENTERTAINMENT. All rights reserved. · <a href="/terms.html">이용약관</a></p>
+</div>
+</body>
+</html>

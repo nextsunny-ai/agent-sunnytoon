@@ -22,3 +22,6 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+# Temporary SQL generator scripts (= 옛 작업용 = commit X)
+_gen_sql_*.py

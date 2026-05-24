@@ -146,14 +146,46 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
 
     <!-- 데스크탑 앱 다운로드 -->
     <div id="desktopDownload" style="background:var(--accent-soft);border:1px solid rgba(31,77,63,0.15);border-radius:8px;padding:20px;margin-bottom:24px;">
-      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Desktop App · v1.0 Beta</div>
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Desktop App · v1.1.0</div>
       <div style="display:flex;gap:8px;margin-bottom:14px;">
-        <a id="dlMac" href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/download/v1.0.0-beta/agent-pro-beta-v1-mac.zip" style="flex:1;padding:12px;background:var(--accent);color:#fff;border-radius:4px;text-align:center;font-size:14px;font-weight:600;text-decoration:none;letter-spacing:-0.01em;">macOS 다운로드</a>
-        <a id="dlWin" href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/download/v1.0.0-beta/agent-pro-beta-v1-windows.zip" style="flex:1;padding:12px;background:var(--accent);color:#fff;border-radius:4px;text-align:center;font-size:14px;font-weight:600;text-decoration:none;letter-spacing:-0.01em;">Windows 다운로드</a>
+        <a id="dlMac" href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/download/v1.1.0/SUNNY-Agent-Pro_1.1.0_aarch64.dmg" style="flex:1;padding:12px;background:var(--accent);color:#fff;border-radius:4px;text-align:center;font-size:14px;font-weight:600;text-decoration:none;letter-spacing:-0.01em;">macOS 다운로드</a>
+        <a id="dlWin" href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/download/v1.1.0/SUNNY-Agent-Pro_1.1.0_x64-setup.exe" style="flex:1;padding:12px;background:var(--accent);color:#fff;border-radius:4px;text-align:center;font-size:14px;font-weight:600;text-decoration:none;letter-spacing:-0.01em;">Windows 다운로드</a>
       </div>
       <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.06em;color:var(--mute);text-align:center;">
-        UNZIP → 1_Setup_First → 2_Agent_Pro
+        다운로드 → 더블클릭 → 설치
       </div>
+
+      <details style="margin-top:14px;border-top:1px solid rgba(31,77,63,0.12);padding-top:12px;">
+        <summary style="cursor:pointer;font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);outline:none;">처음이세요? 첫 셋업 안내 (= 약 10분)</summary>
+        <ol style="margin:12px 0 0;padding-left:20px;font-size:12px;color:var(--sub);line-height:1.8;">
+          <li><b>가입</b> (= 본 페이지에서) → 이메일·Google·매직 링크 중 1개</li>
+          <li><b>위 macOS·Windows 버튼 클릭</b> → 다운로드</li>
+          <li><b>다운로드 파일 더블클릭</b> → 설치</li>
+          <li><b>Claude Code CLI 설치</b> (= 한 번만)
+            <ul style="margin-top:4px;padding-left:18px;color:var(--mute);font-size:11px;">
+              <li><a href="https://nodejs.org/ko" target="_blank" style="color:var(--accent);">nodejs.org/ko</a> 에서 LTS 받음 → 설치</li>
+              <li>터미널 (Mac=Terminal·Win=PowerShell) 열기 → 아래 박음:<br>
+                <code style="display:block;background:rgba(0,0,0,0.04);padding:6px 8px;border-radius:4px;margin-top:4px;font-family:var(--font-mono);font-size:11px;">npm install -g @anthropic-ai/claude-code</code>
+              </li>
+            </ul>
+          </li>
+          <li><b>Claude 로그인</b> (= 한 번만) → 터미널:
+            <code style="display:block;background:rgba(0,0,0,0.04);padding:6px 8px;border-radius:4px;margin-top:4px;font-family:var(--font-mono);font-size:11px;">claude /login</code>
+            <span style="color:var(--mute);font-size:11px;">→ 본인 Claude 계정 로그인 (= Pro·Max 구독 필수)</span>
+          </li>
+          <li><b>Claude Pro·Max 구독</b> (= 필수, <a href="https://claude.ai/upgrade" target="_blank" style="color:var(--accent);">claude.ai/upgrade</a>)
+            <ul style="margin-top:4px;padding-left:18px;color:var(--mute);font-size:11px;">
+              <li>Pro $20/월 = 일반 사용 OK</li>
+              <li>Max $200/월 = 대량 사용</li>
+            </ul>
+          </li>
+          <li><b>데스크탑 앱 실행</b> → 페르소나 클릭 → 채팅</li>
+        </ol>
+        <p style="margin:14px 0 0;font-size:11px;color:var(--mute);line-height:1.6;">
+          ★ 우리 시스템 = 학습 자료(SKILL)만 제공 = 본인 Claude 구독으로 답변 받음 = 우리 비용 0원.<br>
+          첫 셋업 후 = 앱 실행만 = 즉시 채팅.
+        </p>
+      </details>
     </div>
 
     <div class="mode-tabs">
@@ -187,7 +219,7 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
       <div class="terms" id="termsBox" style="display:none">
         <input type="checkbox" id="terms">
         <label for="terms" style="font-family:var(--font-body);text-transform:none;letter-spacing:0;color:var(--sub);font-size:12px;font-weight:400;margin:0;cursor:pointer;line-height:1.5">
-          서비스 이용약관 및 개인정보처리방침에 동의합니다.
+          <a href="/terms.html" target="_blank" style="color:var(--accent);text-decoration:underline">이용약관</a> 및 <a href="/privacy.html" target="_blank" style="color:var(--accent);text-decoration:underline">개인정보처리방침</a>에 동의합니다.
         </label>
       </div>
 
@@ -201,11 +233,12 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
       Google로 계속
     </button>
 
-    <button class="magic-btn" onclick="signInMagic()" title="비밀번호 없이 이메일로 로그인 링크 받기">
-      📧 매직 링크로 로그인 (비밀번호 없이)
+    <button class="magic-btn" onclick="signInMagic()" title="비밀번호 없이 이메일로 로그인 링크 받기" style="display:inline-flex;align-items:center;justify-content:center;gap:8px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      매직 링크로 로그인 (비밀번호 없이)
     </button>
 
-    <p class="foot-note">v1.0.0 · 베타</p>
+    <p class="foot-note">v1.1.0</p>
   </section>
 </div>
 
@@ -367,8 +400,8 @@ async function signInGoogle() {
         // fallback
         window.open(data.url, '_blank');
       }
-      // 본 webview = 안내 자료 박음
-      showError('★ 본인 Chrome에서 Google 인증 진행 → 인증 완료 = 본 앱 자동 진입');
+      // 본 webview = 정상 흐름 안내 = 녹색 info 박힘 (= 빨간 에러 X = v1.1 정정)
+      showInfo('본인 Chrome에서 Google 인증 진행 → 인증 완료 = 본 앱 자동 진입');
     } else {
       // 웹 = 옛 path 그대로 (= 본인 Chrome에서 = OAuth 자동 박힘)
       const { error } = await sb.auth.signInWithOAuth({

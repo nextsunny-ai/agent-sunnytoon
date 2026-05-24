@@ -52,7 +52,7 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
 .plan-badge.free { background: #EEEAE0; color: #5C5C66; }
 .plan-badge.pro { background: var(--accent); color: #fff; }
 .plan-badge.studio { background: #6B4FBB; color: #fff; }
-.plan-badge.lifetime { background: linear-gradient(135deg, #C9A35D, #8B6914); color: #fff; }
+.plan-badge.lifetime { background: #8B6914; color: #fff; }
 .set-tab { padding: 10px 16px; font-size: 13px; font-weight: 600; color: var(--mute); border-bottom: 2px solid transparent; transition: all .15s var(--ease); background: transparent; cursor: pointer; }
 .set-tab:hover { color: var(--text); }
 .set-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
@@ -123,7 +123,7 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
 .tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); border-color: var(--line-strong); }
 .tile:hover::before { transform: scaleX(1); }
 .tile-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.tile-avatar { width: 56px; height: 56px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(20,18,15,0.10); object-fit: cover; flex-shrink: 0; background: var(--accent-soft); }
+.tile-avatar { width: 56px; height: 56px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(20,18,15,0.10); object-fit: cover; object-position: center 25%; flex-shrink: 0; background: var(--accent-soft); }
 .tile-body-row { display: flex; gap: 14px; align-items: flex-start; margin-top: 22px; }
 .tile-body-row .tile-body { margin-top: 0; flex: 1; min-width: 0; }
 .t-rian .tile-avatar { width: 72px; height: 72px; }
@@ -172,7 +172,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 .chat-box > * { min-height: 0; }
 .chat-h { padding: 18px 24px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 14px; background: var(--surface); flex-shrink: 0; }
 .chat-h .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 16px; font-weight: 700; flex-shrink: 0; overflow: hidden; }
-.chat-h .avatar img { width: 100%; height: 100%; object-fit: cover; }
+.chat-h .avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
 .chat-h-title { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
 .chat-h-sub { font-size: 0.72rem; color: var(--sub); margin-top: 2px; font-family: var(--font-mono); }
 .chat-h-close { margin-left: auto; width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 16px; color: var(--sub); }
@@ -330,12 +330,11 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 
   recheckBtn.onclick = check;
 
-  // 초기 1회 + 5초 polling (= 미통과 시만)
+  // 초기 1회 + 5초 polling (= 미통과 시만). gate 통과 시 = clearInterval (= v1.1 정정)
   check();
-  setInterval(async () => {
-    if (gate.style.display !== 'none') {
-      await check();
-    }
+  const gateIntervalId = setInterval(async () => {
+    if (gate.style.display === 'none') { clearInterval(gateIntervalId); return; }
+    await check();
   }, 5000);
 })();
 </script>
@@ -352,13 +351,13 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
   <div class="top-row">
     <div class="brand">
       <span class="brand-name">Agent Pro</span>
-      <span class="brand-ver" title="2026-05-14 빌드 = Mac Keychain OAuth + withGlobalTauri 정정 박힘">v1.0.0-beta-2</span>
+      <span class="brand-ver" title="2026-05-26 빌드 = v1.1.0 = sys_prompt v2 풀세트·CSP·ADMIN RPC·CRITICAL 정정">v1.1.0</span>
       <span class="brand-divider"></span>
       <span class="brand-group" id="group-label">CLIENT</span>
     </div>
     <div class="top-right">
       <button class="company-switch" id="companySwitch" onclick="openPicker()" style="display:none">회사 전환</button>
-      <a class="admin-link" id="adminLink" href="./admin.html">⚙ ADMIN</a>
+      <a class="admin-link" id="adminLink" href="./admin.html" style="display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>ADMIN</a>
       <span class="plan-badge free" id="planBadge" style="display:none">FREE</span>
       <div class="user-menu">
         <div class="user-trigger" onclick="toggleUserMenu(event)">
@@ -366,7 +365,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
           <div class="logo-mark" id="logo-mark">A</div>
         </div>
         <div class="user-menu-pop" id="userMenuPop">
-          <button class="item" onclick="openSettings()">⚙ 내 설정</button>
+          <button class="item" onclick="openSettings()" style="display:inline-flex;align-items:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>내 설정</button>
           <button class="item danger" onclick="signOut()">→ 로그아웃</button>
         </div>
       </div>
@@ -376,8 +375,8 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 
 <section class="hero reveal">
   <div>
-    <span class="eyebrow" id="hero-eyebrow">Welcome back</span>
-    <h1>Welcome back,<br><span class="name" id="hero-name">···</span><span class="period">.</span></h1>
+    <span class="eyebrow" id="hero-eyebrow">WELCOME</span>
+    <h1>안녕하세요,<br><span class="name" id="hero-name">···</span><span class="period">.</span></h1>
     <p id="hero-desc"></p>
   </div>
   <aside class="projects-aside" id="projectsAside">
@@ -416,25 +415,25 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 <div class="modal-bg" id="settingsModal">
   <div class="key-modal" style="max-width:620px;max-height:92vh;overflow-y:auto;padding:0">
     <div style="padding:24px 28px 0;display:flex;align-items:center;justify-content:space-between">
-      <h3 style="margin:0">⚙ 내 설정</h3>
-      <button onclick="closeSettings()" style="width:32px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:14px;color:var(--sub);cursor:pointer">✕</button>
+      <h3 style="margin:0;display:inline-flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>내 설정</h3>
+      <button onclick="closeSettings()" style="width:32px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--sub);cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div style="display:flex;gap:2px;padding:0 28px;border-bottom:1px solid var(--line);margin-top:18px">
-      <button class="set-tab active" data-tab="model" onclick="setSetTab('model')">⚡ 모델</button>
-      <button class="set-tab" data-tab="tg" onclick="setSetTab('tg')">📱 텔레그램</button>
-      <button class="set-tab" data-tab="account" onclick="setSetTab('account')">👤 계정</button>
+      <button class="set-tab active" data-tab="model" onclick="setSetTab('model')" style="display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>모델</button>
+      <button class="set-tab" data-tab="tg" onclick="setSetTab('tg')" style="display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>텔레그램</button>
+      <button class="set-tab" data-tab="account" onclick="setSetTab('account')" style="display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>계정</button>
     </div>
 
     <!-- MODEL tab -->
     <div class="set-panel active" data-tab="model" style="padding:24px 28px">
       <p class="sub">에이전트 답변 모델 선택. <strong>Haiku 4.5</strong> = Sonnet 1/10 비용 + 빠름 = 일반 대화 추천.</p>
-      <p class="info" style="font-size:11px;line-height:1.55">✅ <strong>Prompt Caching = 자동 적용</strong> = 5분 안에 같은 에이전트 연속 대화 = <strong>입력 비용 90% 절감</strong>.</p>
+      <p class="info" style="font-size:11px;line-height:1.55;display:flex;align-items:flex-start;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><polyline points="20 6 9 17 4 12"/></svg><span><strong>Prompt Caching = 자동 적용</strong> = 5분 안에 같은 에이전트 연속 대화 = <strong>입력 비용 90% 절감</strong>.</span></p>
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
         <label class="model-opt" id="setOptSonnet">
           <input type="radio" name="setModel" value="sonnet" style="margin-top:3px">
           <div>
             <div style="font-weight:700;font-size:14px">Claude Sonnet 4.5 <span style="font-family:var(--font-mono);font-size:10px;color:var(--mute);font-weight:500;margin-left:4px">(기본)</span></div>
-            <div style="font-size:12px;color:var(--sub);margin-top:2px">깊이 있는 답변 · 30년 CD 노하우 100% 발휘 · 표준</div>
+            <div style="font-size:12px;color:var(--sub);margin-top:2px">깊이 있는 답변 · 표준 모델</div>
             <div style="font-size:10px;color:var(--mute);margin-top:4px;font-family:var(--font-mono)">$3 입력 / $15 출력 (per 1M tokens)</div>
           </div>
         </label>
@@ -456,7 +455,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
     <div class="set-panel" data-tab="tg" style="padding:24px 28px;display:none">
       <p class="sub">에이전트 답변을 본인 텔레그램 봇으로 모바일 푸시 받기.</p>
       <details style="margin-bottom:14px;background:var(--accent-soft);border-radius:8px;padding:12px 14px">
-        <summary style="font-weight:700;cursor:pointer;font-size:13px;color:var(--accent-deep)">📖 4단계 가이드 (= 처음 1번만)</summary>
+        <summary style="font-weight:700;cursor:pointer;font-size:13px;color:var(--accent-deep);display:flex;align-items:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>4단계 가이드 (= 처음 1번만)</summary>
         <div style="margin-top:12px;font-size:12px;line-height:1.7;color:var(--text)">
           <p style="font-weight:700;margin-bottom:6px;color:var(--accent-deep)">[1] 본인 봇 만들기:</p>
           <ol style="margin-left:18px;margin-bottom:12px">
@@ -498,9 +497,9 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
       </div>
       <div style="display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:center;margin-bottom:10px">
         <span style="font-family:var(--font-mono);font-size:11px;color:var(--mute);letter-spacing:0.08em">VERSION</span>
-        <span style="font-size:13px;color:var(--sub)">Agent Pro 1.0</span>
+        <span style="font-size:13px;color:var(--sub)">Agent Pro v1.1.0</span>
       </div>
-      <p class="info" style="margin-top:18px;font-size:11px">v1.0.0 · 베타</p>
+      <p class="info" style="margin-top:18px;font-size:11px">v1.1.0</p>
     </div>
 
   </div>
@@ -509,17 +508,17 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 <!-- Model Modal -->
 <div class="modal-bg" id="modelModal">
   <div class="key-modal">
-    <h3>⚡ 모델 선택 = 비용 절감</h3>
+    <h3 style="display:inline-flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>모델 선택 = 비용 절감</h3>
     <p class="sub">에이전트 답변 모델 선택. <strong>Haiku 4.5</strong> = Sonnet 1/10 비용 + 빠름 = 일반 대화 추천.</p>
-    <p class="info" style="font-size:11px;line-height:1.55">
-      ✅ <strong>Prompt Caching = 자동 적용</strong> = 5분 안에 같은 에이전트와 연속 대화하면 = <strong>입력 비용 90% 절감</strong> (= 모든 모델 적용).
+    <p class="info" style="font-size:11px;line-height:1.55;display:flex;align-items:flex-start;gap:6px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><polyline points="20 6 9 17 4 12"/></svg><span><strong>Prompt Caching = 자동 적용</strong> = 5분 안에 같은 에이전트와 연속 대화하면 = <strong>입력 비용 90% 절감</strong> (= 모든 모델 적용).</span>
     </p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
       <label style="display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;cursor:pointer" id="modelOptSonnet">
         <input type="radio" name="model" value="sonnet" style="margin-top:3px">
         <div>
           <div style="font-weight:700;font-size:14px">Claude Sonnet 4.5 <span style="font-family:var(--font-mono);font-size:10px;color:var(--mute);font-weight:500;margin-left:4px">(기본)</span></div>
-          <div style="font-size:12px;color:var(--sub);margin-top:2px">깊이 있는 답변 · 30년 CD 노하우 100% 발휘 · 표준 가격</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:2px">깊이 있는 답변 · 표준 가격</div>
           <div style="font-size:10px;color:var(--mute);margin-top:4px;font-family:var(--font-mono)">$3 입력 / $15 출력 (per 1M tokens)</div>
         </div>
       </label>
@@ -542,7 +541,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
 <!-- Telegram Modal -->
 <div class="modal-bg" id="tgModal">
   <div class="key-modal" style="max-width:580px;max-height:90vh;overflow-y:auto">
-    <h3>📱 텔레그램 알림 설정</h3>
+    <h3 style="display:inline-flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>텔레그램 알림 설정</h3>
     <p class="sub">에이전트 답변을 본인 텔레그램으로 모바일 푸시 알림.</p>
 
     <div style="background:#FFF8E8;border-left:3px solid #C9A35D;padding:12px 14px;border-radius:8px;margin-bottom:14px;font-size:12px;line-height:1.6;color:#5C4A1F">
@@ -552,7 +551,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
     </div>
 
     <details style="margin-bottom:14px;background:var(--accent-soft);border-radius:8px;padding:12px 14px" open>
-      <summary style="font-weight:700;cursor:pointer;font-size:13px;color:var(--accent-deep)">📖 사용자 가이드 (= 처음 1번만)</summary>
+      <summary style="font-weight:700;cursor:pointer;font-size:13px;color:var(--accent-deep);display:flex;align-items:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>사용자 가이드 (= 처음 1번만)</summary>
       <div style="margin-top:12px;font-size:12px;line-height:1.7;color:var(--text)">
 
         <p style="font-weight:700;margin-bottom:6px;color:var(--accent-deep)">[1단계] 본인 봇 만들기 (= 1분)</p>
@@ -644,12 +643,19 @@ let COMPANY_PERSONA_IDS = [];
 let COMPANY_PERSONA_OVERRIDES = {}; // ★ 회사별 sys_prompt 오버라이드 (= 옛 약속 = 회사별 인스턴스 격리)
 let SUBSCRIPTION = { plan: 'free' };  // ★ 본인 구독 plan (= 미래 결제용)
 
+// ★ v1.1 = Plan 게이트 활성화 flag (= 결제 시작 시점에 = true 박힘)
+// 현재 = false = 모든 plan 동등 = BYOK 모델 = 모두 사용 OK
+// 결제 박힐 때 = true 박힘 + LemonSqueezy webhook → DB plan UPDATE = 자동 활성
+const PLAN_GATES_ENABLED = false;
+
 // ★ 유료 게이트 헬퍼 (= 미래 결제 도입 시 즉시 활성화)
 function isPro() { return ['pro', 'studio', 'lifetime'].includes(SUBSCRIPTION.plan); }
 function isStudio() { return ['studio', 'lifetime'].includes(SUBSCRIPTION.plan); }
 function isLifetime() { return SUBSCRIPTION.plan === 'lifetime'; }
 function requirePlan(needed) {
   // 사용 예: if (!requirePlan('pro')) { alert('PRO 구독 필요'); return; }
+  // ★ v1.1 = PLAN_GATES_ENABLED = false면 = 항상 통과 (= 결제 비활성 상태)
+  if (!PLAN_GATES_ENABLED) return true;
   const ranks = { free: 0, pro: 1, studio: 2, lifetime: 3 };
   return (ranks[SUBSCRIPTION.plan] || 0) >= (ranks[needed] || 0);
 }
@@ -747,8 +753,7 @@ function avatarUrl(pid) { return `avatars/${pid}.${AVATAR_EXT[pid] || 'png'}`; }
 // - 누구나 가입 = OK
 // - 회사 = URL ?c=xx 로 결정 (= 누구나 접근 가능)
 // - 호출 path = 데스크탑 앱 = 본인 Claude Pro/Max 구독 (= 비용 0)
-// - ADMIN = nextsunny@gmail.com 이메일만 (= 회사·에이전트 편집)
-const ADMIN_EMAIL = 'nextsunny@gmail.com';
+// - ADMIN = DB 서버 함수 is_agent_admin() 호출 = 클라이언트 평문 제거 (= C-2 v1.1)
 
 async function boot() {
   // 1. 세션 확인 (= 인증 필수)
@@ -759,7 +764,11 @@ async function boot() {
   }
   SESSION = sess.session;
   USER = sess.session.user;
-  IS_ADMIN = (USER.email === ADMIN_EMAIL);
+  // ★ admin 판별 = DB 서버 함수 호출 (= ADMIN_EMAIL 평문 클라이언트 노출 제거 = v1.1 C-2)
+  try {
+    const { data: adminCheck } = await sb.rpc('is_agent_admin');
+    IS_ADMIN = adminCheck === true;
+  } catch(_) { IS_ADMIN = false; }
 
   // ★ 사용자 = DB 존재 확인 (= admin이 삭제한 사용자 = 옛 JWT 토큰으로 진입 사고 방지)
   // = getUser() 호출 = server 검증 = 401이면 = 강제 로그아웃
@@ -890,7 +899,7 @@ function applyCompany() {
   set('logo-mark', COMPANY.initial);
   set('hero-name', COMPANY.name_ko);
   set('hero-desc', COMPANY.tagline);
-  set('meta-client', `AGENT PRO v1.0.0-beta-2 (2026-05-14) · ${COMPANY.name_en} · ${COMPANY_PERSONA_IDS.length} AGENTS`);
+  set('meta-client', `AGENT PRO v1.1.0 (2026-05-26) · ${COMPANY.name_en} · ${COMPANY_PERSONA_IDS.length} AGENTS`);
   set('foot-client', COMPANY.name_en);
   set('foot-id', `GROUP/${COMPANY.name_en.replace(/\s/g,'')}`);
   set('section-meta', `${COMPANY_PERSONA_IDS.length} DEDICATED · ON-CALL`);
@@ -929,12 +938,15 @@ async function loadProjects() {
     return;
   }
   countEl.textContent = `${projs.length} PROJECTS`;
+  // ★ v1.1 XSS 차단 = onclick inline 제거 + data-url + scheme 화이트리스트 (= https://·http://만)
   grid.innerHTML = projs.map(p => {
     const statusLabel = p.status === 'active' ? '진행 중' : p.status === 'completed' ? '완료' : '일시정지';
     const date = new Date(p.updated_at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
-    const clickAttr = p.url ? `onclick="window.open('${escapeHtml(p.url)}','_blank')"` : '';
+    const safeUrl = (p.url && /^https?:\/\//i.test(p.url)) ? p.url : '';
+    const dataAttr = safeUrl ? ` data-url="${escapeHtml(safeUrl)}"` : '';
+    const clickable = safeUrl ? ' clickable' : '';
     return `
-      <div class="project-card" ${clickAttr}>
+      <div class="project-card${clickable}"${dataAttr}>
         <div class="ptitle">${escapeHtml(p.title)}</div>
         ${p.subtitle ? `<div class="psub">${escapeHtml(p.subtitle)}</div>` : ''}
         <div class="pfoot">
@@ -944,6 +956,13 @@ async function loadProjects() {
       </div>
     `;
   }).join('');
+  // 이벤트 위임 = card click → data-url 안전 open
+  grid.querySelectorAll('.project-card.clickable').forEach(card => {
+    card.addEventListener('click', () => {
+      const u = card.getAttribute('data-url');
+      if (u && /^https?:\/\//i.test(u)) window.open(u, '_blank', 'noopener,noreferrer');
+    });
+  });
 }
 
 function renderTile(pid, idx) {
@@ -992,7 +1011,7 @@ function showCompanyMissing() {
       <p style="font-size:13px;line-height:1.6;color:#5C5C66;margin-bottom:20px">URL이 없으시거나 분실하셨다면 = 회사 담당자에게 문의해주세요.</p>
       <div style="background:#E8F0EC;border-left:3px solid #1F4D3F;padding:14px 18px;border-radius:8px;margin-bottom:24px">
         <div style="font-size:12px;color:#163A30;line-height:1.6;margin-bottom:10px">담당자 연락처를 모르시면 = 관리자에게 문의 메일:</div>
-        <a href="mailto:nextsunny@gmail.com?subject=Agent%20Pro%20%ED%9A%8C%EC%82%AC%20%EC%B4%88%EB%8C%80%20URL%20%EB%AC%B8%EC%9D%98&body=%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94%2C%20Agent%20Pro%20%EC%82%AC%EC%9A%A9%EC%9D%84%20%EC%9C%84%ED%95%9C%20%ED%9A%8C%EC%82%AC%20%EC%B4%88%EB%8C%80%20URL%EC%9D%84%20%EB%B0%9B%EA%B3%A0%20%EC%8B%B6%EC%8A%B5%EB%8B%88%EB%8B%A4.%0A%0A%C2%B7%20%EC%86%8C%EC%86%8D%20%ED%9A%8C%EC%82%AC%3A%20%0A%C2%B7%20%EC%9D%B4%EB%A6%84%3A%20%0A%C2%B7%20%EC%97%B0%EB%9D%BD%EC%B2%98%3A%20%0A%0A%EA%B0%90%EC%82%AC%ED%95%A9%EB%8B%88%EB%8B%A4." style="display:inline-flex;align-items:center;gap:8px;background:#1F4D3F;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">📧 nextsunny@gmail.com 에 문의</a>
+        <a href="mailto:nextsunny@gmail.com?subject=Agent%20Pro%20%ED%9A%8C%EC%82%AC%20%EC%B4%88%EB%8C%80%20URL%20%EB%AC%B8%EC%9D%98&body=%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94%2C%20Agent%20Pro%20%EC%82%AC%EC%9A%A9%EC%9D%84%20%EC%9C%84%ED%95%9C%20%ED%9A%8C%EC%82%AC%20%EC%B4%88%EB%8C%80%20URL%EC%9D%84%20%EB%B0%9B%EA%B3%A0%20%EC%8B%B6%EC%8A%B5%EB%8B%88%EB%8B%A4.%0A%0A%C2%B7%20%EC%86%8C%EC%86%8D%20%ED%9A%8C%EC%82%AC%3A%20%0A%C2%B7%20%EC%9D%B4%EB%A6%84%3A%20%0A%C2%B7%20%EC%97%B0%EB%9D%BD%EC%B2%98%3A%20%0A%0A%EA%B0%90%EC%82%AC%ED%95%A9%EB%8B%88%EB%8B%A4." style="display:inline-flex;align-items:center;gap:8px;background:#1F4D3F;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> nextsunny@gmail.com 에 문의</a>
       </div>
       <div style="display:flex;gap:8px">
         <button onclick="signOutAndReload()" style="flex:1;padding:12px 18px;border:1px solid #E8E5DE;background:#fff;color:#5C5C66;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer">→ 로그아웃</button>
@@ -1126,11 +1145,33 @@ ${companyInfoSection}
 - 불필요한 인사·서론·끝 인사 = 생략 = 본론만.`;
 }
 
+// ★ v1.1 = 페르소나별 첫 예시 질문 3개 (= 첫 진입 시 사용자 막막함 차단)
+const PERSONA_EXAMPLES = {
+  genie: ['오늘 일정 요약해줘', '최근 AI 뉴스 3개', '영어 학습 5분 path'],
+  sera:  ['KOFIC 지원사업 마감일', 'IR 1장 초안', 'IP 라이선스 검토 체크'],
+  nea:   ['XR 전시 기획안 outline', '박물관 외주 견적 룰', 'AI 영상 워크플로'],
+  mori:  ['굿즈 발주 일정 표', '팝업 운영 체크리스트', '온라인몰 매출 분석'],
+  birch: ['뮤직 콘텐츠 다음 단계', '페스티벌 운영 체크', '음원 라이선스 정리'],
+  sori:  ['트리트먼트 3막 분해', '캐릭터 백그라운드 작성', 'humanizer 대사 다듬기'],
+  rian:  ['PPT 표지 시안 3개', 'CI 로고 방향', 'AI 슬롭 자가 체크'],
+  maru:  ['보도자료 초안', 'SNS 캠페인 카피 3개', 'B2B 어프로치 메일'],
+  lumi:  ['IP 발굴 시장성 분석', 'AI 영상 시리즈 outline', 'OTT 동향 요약'],
+  teo:   ['스크립트 자동화 path', '디버깅 체크리스트', 'Tauri 배포 룰'],
+  hana:  ['계약서 1차 검토 룰', '미수금 L1~L5 단계', 'VAT 신고 체크'],
+  kai:   ['미니게임 1주 plan', 'Phaser vs Godot 비교', 'AI 슬롭 게임 체크']
+};
+function getExamples(pid) { return PERSONA_EXAMPLES[pid] || []; }
+
 function openChat(pid) {
   const p = PERSONAS_MAP[pid]; if (!p) return;
   currentPersona = pid;
   const msgs = (history[pid] || []);
   const box = document.getElementById('chatBox');
+  const examples = getExamples(pid);
+  const examplesHtml = examples.length === 0 ? '' : `
+    <div class="ex-row" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">
+      ${examples.map(q => `<button type="button" class="ex-chip" data-q="${escapeHtml(q)}" style="font-size:12px;padding:6px 10px;border:1px solid var(--line);background:var(--surface);border-radius:999px;cursor:pointer;font-family:var(--font-body);color:var(--sub)">${escapeHtml(q)}</button>`).join('')}
+    </div>`;
   box.innerHTML = `
     <div class="chat-h">
       <div class="avatar"><img src="${avatarUrl(pid)}" alt="${escapeHtml(p.ko)}" onerror="this.parentElement.textContent='${escapeHtml(p.ko[0])}'"></div>
@@ -1138,11 +1179,11 @@ function openChat(pid) {
         <div class="chat-h-title">${escapeHtml(p.ko)} <span style="font-family:var(--font-mono);font-size:11px;color:var(--mute);font-weight:500;margin-left:4px">${p.en}</span></div>
         <div class="chat-h-sub">${escapeHtml(p.studio)} · ${COMPANY.name_en}</div>
       </div>
-      <button class="chat-h-close" type="button" onclick="closeChat()">✕</button>
+      <button class="chat-h-close" type="button" onclick="closeChat()" style="display:inline-flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="chat-msgs" id="chatMsgs">${
       msgs.length === 0
-        ? `<div class="msg sys">${escapeHtml(p.ko)}와 대화 시작.</div>`
+        ? `<div class="msg sys">${escapeHtml(p.ko)}와 대화 시작.${examplesHtml}</div>`
         : msgs.map(m => {
             let txt = '';
             if (typeof m.content === 'string') txt = m.content;
@@ -1156,18 +1197,26 @@ function openChat(pid) {
     <div class="chat-input-area">
       <div class="attach-bar" id="attachBar"></div>
       <div class="chat-input-row">
-        <button class="icon-btn" type="button" onclick="pickImage()" title="이미지 첨부">🖼️</button>
-        <button class="icon-btn" id="micBtn" type="button" onclick="toggleMic()" title="음성 입력 (Chrome·Edge)">🎤</button>
+        <button class="icon-btn" type="button" onclick="pickImage()" title="이미지 첨부" style="display:inline-flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
+        <button class="icon-btn" id="micBtn" type="button" onclick="toggleMic()" title="음성 입력 (Chrome·Edge)" style="display:inline-flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
         <textarea id="chatInp" placeholder="${escapeHtml(p.ko)}에게 말하기..." rows="1" onkeydown="chatKey(event)" oninput="autoGrow(this)" onclick="forceMobileFocus(this)" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text"></textarea>
         <button class="send-btn" id="sendBtn" type="button" onclick="sendChat()">↑</button>
       </div>
       <input type="file" id="fileInp" accept="image/*" style="display:none" onchange="onImagePicked(this)">
-      <div class="chat-hint">Enter 보내기 · 🖼️ 이미지 · 🎤 음성</div>
+      <div class="chat-hint" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">Enter 보내기 · <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> 이미지 · <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> 음성</div>
     </div>
   `;
   document.getElementById('chatModal').classList.add('show');
   setTimeout(() => { const i = document.getElementById('chatInp'); if(i) i.focus(); }, 50);
   scrollChat();
+  // ★ v1.1 = 예시 chip click → input 박힘 (= 보내기는 사용자가 결정)
+  box.querySelectorAll('.ex-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const q = btn.getAttribute('data-q') || '';
+      const inp = document.getElementById('chatInp');
+      if (inp) { inp.value = q; inp.focus(); autoGrow(inp); }
+    });
+  });
 }
 function closeChat() { document.getElementById('chatModal').classList.remove('show'); currentPersona = null; attachments = []; }
 function chatKey(e) {
@@ -1229,9 +1278,10 @@ function toggleMic() {
     const inp = document.getElementById('chatInp');
     if (inp) { inp.value = (finalText + interim).trim(); autoGrow(inp); }
   };
-  recognition.onend = () => { isRecording = false; btn.classList.remove('recording'); btn.textContent = '🎤'; };
+  const micSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
+  recognition.onend = () => { isRecording = false; btn.classList.remove('recording'); btn.innerHTML = micSvg; };
   recognition.onerror = (e) => {
-    isRecording = false; btn.classList.remove('recording'); btn.textContent = '🎤';
+    isRecording = false; btn.classList.remove('recording'); btn.innerHTML = micSvg;
     if (e.error && e.error !== 'no-speech' && e.error !== 'aborted') alert('음성 인식 오류: ' + e.error);
   };
   try { recognition.start(); } catch(e){ alert('음성 인식 시작 실패: ' + e.message); }
@@ -1562,6 +1612,8 @@ async function testTelegram() {
   } catch(e) { alert('❌ 네트워크 오류: ' + e.message); }
 }
 async function sendTelegramNotification(personaName, replyText) {
+  // ★ v1.1 = PRO 이상 plan 게이트 (= PLAN_GATES_ENABLED 시 활성)
+  if (!requirePlan('pro')) return;
   const cfg = getTelegram();
   if (!cfg || !cfg.enabled || !cfg.token || !cfg.chatId) return;
   const truncated = replyText.length > 3500 ? replyText.substring(0, 3500) + '\n\n[...답변 길어서 잘림. 전체는 웹에서 확인]' : replyText;
@@ -1588,8 +1640,22 @@ document.getElementById('settingsModal').addEventListener('click', (e) => { if (
 document.getElementById('chatModal').addEventListener('click', (e) => { if (e.target.id === 'chatModal') closeChat(); });
 document.getElementById('pickerBg').addEventListener('click', (e) => { if (e.target.id === 'pickerBg') closePicker(); });
 
-// Boot
-boot();
+// Boot — ★ v1.1 무한 splash 차단 = 전역 .catch 박힘
+boot().catch(err => {
+  console.error('[boot] 사고:', err);
+  const splash = document.getElementById('splash');
+  if (splash) splash.style.display = 'none';
+  alert('초기 로딩 사고가 발생했습니다.\n\n' + (err?.message || String(err)) + '\n\n새로고침(F5) 또는 잠시 후 재시도 부탁드립니다.');
+});
+
+// ★ v1.1 = Sentry SDK = 외부 작가 사고 자동 추적 (= DSN 대표님 박힘 후 활성)
+// CDN = https://browser.sentry-cdn.com/7.x/bundle.min.js
+// 활성 path = window.SENTRY_DSN 환경변수 박힘 시 자동 init
+if (window.Sentry && window.SENTRY_DSN) {
+  try {
+    Sentry.init({ dsn: window.SENTRY_DSN, release: 'agent-pro@1.1.0', tracesSampleRate: 0.1 });
+  } catch(e) { console.warn('[sentry] init 실패:', e); }
+}
 </script>
 </body>
 </html>
