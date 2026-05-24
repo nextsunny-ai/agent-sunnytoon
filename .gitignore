@@ -25,3 +25,7 @@ npm-debug.log*
 
 # Temporary SQL generator scripts (= 옛 작업용 = commit X)
 _gen_sql_*.py
+
+# ★ sys_prompt 풀세트 SQL (= 12 페르소나 노하우 풀세트 = git 박힘 X = Drive 비공개 폴더만)
+# 적용 = Supabase Console 직접 실행 (= Drive sql_비공개 폴더에서 가져옴)
+supabase_v2_sys_prompts*.sql
