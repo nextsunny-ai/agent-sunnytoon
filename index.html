@@ -1319,9 +1319,18 @@ function toggleMic() {
   recognition.onend = () => { isRecording = false; btn.classList.remove('recording'); btn.innerHTML = micSvg; };
   recognition.onerror = (e) => {
     isRecording = false; btn.classList.remove('recording'); btn.innerHTML = micSvg;
-    if (e.error && e.error !== 'no-speech' && e.error !== 'aborted') alert('음성 인식 오류: ' + e.error);
+    if (e.error && e.error !== 'no-speech' && e.error !== 'aborted') {
+      // ★ 친절 메시지 (= 2026-05-26 정정) = 데스크탑 앱 안에서는 음성 인식 = Google 서버 호출 차단 = network 사고 박힘
+      let msg = '음성 인식 오류: ' + e.error;
+      if (e.error === 'network') {
+        msg = '음성 인식 = 데스크탑 앱 안에서 사고 박힘.\n\n옵션:\n1. 텍스트로 직접 박음\n2. 외부 Chrome 브라우저에서 ' + (window.location?.origin || 'agent.sunnytoon.com') + ' 진입 = 음성 인식 작동';
+      } else if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+        msg = '마이크 권한 사고 박힘.\n\n시스템 설정 → 마이크 권한 박힘 확인.';
+      }
+      alert(msg);
+    }
   };
-  try { recognition.start(); } catch(e){ alert('음성 인식 시작 실패: ' + e.message); }
+  try { recognition.start(); } catch(e){ alert('음성 인식 시작 사고: ' + e.message); }
 }
 
 async function sendChat() {
