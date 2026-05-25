@@ -166,7 +166,8 @@ input, select, textarea { font: inherit; color: inherit; }
   <!-- ============================================================ COMPANIES ============================================================ -->
   <div class="panel active" id="panel-companies">
 
-    <div class="card">
+    <!-- ★ "새 회사 추가" = SUNNY admin (= super admin)만 보임. 미래 owner 권한 박힐 시 = 외부 회사 owner = 안 보임 박힘 -->
+    <div class="card" id="newCompanyCard" style="display:none">
       <h3>새 회사 추가</h3>
       <p class="desc">회사명·에이전트·로고 컬러 = 입력 → 즉시 공유 URL 생성.</p>
       <div class="form-row"><label>SLUG (URL)</label><input id="newSlug" placeholder="nextart (소문자·영문만)"></div>
@@ -427,6 +428,13 @@ async function boot() {
   if (!isAdmin) {
     document.querySelector('.shell').innerHTML = '<div class="card" style="text-align:center;padding:60px 20px"><h3 style="color:var(--danger)">⚠ 권한 없음</h3><p class="desc" style="margin-top:10px">admin 권한이 필요합니다.</p><a href="/" class="btn">← 홈으로</a></div>';
     return;
+  }
+
+  // ★ "새 회사 추가" = SUNNY super admin (= nextsunny@gmail.com)만 보임 (2026-05-26 박힘)
+  // 미래 owner 권한 박힐 시 = 외부 회사 owner는 = is_agent_admin = true 박혀도 = 본인 회사만 관리 = "회사 추가" UI 박혀있지 X
+  if (USER.email === 'nextsunny@gmail.com') {
+    const newCard = document.getElementById('newCompanyCard');
+    if (newCard) newCard.style.display = 'block';
   }
 
   // 데이터 fetch

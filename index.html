@@ -351,7 +351,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
   <div class="top-row">
     <div class="brand">
       <span class="brand-name">Agent Pro</span>
-      <span class="brand-ver" title="2026-05-26 빌드 = v1.1.2 = 회사별 별도 .exe + isTauriEnv robust + 자료 격리 강화">v1.1.2</span>
+      <span class="brand-ver" title="2026-05-26 빌드 = v1.1.3 = 회사별 별도 .exe + isTauriEnv robust + 자료 격리 강화">v1.1.3</span>
       <span class="brand-divider"></span>
       <span class="brand-group" id="group-label">CLIENT</span>
     </div>
@@ -498,9 +498,9 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
       </div>
       <div style="display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:center;margin-bottom:10px">
         <span style="font-family:var(--font-mono);font-size:11px;color:var(--mute);letter-spacing:0.08em">VERSION</span>
-        <span style="font-size:13px;color:var(--sub)">Agent Pro v1.1.2</span>
+        <span style="font-size:13px;color:var(--sub)">Agent Pro v1.1.3</span>
       </div>
-      <p class="info" style="margin-top:18px;font-size:11px">v1.1.2</p>
+      <p class="info" style="margin-top:18px;font-size:11px">v1.1.3</p>
     </div>
 
   </div>
@@ -512,7 +512,7 @@ footer { border-top: 1px solid var(--line); background: rgba(250,250,247,0.6); }
     <h3 style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>데스크탑 앱 다운로드</h3>
     <p class="sub">본인 컴퓨터에 맞는 버튼 클릭 → 다운로드 → 더블클릭 → 설치.</p>
     <div style="background:var(--accent-soft);border:1px solid rgba(31,77,63,0.15);border-radius:8px;padding:18px;margin-top:14px;">
-      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Desktop App · v1.1.2</div>
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Desktop App · v1.1.3</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;" id="dlModalButtons">
         <a id="dlModalMacArm" href="#" style="padding:12px;background:var(--accent);color:#fff;border-radius:6px;text-align:center;font-size:13px;font-weight:600;text-decoration:none">macOS · Apple Silicon (M1/M2/M3/M4)</a>
         <a id="dlModalMacIntel" href="#" style="padding:12px;background:var(--accent-deep);color:#fff;border-radius:6px;text-align:center;font-size:13px;font-weight:600;text-decoration:none">macOS · Intel</a>
@@ -936,7 +936,7 @@ function applyCompany() {
   set('logo-mark', COMPANY.initial);
   set('hero-name', COMPANY.name_ko);
   set('hero-desc', COMPANY.tagline);
-  set('meta-client', `AGENT PRO v1.1.2 (2026-05-26) · ${COMPANY.name_en} · ${COMPANY_PERSONA_IDS.length} AGENTS`);
+  set('meta-client', `AGENT PRO v1.1.3 (2026-05-26) · ${COMPANY.name_en} · ${COMPANY_PERSONA_IDS.length} AGENTS · 답변 반복 fix`);
   set('foot-client', COMPANY.name_en);
   set('foot-id', `GROUP/${COMPANY.name_en.replace(/\s/g,'')}`);
   set('section-meta', `${COMPANY_PERSONA_IDS.length} DEDICATED · ON-CALL`);
@@ -1707,7 +1707,7 @@ function openKeyModal() {
 // Modal close on backdrop
 // ★ download Modal 박힘 시 = 회사별 자료 동적 박힘 (2026-05-26 정정 = 회사 격리 강화)
 const DL_MODAL_PRODUCT = { nextart:'NEXTART.Agent.Pro', birch:'BIRCH.Agent.Pro', sunny:'SUNNY.Agent.Pro' };
-const DL_MODAL_VERSION = '1.1.2';
+const DL_MODAL_VERSION = '1.1.3';
 function openDownloadModal() {
   const slug = (COMPANY && COMPANY.slug) ? COMPANY.slug : 'sunny';
   const productName = DL_MODAL_PRODUCT[slug] || 'SUNNY.Agent.Pro';

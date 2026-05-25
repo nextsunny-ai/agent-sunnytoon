@@ -393,16 +393,13 @@ fn parse_stream_event(line: &str, channel: &Channel<StreamEvent>) {
         }
 
         // assistant message (full block — partial 없을 때 fallback)
+        // ★ 2026-05-26 정정 = 답변 반복 사고 fix
+        // 옛 사고: `--include-partial-messages` 박힘 + `assistant` event 박힘 = 같은 자료 2번 박힘
+        //   - stream_event (= text_delta) = streaming = Channel.send(Delta)
+        //   - assistant (= 최종 full message) = Channel.send(Delta) = ★ ★ 중복
+        // 정정: `assistant` event = skip 박힘 (= partial 자료로 충분)
         "assistant" => {
-            if let Some(content) = v.get("message").and_then(|m| m.get("content")).and_then(|c| c.as_array()) {
-                for block in content {
-                    if block.get("type").and_then(|t| t.as_str()) == Some("text") {
-                        if let Some(text) = block.get("text").and_then(|t| t.as_str()) {
-                            let _ = channel.send(StreamEvent::Delta { text: text.to_string() });
-                        }
-                    }
-                }
-            }
+            // skip — partial 자료가 박힘 (= stream_event/text_delta)
         }
 
         // result (= 최종 usage)
