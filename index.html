@@ -1329,7 +1329,9 @@ async function sendChat() {
   const inp = document.getElementById('chatInp');
   const t = inp.value.trim();
   if (!t && attachments.length === 0) return;
-  const apiKey = getKey(); if (!apiKey) { openKeyModal(); return; }
+  // ★ v1.1.1 = Tauri 환경 = API 키 검증 skip (= Claude CLI subprocess 사용 = API 키 X)
+  const apiKey = getKey();
+  if (!apiKey && !isTauriEnv()) { openKeyModal(); return; }
 
   const currentAttach = attachments.slice();
   const urls = currentAttach.map(a => a.dataUrl);
