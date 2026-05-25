@@ -1,6 +1,6 @@
 [package]
 name = "sunny-agent-pro"
-version = "1.1.0"
+version = "1.1.1"
 description = "12명 SUNNY 에이전트 데스크탑 앱"
 authors = ["Sunny Soft <support@sunnytoon.com>"]
 license = ""
