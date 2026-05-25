@@ -1444,9 +1444,20 @@ const MODELS = {
 function getModel() { return localStorage.getItem('agent_model') || 'sonnet'; }
 function setModel(m) { localStorage.setItem('agent_model', m); }
 
-// ★ Tauri 데스크탑 환경 검사 (= window.__TAURI_INTERNALS__ 존재)
+// ★ Tauri 데스크탑 환경 검사 (= robust = 옛 사고 fix 2026-05-26)
+// 옛 사고: '__TAURI_INTERNALS__'만 체크 → Tauri 2.x 빌드 시점·withGlobalTauri 설정·inject 시점에 따라 false → 채팅 "데스크탑 앱에서 사용하세요" 알람 사고
+// 정정: __TAURI__ OR __TAURI_INTERNALS__ OR isTauri (Tauri 2 신규) OR Tauri-specific protocol 박힘 = robust
 function isTauriEnv() {
-  return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+  if (typeof window === 'undefined') return false;
+  if ('__TAURI_INTERNALS__' in window) return true;
+  if ('__TAURI__' in window) return true;
+  if ('isTauri' in window) return true;
+  // Tauri WebView = origin = tauri:// 또는 https://tauri.localhost (= 빌드 환경 따라 다름)
+  try {
+    const origin = window.location?.origin || '';
+    if (origin.startsWith('tauri://') || origin.includes('tauri.localhost')) return true;
+  } catch(e) {}
+  return false;
 }
 
 async function callClaude(apiKey, pid, hist) {
@@ -1669,7 +1680,19 @@ async function sendTelegramNotification(personaName, replyText) {
 // Key modal = 옛 자료 삭제됨 (= V1.0 = 데스크탑 앱만 사용)
 // ============================================================
 function openKeyModal() {
-  alert('데스크탑 앱에서 사용하세요.');
+  // ★ 2026-05-26 진단 메시지 박힘 = 옛 alert 사고 정정
+  // 사용자가 데스크탑 앱에서 = 이 path 박히면 = isTauriEnv() false = Tauri runtime 인식 사고
+  const isWeb = !isTauriEnv();
+  const ua = (navigator.userAgent || '').slice(0, 80);
+  const origin = window.location?.origin || '';
+  if (isWeb) {
+    // 웹 브라우저 진입 = 정상
+    alert('웹 브라우저에서는 사용 불가합니다.\n\n데스크탑 앱을 다운로드해서 사용하세요:\nhttps://agent.sunnytoon.com');
+  } else {
+    // ★ Tauri 인식 OK인데 API 키도 없는 사고 = 옛 path = 발생 X (= isTauriEnv true면 skip)
+    alert('Tauri 환경 인식 OK. API 키 또는 Claude CLI 설치 확인 필요.');
+  }
+  console.log('[openKeyModal] origin=' + origin + ', UA=' + ua + ', isTauriEnv=' + isTauriEnv());
 }
 
 // Modal close on backdrop

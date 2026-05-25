@@ -144,13 +144,17 @@ button { font-family: inherit; cursor: pointer; border: 0; background: transpare
     <div class="form-eyebrow">SIGN IN</div>
     <h1 class="form-title" id="formTitle">로그인</h1>
 
-    <!-- 데스크탑 앱 다운로드 -->
+    <!-- 데스크탑 앱 다운로드 = 회사별 동적 분기 (2026-05-26 정정) -->
     <div id="desktopDownload" style="background:var(--accent-soft);border:1px solid rgba(31,77,63,0.15);border-radius:8px;padding:20px;margin-bottom:24px;">
-      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Desktop App · v1.1.0</div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
-        <a id="dlMacArm" href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/download/release-v1.1.0/SUNNY.Agent.Pro_1.1.0_aarch64.dmg" style="padding:12px;background:var(--accent);color:#fff;border-radius:4px;text-align:center;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:-0.01em;">macOS · Apple Silicon (M1/M2/M3/M4)</a>
-        <a id="dlMacIntel" href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/download/release-v1.1.0/SUNNY.Agent.Pro_1.1.0_x64.dmg" style="padding:12px;background:var(--accent-deep);color:#fff;border-radius:4px;text-align:center;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:-0.01em;">macOS · Intel</a>
-        <a id="dlWin" href="https://github.com/nextsunny-ai/agent-sunnytoon/releases/download/release-v1.1.0/SUNNY.Agent.Pro_1.1.0_x64-setup.exe" style="padding:12px;background:#1A1A1F;color:#fff;border-radius:4px;text-align:center;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:-0.01em;">Windows</a>
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;" id="dlLabel">Desktop App · v1.1.2</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;" id="dlButtons">
+        <a id="dlMacArm" href="#" style="padding:12px;background:var(--accent);color:#fff;border-radius:4px;text-align:center;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:-0.01em;">macOS · Apple Silicon (M1/M2/M3/M4)</a>
+        <a id="dlMacIntel" href="#" style="padding:12px;background:var(--accent-deep);color:#fff;border-radius:4px;text-align:center;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:-0.01em;">macOS · Intel</a>
+        <a id="dlWin" href="#" style="padding:12px;background:#1A1A1F;color:#fff;border-radius:4px;text-align:center;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:-0.01em;">Windows</a>
+      </div>
+      <div id="dlNoCompany" style="display:none;padding:14px;background:#FCE4E1;border-radius:6px;color:#B23A2A;font-size:13px;line-height:1.6;">
+        회사 link로 진입해주세요. (예: <code style="font-family:var(--font-mono);font-size:12px;background:rgba(0,0,0,0.05);padding:2px 6px;border-radius:3px;">agent.sunnytoon.com/?c=nextart</code>)<br>
+        회사별 자료 격리를 위해 = 회사 인자 박혀야 다운로드 자료 박힙니다.
       </div>
       <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.06em;color:var(--mute);text-align:center;">
         다운로드 → 더블클릭 → 설치
@@ -288,6 +292,43 @@ if (window.__TAURI__ || window.__TAURI_INTERNALS__) {
   if (dl) dl.style.display = 'none';
 }
 
+// ★ 회사별 다운로드 link 동적 박힘 (2026-05-26 정정 = 회사 격리 강화)
+// 회사별 별도 .exe = NEXTART·BIRCH·SUNNY = 각 .exe = frontendDist에 ?c URL 강제 박힘
+const DOWNLOAD_VERSION = '1.1.2';
+const DOWNLOAD_BASE = 'https://github.com/nextsunny-ai/agent-sunnytoon/releases/download/release-v' + DOWNLOAD_VERSION;
+const DOWNLOAD_PRODUCT_NAMES = {
+  nextart: 'NEXTART.Agent.Pro',
+  birch:   'BIRCH.Agent.Pro',
+  sunny:   'SUNNY.Agent.Pro',
+};
+(function setupDownloadLinks() {
+  // Tauri 안 = 다운로드 카드 자체 숨김 = path 무관
+  if (window.__TAURI__ || window.__TAURI_INTERNALS__) return;
+
+  const slug = (preferredCompany || '').toLowerCase();
+  const productName = DOWNLOAD_PRODUCT_NAMES[slug];
+  const dlButtons = document.getElementById('dlButtons');
+  const dlNoCompany = document.getElementById('dlNoCompany');
+  const dlLabel = document.getElementById('dlLabel');
+
+  if (!productName) {
+    // ?c=URL 없거나 = 매핑 안 되는 자료 = 안내 박힘
+    if (dlButtons) dlButtons.style.display = 'none';
+    if (dlNoCompany) dlNoCompany.style.display = 'block';
+    if (dlLabel) dlLabel.textContent = 'Desktop App · 회사 link 박혀야 자료 박힘';
+    return;
+  }
+
+  // 회사별 .exe link 박힘
+  const dlMacArm   = document.getElementById('dlMacArm');
+  const dlMacIntel = document.getElementById('dlMacIntel');
+  const dlWin      = document.getElementById('dlWin');
+  if (dlMacArm)   dlMacArm.href   = DOWNLOAD_BASE + '/' + productName + '_' + DOWNLOAD_VERSION + '_aarch64.dmg';
+  if (dlMacIntel) dlMacIntel.href = DOWNLOAD_BASE + '/' + productName + '_' + DOWNLOAD_VERSION + '_x64.dmg';
+  if (dlWin)      dlWin.href      = DOWNLOAD_BASE + '/' + productName + '_' + DOWNLOAD_VERSION + '_x64-setup.exe';
+  if (dlLabel) dlLabel.textContent = productName.replace(/\./g, ' ') + ' · v' + DOWNLOAD_VERSION;
+})();
+
 // ★ 회사명 동적 표시 (= 좌측 hero, ?c=slug 기반)
 const COMPANY_NAMES = {
   birch: 'Birch Sound',
@@ -385,7 +426,18 @@ async function signInGoogle() {
   clearMsg();
   try {
     // ★ Tauri 환경 = 외부 브라우저 (= 본인 Chrome) 박음 = 옛 Google 자료 자동 인증
-    const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+    // 2026-05-26 robust 정정 = __TAURI__ OR __TAURI_INTERNALS__ OR isTauri OR tauri origin
+    const isTauri = (function() {
+      if (typeof window === 'undefined') return false;
+      if ('__TAURI_INTERNALS__' in window) return true;
+      if ('__TAURI__' in window) return true;
+      if ('isTauri' in window) return true;
+      try {
+        const origin = window.location?.origin || '';
+        if (origin.startsWith('tauri://') || origin.includes('tauri.localhost')) return true;
+      } catch(e) {}
+      return false;
+    })();
     const callbackUrl = `${location.origin}/auth_callback.html?redirect=${encodeURIComponent(redirectTo)}${preferredCompany ? `&c=${encodeURIComponent(preferredCompany)}` : ''}${isTauri ? '&app=desktop' : ''}`;
     if (isTauri) {
       // Tauri = 본인 Chrome으로 OAuth URL 열기 + skip browser redirect

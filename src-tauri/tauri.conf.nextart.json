@@ -1,16 +1,16 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "SUNNY Agent Pro",
+  "productName": "NEXTART Agent Pro",
   "version": "1.1.2",
-  "identifier": "com.sunnytoon.agent-pro",
+  "identifier": "com.nextart.agent-pro",
   "build": {
-    "frontendDist": "https://agent.sunnytoon.com/?c=sunny"
+    "frontendDist": "https://agent.sunnytoon.com/?c=nextart"
   },
   "app": {
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "SUNNY Agent Pro — 12명 에이전트",
+        "title": "NEXTART Agent Pro — AI WORKTEAM",
         "label": "main",
         "width": 1280,
         "height": 900,
@@ -42,8 +42,8 @@
     "publisher": "Sunny Soft",
     "homepage": "https://agent.sunnytoon.com",
     "category": "Productivity",
-    "shortDescription": "12명 SUNNY 에이전트 — 회사·콘텐츠·기획·디자인",
-    "longDescription": "12명 SUNNY 에이전트 (세라·네아·모리·버치·루미·소리·마루·리안·테오·하나·카이·지니) 데스크탑 앱. 작가 본인 PC의 Claude Code CLI를 통해 본인 Pro/Max 구독으로 작업.",
+    "shortDescription": "NEXTART AI WORKTEAM — 8 페르소나 데스크탑 앱",
+    "longDescription": "NEXTART (넥스트아트) AI WORKTEAM 8 페르소나 데스크탑 앱. 본인 Claude Code CLI를 통해 본인 Pro/Max 구독으로 작업.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -60,21 +60,18 @@
           "English"
         ]
       }
-    },
-    "android": {
-      "debugApplicationIdSuffix": ".debug"
     }
   },
   "plugins": {
     "deep-link": {
       "desktop": {
-        "schemes": ["agent-pro"]
+        "schemes": ["agent-pro-nextart"]
       }
     },
     "updater": {
       "active": true,
       "endpoints": [
-        "https://story.sunnytoon.com/api/agent-updater/{{target}}/{{arch}}/{{current_version}}"
+        "https://story.sunnytoon.com/api/agent-updater/nextart/{{target}}/{{arch}}/{{current_version}}"
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDE4NDhBRkE2NjYxOEEwMTUKUldRVm9CaG1wcTlJR0JVdDBIZVdaL2s0Z3RjMG5KejFCWmNIcXZ4L3Z2NUhqem95T1RaMTRvMmIK"

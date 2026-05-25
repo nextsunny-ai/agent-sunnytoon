@@ -1,8 +1,9 @@
-name: Build Desktop (macOS .dmg + Windows .exe)
+name: Build Desktop (NEXTART + BIRCH + SUNNY × macOS·Windows)
 
-# SUNNY Agent Pro — 두 플랫폼 동시 빌드
+# SUNNY Agent Pro — 회사별 .exe 빌드 (2026-05-26 정정)
+# 회사 격리 = .exe frontendDist = ?c=slug 강제 박힘 = 본인 옛 admin 자료 무시
 # 트리거: 수동 또는 = "release-*" 태그 push
-# 결과: macOS .dmg + Windows .exe artifact
+# 결과: 회사별 × OS × 자료 박힘
 
 on:
   workflow_dispatch:
@@ -19,21 +20,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: macos-latest
+        company:
+          - slug: nextart
+            config: tauri.conf.nextart.json
+          - slug: birch
+            config: tauri.conf.birch.json
+          - slug: sunny
+            config: tauri.conf.json
+        platform:
+          - os: macos-latest
             target: aarch64-apple-darwin
-            bundle: dmg
             label: macos-arm
-          - platform: macos-latest
+          - os: macos-latest
             target: x86_64-apple-darwin
-            bundle: dmg
             label: macos-intel
-          - platform: windows-latest
+          - os: windows-latest
             target: ""
-            bundle: nsis
             label: windows
 
-    runs-on: ${{ matrix.platform }}
+    runs-on: ${{ matrix.platform.os }}
 
     steps:
       - name: Checkout
@@ -47,39 +52,41 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.target }}
+          targets: ${{ matrix.platform.target }}
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "src-tauri -> target"
+          key: ${{ matrix.company.slug }}-${{ matrix.platform.label }}
 
       - name: Install npm dependencies
         run: npm install
 
-      - name: Build Tauri
+      - name: Build Tauri (${{ matrix.company.slug }})
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: |
-          if [ -n "${{ matrix.target }}" ]; then
-            npm run tauri:build -- --target ${{ matrix.target }}
+          if [ -n "${{ matrix.platform.target }}" ]; then
+            npx tauri build --config src-tauri/${{ matrix.company.config }} --target ${{ matrix.platform.target }}
           else
-            npm run tauri:build
+            npx tauri build --config src-tauri/${{ matrix.company.config }}
           fi
         shell: bash
+
       - name: List build output
         run: |
           ls -la src-tauri/target/release/bundle/ || true
-          if [ -n "${{ matrix.target }}" ]; then
-            ls -la src-tauri/target/${{ matrix.target }}/release/bundle/ || true
+          if [ -n "${{ matrix.platform.target }}" ]; then
+            ls -la src-tauri/target/${{ matrix.platform.target }}/release/bundle/ || true
           fi
         shell: bash
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sunny-agent-pro-${{ matrix.label }}
+          name: ${{ matrix.company.slug }}-agent-pro-${{ matrix.platform.label }}
           path: |
             src-tauri/target/release/bundle/dmg/*.dmg
             src-tauri/target/release/bundle/macos/*.app.tar.gz
@@ -87,13 +94,13 @@ jobs:
             src-tauri/target/release/bundle/nsis/*-setup.exe
             src-tauri/target/release/bundle/nsis/*-setup.exe.sig
             src-tauri/target/release/bundle/msi/*.msi
-            src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
-            src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.app.tar.gz
-            src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.app.tar.gz.sig
+            src-tauri/target/${{ matrix.platform.target }}/release/bundle/dmg/*.dmg
+            src-tauri/target/${{ matrix.platform.target }}/release/bundle/macos/*.app.tar.gz
+            src-tauri/target/${{ matrix.platform.target }}/release/bundle/macos/*.app.tar.gz.sig
           if-no-files-found: warn
           retention-days: 90
 
-      # ★ v1.1 = release-* 태그 push 시 = GitHub Releases 자동 등록
+      # ★ release-* 태그 push 시 = GitHub Releases 자동 등록 (= 회사별 자료 다 박힘)
       - name: Publish to GitHub Releases
         if: startsWith(github.ref, 'refs/tags/release-')
         uses: softprops/action-gh-release@v2
@@ -111,6 +118,6 @@ jobs:
             src-tauri/target/release/bundle/nsis/*-setup.exe
             src-tauri/target/release/bundle/nsis/*-setup.exe.sig
             src-tauri/target/release/bundle/msi/*.msi
-            src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
-            src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.app.tar.gz
-            src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.app.tar.gz.sig
+            src-tauri/target/${{ matrix.platform.target }}/release/bundle/dmg/*.dmg
+            src-tauri/target/${{ matrix.platform.target }}/release/bundle/macos/*.app.tar.gz
+            src-tauri/target/${{ matrix.platform.target }}/release/bundle/macos/*.app.tar.gz.sig
