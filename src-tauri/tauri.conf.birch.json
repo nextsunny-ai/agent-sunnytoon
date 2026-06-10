@@ -10,7 +10,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "BIRCH Agent Pro ??AI WORKTEAM",
+        "title": "BIRCH Agent Pro — AI WORKTEAM",
         "label": "main",
         "width": 1280,
         "height": 900,
@@ -42,8 +42,8 @@
     "publisher": "Sunny Soft",
     "homepage": "https://agent.sunnytoon.com",
     "category": "Productivity",
-    "shortDescription": "BIRCH Sound AI WORKTEAM ??12 ?섎Ⅴ?뚮굹 ?곗뒪?ы깙 ??,
-    "longDescription": "BIRCH Sound Asia AI WORKTEAM 12 ?섎Ⅴ?뚮굹 ?곗뒪?ы깙 ?? 蹂몄씤 Claude Code CLI瑜??듯빐 蹂몄씤 Pro/Max 援щ룆?쇰줈 ?묒뾽.",
+    "shortDescription": "BIRCH Sound AI WORKTEAM — 12 페르소나 데스크탑 앱",
+    "longDescription": "BIRCH Sound Asia AI WORKTEAM 12 페르소나 데스크탑 앱. 본인 Claude Code CLI를 통해 본인 Pro/Max 구독으로 작업.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
